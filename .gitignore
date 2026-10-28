@@ -1,0 +1,32 @@
+# 공통
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# server (Workers)
+server/node_modules/
+server/dist/
+server/.wrangler/
+server/.dev.vars
+
+# app (Flutter)
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.packages
+app/build/
+app/.pub-cache/
+app/.pub/
+app/*.iml
+app/android/.gradle/
+app/android/local.properties
+app/android/key.properties
+app/android/app/upload-keystore.jks
+app/android/**/GeneratedPluginRegistrant.java
+app/ios/Flutter/Generated.xcconfig
+app/ios/Flutter/flutter_export_environment.sh
+app/ios/Pods/
+app/ios/.symlinks/
+app/ios/Runner/GeneratedPluginRegistrant.*
