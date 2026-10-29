@@ -1,0 +1,12 @@
+{
+  "name": "onehouse-e2e",
+  "private": true,
+  "type": "module",
+  "description": "CI에서 Flutter 웹 빌드 화면을 찍는 스크립트",
+  "scripts": {
+    "screenshots": "node screenshots.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.50.0"
+  }
+}

@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Prepare output folder
+        run: mkdir -p ci-out/screenshots
+
+      # ── 서버 ─────────────────────────────────────────────
+      - name: Server typecheck and build
+        id: server
+        continue-on-error: true
+        working-directory: server
+        run: |
+          set -o pipefail
+          { npm ci && npm run typecheck && npm run build && npm run db:migrate:local; } 2>&1 | tee ../ci-out/server.log
+
+      - name: Start API (wrangler dev)
+        working-directory: server
+        run: |
+          nohup npx wrangler dev --port 8787 --ip 127.0.0.1 > ../ci-out/wrangler.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8787/ && break; sleep 1; done
+
+      - name: Server smoke test
+        id: smoke
+        continue-on-error: true
+        working-directory: server
+        run: |
+          set -o pipefail
+          npm run test:smoke 2>&1 | tee ../ci-out/smoke.log
+
+      # ── 앱 ───────────────────────────────────────────────
+      - name: Flutter platform folders and packages
+        id: flutter_setup
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -o pipefail
+          {
+            flutter --version
+            flutter create --org com.ohsang.util --project-name onehouse --platforms android,ios,web .
+            rm -f test/widget_test.dart
+            flutter pub get
+          } 2>&1 | tee ../ci-out/flutter-setup.log
+
+      - name: Flutter analyze
+        id: analyze
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -o pipefail
+          flutter analyze --no-fatal-infos 2>&1 | tee ../ci-out/analyze.log
+
+      - name: Flutter test
+        id: test
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -o pipefail
+          flutter test 2>&1 | tee ../ci-out/test.log
+
+      - name: Flutter build web
+        id: web
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -o pipefail
+          flutter build web --release --dart-define=API_BASE_URL=http://127.0.0.1:8787 --dart-define=E2E=true 2>&1 | tee ../ci-out/web.log
+
+      - name: Screenshots (Playwright)
+        id: shots
+        if: steps.web.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          nohup python3 -m http.server 8080 --directory app/build/web > /dev/null 2>&1 &
+          cd e2e
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium > /dev/null
+          node screenshots.mjs 2>&1 | tee ../ci-out/screenshots.log
+
+      - name: Flutter build APK (debug)
+        id: apk
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -o pipefail
+          flutter build apk --debug 2>&1 | tail -40 | tee ../ci-out/apk.log
+
+      - name: Upload APK
+        if: steps.apk.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: onehouse-debug-apk
+          path: app/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+      # ── 결과를 ci-results 브랜치로 (로그·스크린샷) ───────
+      - name: Publish results to ci-results branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ci-out
+          cat > summary.md <<EOF
+          # CI ${GITHUB_SHA}
+
+          | 단계 | 결과 |
+          | --- | --- |
+          | 서버 타입체크·빌드 | ${{ steps.server.outcome }} |
+          | 서버 스모크 테스트 | ${{ steps.smoke.outcome }} |
+          | Flutter 준비 | ${{ steps.flutter_setup.outcome }} |
+          | Flutter analyze | ${{ steps.analyze.outcome }} |
+          | Flutter test | ${{ steps.test.outcome }} |
+          | Flutter 웹 빌드 | ${{ steps.web.outcome }} |
+          | 스크린샷 | ${{ steps.shots.outcome }} |
+          | APK 빌드 | ${{ steps.apk.outcome }} |
+          EOF
+          git init -q
+          git checkout -q -b ci-results
+          git add -A
+          git -c user.name="ci" -c user.email="ci@users.noreply.github.com" commit -qm "CI results for ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-results
+
+      - name: Fail if any check failed
+        if: always()
+        run: |
+          for o in "${{ steps.server.outcome }}" "${{ steps.smoke.outcome }}" "${{ steps.flutter_setup.outcome }}" \
+                   "${{ steps.analyze.outcome }}" "${{ steps.test.outcome }}" "${{ steps.web.outcome }}" \
+                   "${{ steps.shots.outcome }}" "${{ steps.apk.outcome }}"; do
+            if [ "$o" = "failure" ]; then exit 1; fi
+          done

@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import type { AppEnv } from './types';
 import { ApiError } from './lib/http';
 import { devices } from './routes/devices';
@@ -8,6 +9,9 @@ import { categories } from './routes/categories';
 import { transactions } from './routes/transactions';
 
 const app = new Hono<AppEnv>();
+
+// 앱은 쿠키 없이 Bearer 토큰만 쓰므로 모든 출처 허용 (웹 미리보기·E2E 스크린샷용)
+app.use('*', cors({ origin: '*', allowHeaders: ['Content-Type', 'Authorization'] }));
 
 app.get('/', (c) => c.json({ name: 'onehouse-api', ok: true }));
 

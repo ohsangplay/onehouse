@@ -30,3 +30,7 @@ app/ios/Flutter/flutter_export_environment.sh
 app/ios/Pods/
 app/ios/.symlinks/
 app/ios/Runner/GeneratedPluginRegistrant.*
+
+# e2e / CI
+e2e/node_modules/
+ci-out/
