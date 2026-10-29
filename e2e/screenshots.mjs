@@ -144,7 +144,8 @@ await step(uncle, 'join', async () => {
   await typeInto(uncle, 1, '삼촌');
   await shot(uncle, 'join-filled');
   await button(uncle, '참여 요청 보내기').click();
-  await uncle.getByText('승인 대기').first().waitFor({ timeout: 15_000 });
+  // 배지 글자는 카드 접근성 라벨에 합쳐질 수 있어서, 카드 안의 버튼으로 기다린다
+  await button(uncle, '요청 취소').waitFor({ timeout: 15_000 });
   await shot(uncle, 'pending-card');
 });
 
