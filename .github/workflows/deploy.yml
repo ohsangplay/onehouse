@@ -76,19 +76,30 @@ jobs:
         env:
           URL: ${{ steps.deploy.outputs.url }}
         run: |
-          set -eo pipefail
           exec > >(tee verify.log) 2>&1
-          for i in $(seq 1 10); do curl -sf "$URL/health" && break; sleep 3; done
-          echo
-          echo "앱 요청(JSON):"; curl -sf "$URL/"; echo
-          echo "브라우저 요청 → 안내 페이지:"
-          curl -sf -H 'Accept: text/html' "$URL/" | grep -q '앱에서만 쓸 수 있어요' && echo "OK"
-          echo "토큰 없는 API → 401:"
-          test "$(curl -s -o /dev/null -w '%{http_code}' "$URL/ledgers")" = "401" && echo "OK"
-          echo "웹 출처 CORS 차단:"
-          ! curl -s -i -X OPTIONS -H 'Origin: https://example.com' -H 'Access-Control-Request-Method: POST' \
-              -H 'Access-Control-Request-Headers: authorization,content-type' "$URL/ledgers" \
-            | grep -qi '^access-control-allow-origin' && echo "OK"
+          fail=0
+          check() { if [ "$2" = "yes" ]; then echo "✓ $1"; else echo "✗ $1"; fail=1; fi; }
+          for i in $(seq 1 10); do curl -sf "$URL/health" > /dev/null && break; sleep 3; done
+
+          [ "$(curl -s "$URL/health")" = '{"ok":true}' ] && r=yes || r=no
+          check "헬스체크" $r
+
+          curl -s -H 'Accept: text/html' "$URL/" > landing.html
+          grep -q '앱에서만 쓸 수 있어요' landing.html && r=yes || r=no
+          check "브라우저 요청 → 앱 설치 안내 페이지" $r
+
+          [ "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -H 'Accept: text/html' "$URL/ledgers")" = "302 $URL/" ] && r=yes || r=no
+          check "브라우저로 API 주소 접속 → 안내 페이지로 이동" $r
+
+          [ "$(curl -s -o /dev/null -w '%{http_code}' "$URL/ledgers")" = "401" ] && r=yes || r=no
+          check "토큰 없는 API 요청 → 401" $r
+
+          curl -s -i -X OPTIONS -H 'Origin: https://example.com' -H 'Access-Control-Request-Method: POST' \
+            -H 'Access-Control-Request-Headers: authorization,content-type' "$URL/ledgers" > preflight.txt
+          grep -qi '^access-control-allow-origin' preflight.txt && r=no || r=yes
+          check "웹 출처 CORS 차단" $r
+
+          exit $fail
 
       - name: Publish results to deploy-results branch
         if: always()
