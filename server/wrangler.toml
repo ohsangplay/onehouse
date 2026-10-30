@@ -1,10 +1,17 @@
 name = "onehouse-api"
 main = "src/index.ts"
 compatibility_date = "2025-10-01"
+workers_dev = true
+
+[vars]
+# 스토어에 올라가면 주소를 넣고 다시 배포하세요. 비어 있으면 안내 페이지에 "출시 준비 중"으로 보여요.
+APP_STORE_URL = ""
+PLAY_STORE_URL = ""
+# ALLOW_WEB_ORIGINS 는 운영에서 설정하지 않습니다 (웹에서 API 사용 차단).
 
 [[d1_databases]]
 binding = "DB"
 database_name = "onehouse"
-# `wrangler d1 create onehouse` 실행 후 나오는 database_id로 바꿔주세요.
+# 배포 워크플로(.github/workflows/deploy.yml)가 계정의 onehouse DB를 찾아 실제 ID로 바꿔서 배포해요.
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"

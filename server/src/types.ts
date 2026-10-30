@@ -1,5 +1,10 @@
 export type Env = {
   DB: D1Database;
+  /** 비워두면 브라우저에서 API를 못 쓴다 (운영). 로컬·CI 웹 미리보기에서만 "*" 등으로 설정 */
+  ALLOW_WEB_ORIGINS?: string;
+  /** 스토어 출시 후 채우면 안내 페이지 버튼이 링크로 바뀐다 */
+  APP_STORE_URL?: string;
+  PLAY_STORE_URL?: string;
 };
 
 export type Role = 'owner' | 'co_owner' | 'member';

@@ -1,0 +1,119 @@
+name: Deploy API
+
+# server/ 가 바뀌어 main 에 올라오면 Cloudflare Workers + D1 로 배포한다.
+# 필요한 저장소 Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Deploy to Cloudflare
+        id: deploy
+        continue-on-error: true
+        working-directory: server
+        run: |
+          set -eo pipefail
+          exec > >(tee ../deploy.log) 2>&1
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "저장소 Secrets에 CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID 를 넣어주세요."
+            exit 1
+          fi
+          npm ci
+          npm run typecheck
+
+          find_db() {
+            npx wrangler d1 list --json 2>/dev/null | node -e "
+              let s=''; process.stdin.on('data', d => s += d).on('end', () => {
+                const db = JSON.parse(s).find(x => x.name === 'onehouse');
+                process.stdout.write(db ? db.uuid : '');
+              });"
+          }
+          DB_ID=$(find_db)
+          if [ -z "$DB_ID" ]; then
+            echo "onehouse D1 데이터베이스를 새로 만들어요."
+            npx wrangler d1 create onehouse
+            DB_ID=$(find_db)
+          fi
+          [ -n "$DB_ID" ] || { echo "D1 데이터베이스 ID를 찾지 못했어요."; exit 1; }
+          echo "D1: $DB_ID"
+          sed -i "s/00000000-0000-0000-0000-000000000000/$DB_ID/" wrangler.toml
+
+          npx wrangler d1 migrations apply onehouse --remote
+          npx wrangler deploy | tee deploy-out.txt
+          URL=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' deploy-out.txt | head -1)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "배포 주소: $URL"
+
+      - name: Verify deployment
+        id: verify
+        if: steps.deploy.outcome == 'success' && steps.deploy.outputs.url != ''
+        continue-on-error: true
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -eo pipefail
+          exec > >(tee verify.log) 2>&1
+          for i in $(seq 1 10); do curl -sf "$URL/health" && break; sleep 3; done
+          echo
+          echo "앱 요청(JSON):"; curl -sf "$URL/"; echo
+          echo "브라우저 요청 → 안내 페이지:"
+          curl -sf -H 'Accept: text/html' "$URL/" | grep -q '앱에서만 쓸 수 있어요' && echo "OK"
+          echo "토큰 없는 API → 401:"
+          test "$(curl -s -o /dev/null -w '%{http_code}' "$URL/ledgers")" = "401" && echo "OK"
+          echo "웹 출처 CORS 차단:"
+          ! curl -s -i -X OPTIONS -H 'Origin: https://example.com' -H 'Access-Control-Request-Method: POST' \
+              -H 'Access-Control-Request-Headers: authorization,content-type' "$URL/ledgers" \
+            | grep -qi '^access-control-allow-origin' && echo "OK"
+
+      - name: Publish results to deploy-results branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out
+          cp deploy.log out/ 2>/dev/null || true
+          cp verify.log out/ 2>/dev/null || true
+          cat > out/summary.md <<EOF
+          # 배포 ${GITHUB_SHA}
+
+          | 항목 | 결과 |
+          | --- | --- |
+          | 배포 | ${{ steps.deploy.outcome }} |
+          | 배포 후 확인 | ${{ steps.verify.outcome }} |
+          | 주소 | ${{ steps.deploy.outputs.url }} |
+          EOF
+          cd out
+          git init -q
+          git checkout -q -b deploy-results
+          git add -A
+          git -c user.name="ci" -c user.email="ci@users.noreply.github.com" commit -qm "Deploy results for ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" deploy-results
+
+      - name: Fail if deploy failed
+        if: always()
+        run: |
+          [ "${{ steps.deploy.outcome }}" = "success" ] && [ "${{ steps.verify.outcome }}" = "success" ]

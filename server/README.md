@@ -17,7 +17,29 @@ npm run typecheck   # tsc
 npm run build       # wrangler 번들 (dist/, 배포는 하지 않음)
 ```
 
-## 배포 (처음 한 번)
+## 웹 접근
+
+한지붕은 앱 전용이에요.
+
+- 브라우저로 서버 주소에 들어오면 **앱 설치 안내 페이지**가 나와요 (`src/pages/landing.ts`). API 주소로 들어와도 안내 페이지로 보내요.
+- 운영 서버는 CORS 헤더를 내지 않아서, 다른 웹 페이지에서 API를 부를 수 없어요. 네이티브 앱은 영향 없어요.
+- 로컬에서 Flutter 웹으로 확인할 때만 `npx wrangler dev --var "ALLOW_WEB_ORIGINS:*"` 로 허용하세요.
+- 스토어에 올라가면 `wrangler.toml`의 `APP_STORE_URL`, `PLAY_STORE_URL`을 채우고 배포하면 안내 페이지 버튼이 링크로 바뀌어요.
+
+## 배포
+
+`main`에 `server/` 변경이 올라오면 GitHub Actions(`.github/workflows/deploy.yml`)가 자동으로 배포해요.
+처음 한 번 저장소 **Settings → Secrets and variables → Actions**에 아래 두 값을 넣어주세요.
+
+| Secret | 값 |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API 토큰 ("Edit Cloudflare Workers" 템플릿 + Account › D1 › Edit 추가) |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 대시보드 Workers & Pages 화면 오른쪽의 Account ID |
+
+워크플로가 하는 일: `onehouse` D1을 찾거나 만들고 → 원격 마이그레이션 → `wrangler deploy` → 헬스체크·안내 페이지·CORS 차단 확인.
+결과는 `deploy-results` 브랜치의 `summary.md`에 남아요.
+
+직접 배포하려면:
 
 ```bash
 npx wrangler login
@@ -26,7 +48,7 @@ npm run db:migrate:remote
 npm run deploy                           # https://onehouse-api.<계정>.workers.dev
 ```
 
-커스텀 도메인을 쓰려면 Cloudflare 대시보드에서 Worker에 `api.onehouse.ohsangplay.com` 같은 도메인을 연결하세요.
+커스텀 도메인을 쓰려면 Cloudflare 대시보드에서 Worker에 `onehouse.ohsangplay.com` 같은 도메인을 연결하세요.
 
 ## 구조
 

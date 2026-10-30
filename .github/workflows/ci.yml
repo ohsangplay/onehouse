@@ -39,8 +39,9 @@ jobs:
       - name: Start API (wrangler dev)
         working-directory: server
         run: |
-          nohup npx wrangler dev --port 8787 --ip 127.0.0.1 > ../ci-out/wrangler.log 2>&1 &
-          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8787/ && break; sleep 1; done
+          # 웹 빌드로 스크린샷을 찍으려면 CI에서만 브라우저 요청(CORS)을 허용한다. 운영 서버는 허용하지 않는다.
+          nohup npx wrangler dev --port 8787 --ip 127.0.0.1 --var "ALLOW_WEB_ORIGINS:*" > ../ci-out/wrangler.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8787/health && break; sleep 1; done
 
       - name: Server smoke test
         id: smoke
