@@ -43,6 +43,7 @@ jobs:
             exit 1
           fi
           npm ci
+          npx wrangler --version
           npm run typecheck
 
           find_db() {
