@@ -167,8 +167,10 @@ await step('auto-merge', async () => {
   });
   await appendToBody(' 3개');
   await text('합쳐서 저장했어요').waitFor({ timeout: 15_000 });
-  await text('우유 2개').waitFor({ timeout: 5_000 });
   await shot('auto-merged');
+  // 입력칸 안의 글은 웹 접근성 트리에 글자로 안 나와서 서버 내용으로 확인한다
+  const merged = await api(mom.token, 'GET', `${N}/memos/${groceryId}`);
+  if (merged.body !== '우유 2개\n두부 1모\n대파\n양파 3개') throw new Error(`병합 결과: ${JSON.stringify(merged.body)}`);
 });
 
 // ── 충돌: 같은 줄(두 번째 줄 끝 = 마지막 줄)을 서로 다르게
