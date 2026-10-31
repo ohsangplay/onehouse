@@ -3,6 +3,10 @@ main = "src/index.ts"
 compatibility_date = "2025-10-01"
 workers_dev = true
 
+# 하루 한 번 (한국 시간 새벽 4시): 지운 지 30일 지난 데이터 완전 삭제 (src/lib/purge.ts)
+[triggers]
+crons = ["0 19 * * *"]
+
 [vars]
 # 스토어에 올라가면 주소를 넣고 다시 배포하세요. 비어 있으면 안내 페이지에 "출시 준비 중"으로 보여요.
 # 한지붕 가계부

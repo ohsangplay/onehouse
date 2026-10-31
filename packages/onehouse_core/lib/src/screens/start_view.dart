@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../space_config.dart';
 import '../theme.dart';
+import '../widgets/links.dart';
 
 /// 가계부·메모집이 하나도 없을 때 보이는 시작 화면
 class StartView extends StatelessWidget {
@@ -11,12 +12,16 @@ class StartView extends StatelessWidget {
     required this.onCreate,
     required this.onJoin,
     required this.onTransfer,
+    this.privacyUrl,
   });
 
   final SpaceConfig space;
   final VoidCallback onCreate;
   final VoidCallback onJoin;
   final VoidCallback onTransfer;
+
+  /// 있으면 맨 아래에 개인정보처리방침 링크
+  final String? privacyUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +67,15 @@ class StartView extends StatelessWidget {
                 style: TextButton.styleFrom(foregroundColor: primary, minimumSize: const Size.fromHeight(48)),
                 child: const Text('기존 기기에서 이전하기', style: TextStyle(fontSize: 15)),
               ),
+              if (privacyUrl != null)
+                TextButton(
+                  onPressed: () => openExternal(context, privacyUrl!),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    minimumSize: const Size.fromHeight(36),
+                  ),
+                  child: const Text('개인정보처리방침', style: TextStyle(fontSize: 13)),
+                ),
             ],
           ),
         ),
