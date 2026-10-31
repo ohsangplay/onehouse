@@ -427,6 +427,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             padding: const EdgeInsets.fromLTRB(8, 4, 8, 16),
                             buildDefaultDragHandles: false,
                             itemCount: memo.items.length,
+                            // 새 onReorderItem은 Flutter 3.41부터라 예전 버전과 같이 쓰려고 onReorder를 둔다
+                            // ignore: deprecated_member_use
                             onReorder: _reorder,
                             itemBuilder: (context, i) {
                               final item = memo.items[i];
