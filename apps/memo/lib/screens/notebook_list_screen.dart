@@ -96,6 +96,7 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
     if (notebooks.isEmpty) {
       return StartView(
         space: app.space,
+        privacyUrl: privacyUrl(app.api),
         onCreate: () => _guarded(CreateSpaceScreen(services: app)),
         onJoin: () => _guarded(JoinScreen(services: app)),
         onTransfer: () => _guarded(TransferInScreen(services: app)),

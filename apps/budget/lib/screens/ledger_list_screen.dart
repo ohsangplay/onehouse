@@ -85,6 +85,7 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
     if (ledgers.isEmpty) {
       return StartView(
         space: services.space,
+        privacyUrl: privacyUrl(services.api),
         onCreate: () => _open(CreateSpaceScreen(services: services)),
         onJoin: () => _open(JoinScreen(services: services)),
         onTransfer: () => _open(TransferInScreen(services: services)),

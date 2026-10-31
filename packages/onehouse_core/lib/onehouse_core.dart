@@ -19,5 +19,6 @@ export 'src/screens/space_settings_screen.dart';
 export 'src/screens/start_view.dart';
 export 'src/screens/transfer_in_screen.dart';
 export 'src/widgets/dialogs.dart';
+export 'src/widgets/links.dart';
 export 'src/widgets/pending_card.dart';
 export 'src/widgets/role_badge.dart';

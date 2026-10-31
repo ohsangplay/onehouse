@@ -37,10 +37,39 @@ if manifest.exists():
 
 plist = pathlib.Path('ios/Runner/Info.plist')
 if plist.exists():
-    s = plist.read_text(encoding='utf-8')
-    for key in ('CFBundleDisplayName', 'CFBundleName'):
-        s = re.sub(rf'(<key>{key}</key>\s*<string>)[^<]*(</string>)', lambda m: m.group(1) + label + m.group(2), s)
-    plist.write_text(s, encoding='utf-8')
+    import plistlib
+    data = plistlib.loads(plist.read_bytes())
+    data['CFBundleDisplayName'] = label
+    data['CFBundleName'] = label
+    # 표준 HTTPS 외 암호화 없음 → App Store Connect 수출 규정 질문을 매번 안 물어봄
+    data['ITSAppUsesNonExemptEncryption'] = False
+    plist.write_bytes(plistlib.dumps(data))
+
+pbx = pathlib.Path('ios/Runner.xcodeproj/project.pbxproj')
+if pbx.exists():
+    s = pbx.read_text(encoding='utf-8')
+    # iPhone 전용 (iPad 스크린샷 없이 제출)
+    s = s.replace('TARGETED_DEVICE_FAMILY = "1,2";', 'TARGETED_DEVICE_FAMILY = 1;')
+    pbx.write_text(s, encoding='utf-8')
+
+# 출시 서명: 환경변수 ANDROID_KEYSTORE_PATH 등이 있으면 업로드 키로, 없으면 디버그 키로 서명 (android-release.yml이 넣어 줌)
+kts = pathlib.Path('android/app/build.gradle.kts')
+if kts.exists():
+    s = kts.read_text(encoding='utf-8')
+    if 'ANDROID_KEYSTORE_PATH' not in s:
+        s = re.sub(r'\n([ \t]*)buildTypes \{', lambda m: (
+            f'\n{m.group(1)}signingConfigs {{\n'
+            f'{m.group(1)}    create("release") {{\n'
+            f'{m.group(1)}        System.getenv("ANDROID_KEYSTORE_PATH")?.let {{ storeFile = file(it) }}\n'
+            f'{m.group(1)}        storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")\n'
+            f'{m.group(1)}        keyAlias = System.getenv("ANDROID_KEY_ALIAS")\n'
+            f'{m.group(1)}        keyPassword = System.getenv("ANDROID_KEY_PASSWORD")\n'
+            f'{m.group(1)}    }}\n{m.group(1)}}}\n\n{m.group(1)}buildTypes {{'), s, count=1)
+        s = s.replace('signingConfig = signingConfigs.getByName("debug")',
+                      'signingConfig = if (System.getenv("ANDROID_KEYSTORE_PATH") != null) signingConfigs.getByName("release") else signingConfigs.getByName("debug")')
+        if 'getByName("release")' not in s:
+            print('[주의] build.gradle.kts에 출시 서명 설정을 넣지 못했어요')
+        kts.write_text(s, encoding='utf-8')
 
 index = pathlib.Path('web/index.html')
 if index.exists():
@@ -50,3 +79,9 @@ if index.exists():
 
 print(f'앱 이름: {label}')
 PY
+
+# 아이콘: pubspec.yaml에 flutter_launcher_icons 설정이 있으면 만든다
+if grep -q '^flutter_launcher_icons:' pubspec.yaml; then
+  flutter pub get
+  dart run flutter_launcher_icons
+fi

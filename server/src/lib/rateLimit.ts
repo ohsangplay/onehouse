@@ -1,6 +1,7 @@
 import type { Context } from 'hono';
 import type { AppEnv } from '../types';
 import { ApiError } from './http';
+import { sha256 } from './crypto';
 
 /**
  * 고정 윈도우 방식의 시도 횟수 제한. 코드 입력 API(초대·복구·이전)에 쓴다.
@@ -13,7 +14,8 @@ export async function rateLimit(
   windowSeconds: number,
 ): Promise<void> {
   const ip = c.req.header('CF-Connecting-IP') ?? 'local';
-  const key = `${scope}:${ip}`;
+  // IP 주소는 원문으로 저장하지 않는다 (개인정보처리방침)
+  const key = `${scope}:${(await sha256(`rl:${ip}`)).slice(0, 32)}`;
   const nowSec = Math.floor(Date.now() / 1000);
   const windowStart = nowSec - (nowSec % windowSeconds);
 

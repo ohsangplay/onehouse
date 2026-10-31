@@ -6,6 +6,7 @@ import '../app_services.dart';
 import '../space_summary.dart';
 import '../theme.dart';
 import '../widgets/dialogs.dart';
+import '../widgets/links.dart';
 import '../widgets/role_badge.dart';
 import 'members_screen.dart';
 import 'recovery_code_screen.dart';
@@ -348,6 +349,20 @@ class _SpaceSettingsScreenState extends State<SpaceSettingsScreen> {
             title: const Text('기기 이전 코드 만들기'),
             subtitle: const Text('새 폰으로 바꿀 때 써요'),
             onTap: _transferCode,
+          ),
+        ]),
+        _Group(children: [
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text('개인정보처리방침'),
+            trailing: const Icon(Icons.open_in_new, size: 18),
+            onTap: () => openExternal(context, privacyUrl(widget.services.api)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.mail_outline),
+            title: const Text('문의하기'),
+            subtitle: const Text(supportEmail),
+            onTap: () => openExternal(context, 'mailto:$supportEmail?subject=${Uri.encodeComponent(space.appName)}'),
           ),
         ]),
         _Group(children: [
