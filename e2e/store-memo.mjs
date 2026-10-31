@@ -193,7 +193,7 @@ try {
   await page.getByRole('button', { name: '메모집 설정' }).click();
   await text('멤버 관리').waitFor({ timeout: 15_000 });
   await text('멤버 관리').click();
-  await text('할머니').waitFor({ timeout: 15_000 });
+  await text('참여 요청 1').waitFor({ timeout: 15_000 });
   await shot('06');
 } catch (e) {
   failed = true;
