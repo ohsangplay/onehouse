@@ -1,0 +1,18 @@
+name: onehouse_core
+description: "한지붕 시리즈 공통 코드 (초대코드·승인·멤버 관리·기기 계정)"
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  flutter_secure_storage: ^9.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
