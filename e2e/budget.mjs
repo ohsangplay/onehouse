@@ -1,6 +1,6 @@
 // CI에서 Flutter 웹 빌드를 띄워 실제 화면을 찍는다.
 // 전제: API(wrangler dev)가 127.0.0.1:8787, 웹 빌드가 localhost:8080에서 돌고 있음.
-// 실행: cd e2e && node screenshots.mjs
+// 실행: cd e2e && node budget.mjs
 import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';

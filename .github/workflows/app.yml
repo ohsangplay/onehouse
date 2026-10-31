@@ -1,0 +1,153 @@
+name: App
+
+# 한지붕 앱 하나(가계부·메모)를 확인한다: 공통 패키지 분석·테스트 → 앱 분석·테스트 → 웹 빌드 + 스크린샷 → 디버그 APK
+# ci.yml이 바뀐 앱만 골라서 부른다.
+on:
+  workflow_call:
+    inputs:
+      app:
+        description: apps/ 아래 폴더 이름 (budget, memo)
+        type: string
+        required: true
+      label:
+        description: 홈 화면 이름
+        type: string
+        required: true
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      APP: ${{ inputs.app }}
+      OUT: ci-out/${{ inputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Prepare output folder
+        run: mkdir -p "$OUT/screenshots"
+
+      # 스크린샷용 로컬 API (웹 빌드에서 부르려면 CI에서만 CORS 허용)
+      - name: Start API (wrangler dev)
+        working-directory: server
+        run: |
+          npm ci
+          npm run db:migrate:local
+          nohup npx wrangler dev --port 8787 --ip 127.0.0.1 --var "ALLOW_WEB_ORIGINS:*" > "../$OUT/wrangler.log" 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8787/health && break; sleep 1; done
+
+      - name: Shared package (onehouse_core) analyze and test
+        id: core
+        continue-on-error: true
+        working-directory: packages/onehouse_core
+        run: |
+          set -o pipefail
+          { flutter pub get && flutter analyze --no-fatal-infos && flutter test; } 2>&1 | tee "../../$OUT/core.log"
+
+      - name: Platform folders and packages
+        id: setup
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          {
+            flutter --version
+            bash scripts/flutter_platforms.sh "apps/$APP" "$APP" "${{ inputs.label }}" android,ios,web
+            cd "apps/$APP" && flutter pub get
+            grep -n 'applicationId\|namespace' android/app/build.gradle* || true
+            grep -n 'android:label\|INTERNET' android/app/src/main/AndroidManifest.xml || true
+          } 2>&1 | tee "$OUT/setup.log"
+
+      - name: Flutter analyze
+        id: analyze
+        continue-on-error: true
+        working-directory: apps/${{ inputs.app }}
+        run: |
+          set -o pipefail
+          flutter analyze --no-fatal-infos 2>&1 | tee "../../$OUT/analyze.log"
+
+      - name: Flutter test
+        id: test
+        continue-on-error: true
+        working-directory: apps/${{ inputs.app }}
+        run: |
+          set -o pipefail
+          flutter test 2>&1 | tee "../../$OUT/test.log"
+
+      - name: Flutter build web
+        id: web
+        continue-on-error: true
+        working-directory: apps/${{ inputs.app }}
+        run: |
+          set -o pipefail
+          flutter build web --release --dart-define=API_BASE_URL=http://127.0.0.1:8787 --dart-define=E2E=true 2>&1 | tee "../../$OUT/web.log"
+
+      - name: Screenshots (Playwright)
+        id: shots
+        if: steps.web.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          nohup python3 -m http.server 8080 --directory "apps/$APP/build/web" > /dev/null 2>&1 &
+          cd e2e
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium > /dev/null
+          OUT="../$OUT/screenshots" node "$APP.mjs" 2>&1 | tee "../$OUT/screenshots.log"
+
+      - name: Flutter build APK (debug)
+        id: apk
+        continue-on-error: true
+        working-directory: apps/${{ inputs.app }}
+        run: |
+          set -o pipefail
+          flutter build apk --debug 2>&1 | tail -40 | tee "../../$OUT/apk.log"
+
+      - name: Upload APK
+        if: steps.apk.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: onehouse-${{ inputs.app }}-debug-apk
+          path: apps/${{ inputs.app }}/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+      - name: Summary
+        if: always()
+        run: |
+          cat > "$OUT/summary.md" <<EOF
+          ## ${{ inputs.label }} (apps/${{ inputs.app }})
+
+          | 단계 | 결과 |
+          | --- | --- |
+          | 공통 패키지 분석·테스트 | ${{ steps.core.outcome }} |
+          | 플랫폼 폴더·패키지 | ${{ steps.setup.outcome }} |
+          | Flutter analyze | ${{ steps.analyze.outcome }} |
+          | Flutter test | ${{ steps.test.outcome }} |
+          | Flutter 웹 빌드 | ${{ steps.web.outcome }} |
+          | 스크린샷 | ${{ steps.shots.outcome }} |
+          | APK 빌드 | ${{ steps.apk.outcome }} |
+          EOF
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-${{ inputs.app }}
+          path: ci-out/${{ inputs.app }}
+          retention-days: 14
+
+      - name: Fail if any check failed
+        if: always()
+        run: |
+          for o in "${{ steps.core.outcome }}" "${{ steps.setup.outcome }}" "${{ steps.analyze.outcome }}" \
+                   "${{ steps.test.outcome }}" "${{ steps.web.outcome }}" "${{ steps.shots.outcome }}" \
+                   "${{ steps.apk.outcome }}"; do
+            if [ "$o" = "failure" ]; then exit 1; fi
+          done

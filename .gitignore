@@ -11,25 +11,23 @@ server/dist/
 server/.wrangler/
 server/.dev.vars
 
-# app (Flutter)
-app/.dart_tool/
-app/.flutter-plugins
-app/.flutter-plugins-dependencies
-app/.packages
-app/build/
-app/.pub-cache/
-app/.pub/
-app/*.iml
-app/android/.gradle/
-app/android/local.properties
-app/android/key.properties
-app/android/app/upload-keystore.jks
-app/android/**/GeneratedPluginRegistrant.java
-app/ios/Flutter/Generated.xcconfig
-app/ios/Flutter/flutter_export_environment.sh
-app/ios/Pods/
-app/ios/.symlinks/
-app/ios/Runner/GeneratedPluginRegistrant.*
+# apps/*, packages/* (Flutter) — 플랫폼 폴더는 scripts/flutter_platforms.sh로 만든다
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+**/build/
+**/.pub-cache/
+**/.pub/
+**/*.iml
+apps/*/android/
+apps/*/ios/
+apps/*/web/
+apps/*/linux/
+apps/*/macos/
+apps/*/windows/
+apps/*/.metadata
 
 # e2e / CI
 e2e/node_modules/
