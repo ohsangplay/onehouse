@@ -80,8 +80,8 @@ if index.exists():
 print(f'앱 이름: {label}')
 PY
 
-# 아이콘: pubspec.yaml에 flutter_launcher_icons 설정이 있으면 만든다
-if grep -q '^flutter_launcher_icons:' pubspec.yaml; then
+# 아이콘: pubspec.yaml에 flutter_launcher_icons 설정이 있고 android·ios 폴더가 있으면 만든다 (웹만 만들 때는 건너뜀)
+if grep -q '^flutter_launcher_icons:' pubspec.yaml && [ -d android ] && [ -d ios ]; then
   flutter pub get
   dart run flutter_launcher_icons
 fi

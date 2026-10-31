@@ -11,6 +11,7 @@ on:
       - e2e/store-memo.mjs
       - store-assets/memo/frame_screenshots.py
       - .github/workflows/store-screenshots.yml
+      - scripts/flutter_platforms.sh
 
 permissions:
   contents: write
