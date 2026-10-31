@@ -5,8 +5,12 @@ workers_dev = true
 
 [vars]
 # 스토어에 올라가면 주소를 넣고 다시 배포하세요. 비어 있으면 안내 페이지에 "출시 준비 중"으로 보여요.
+# 한지붕 가계부
 APP_STORE_URL = ""
 PLAY_STORE_URL = ""
+# 한지붕 메모
+MEMO_APP_STORE_URL = ""
+MEMO_PLAY_STORE_URL = ""
 # ALLOW_WEB_ORIGINS 는 운영에서 설정하지 않습니다 (웹에서 API 사용 차단).
 
 [[d1_databases]]

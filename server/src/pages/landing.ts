@@ -1,5 +1,5 @@
 // 브라우저로 접속했을 때 보여주는 앱 설치 안내 페이지.
-// 한지붕은 앱 전용이라 웹에서는 가계부를 쓸 수 없다.
+// 한지붕 시리즈(가계부·메모)는 앱 전용이라 웹에서는 쓸 수 없다.
 
 function safeUrl(value: string | undefined): string | null {
   if (!value) return null;
@@ -26,9 +26,26 @@ function storeButton(label: string, icon: string, url: string | null): string {
   return `<span class="store store-soon" aria-disabled="true">${icon}<span><small>출시 준비 중</small>${label}</span></span>`;
 }
 
-export function renderLanding(opts: { appStoreUrl?: string; playStoreUrl?: string }): string {
-  const appStore = safeUrl(opts.appStoreUrl);
-  const playStore = safeUrl(opts.playStoreUrl);
+export type LandingOptions = {
+  appStoreUrl?: string;
+  playStoreUrl?: string;
+  memoAppStoreUrl?: string;
+  memoPlayStoreUrl?: string;
+};
+
+function appSection(name: string, desc: string, appStoreUrl?: string, playStoreUrl?: string): string {
+  return `<div class="app">
+      <b>${name}</b>
+      <p>${desc}</p>
+      <div class="stores">
+        ${storeButton('App Store', appleIcon, safeUrl(appStoreUrl))}
+        ${storeButton('Google Play', playIcon, safeUrl(playStoreUrl))}
+      </div>
+    </div>`;
+}
+
+export function renderLanding(opts: LandingOptions): string {
+  const anyStore = [opts.appStoreUrl, opts.playStoreUrl, opts.memoAppStoreUrl, opts.memoPlayStoreUrl].some(safeUrl);
   const year = new Date().getUTCFullYear();
 
   return `<!doctype html>
@@ -36,11 +53,11 @@ export function renderLanding(opts: { appStoreUrl?: string; playStoreUrl?: strin
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>한지붕 - 우리가족 공유 가계부</title>
-<meta name="description" content="초대코드 하나로 가족과 함께 쓰는 가계부. 한지붕은 앱에서만 쓸 수 있어요.">
+<title>한지붕 - 우리가족 공유 가계부·메모</title>
+<meta name="description" content="초대코드 하나로 가족과 함께 쓰는 가계부와 메모장. 한지붕은 앱에서만 쓸 수 있어요.">
 <meta name="robots" content="index, follow">
-<meta property="og:title" content="한지붕 - 우리가족 공유 가계부">
-<meta property="og:description" content="초대코드 하나로 가족과 함께 쓰는 가계부. 앱을 설치하고 바로 시작하세요.">
+<meta property="og:title" content="한지붕 - 우리가족 공유 가계부·메모">
+<meta property="og:description" content="초대코드 하나로 가족과 함께 쓰는 가계부와 메모장. 앱을 설치하고 바로 시작하세요.">
 <meta name="theme-color" content="#1F6F5C">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231F6F5C'/%3E%3Cpath d='M16 30 32 18l16 12M20 28v18h24V28' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -67,6 +84,11 @@ h1{margin:0;font-size:28px;line-height:1.35;font-weight:700;letter-spacing:-.01e
 .store-soon{background:var(--surface);color:var(--muted);border:1px solid var(--border);cursor:default}
 .store-soon:hover{background:var(--surface)}
 .notice{margin-top:12px;font-size:13px;color:var(--muted)}
+.apps{display:flex;flex-direction:column;gap:12px;margin-top:28px}
+.app{background:var(--surface);border-radius:18px;padding:20px}
+.app b{font-size:17px}
+.app p{margin:2px 0 0;font-size:14px;color:var(--muted)}
+.app .stores{margin-top:14px}
 .card{margin-top:32px;background:var(--surface);border-radius:18px;padding:22px 20px}
 .card h2{margin:0 0 14px;font-size:17px;font-weight:700}
 .steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px}
@@ -84,23 +106,23 @@ footer{margin-top:40px;font-size:12px;color:var(--muted);text-align:center}
 <main class="wrap">
   <div class="brand">
     <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/></svg></div>
-    <div><div class="brand-name">한지붕</div><div class="brand-sub">우리가족 공유 가계부</div></div>
+    <div><div class="brand-name">한지붕</div><div class="brand-sub">우리가족 공유 가계부·메모</div></div>
   </div>
 
   <section class="hero">
     <h1>한지붕은<br>앱에서만 쓸 수 있어요</h1>
-    <p class="lead">초대코드 하나로 가족과 함께 쓰는 가계부예요. 회원가입 없이 앱을 설치하고 바로 시작하세요.</p>
-    <div class="stores">
-      ${storeButton('App Store', appleIcon, appStore)}
-      ${storeButton('Google Play', playIcon, playStore)}
+    <p class="lead">초대코드 하나로 가족과 함께 쓰는 앱이에요. 회원가입 없이 앱을 설치하고 바로 시작하세요.</p>
+    <div class="apps">
+      ${appSection('한지붕 가계부', '함께 쓰는 공유 가계부', opts.appStoreUrl, opts.playStoreUrl)}
+      ${appSection('한지붕 메모', '함께 쓰는 공유 메모장 · 체크리스트', opts.memoAppStoreUrl, opts.memoPlayStoreUrl)}
     </div>
-    ${appStore || playStore ? '' : '<p class="notice">지금 스토어 출시를 준비하고 있어요. 조금만 기다려 주세요.</p>'}
+    ${anyStore ? '' : '<p class="notice">지금 스토어 출시를 준비하고 있어요. 조금만 기다려 주세요.</p>'}
   </section>
 
   <section class="card" aria-labelledby="invite-title">
     <h2 id="invite-title">초대코드를 받으셨나요?</h2>
     <ol class="steps">
-      <li><span class="num">1</span><span>한지붕 앱을 설치해요</span></li>
+      <li><span class="num">1</span><span>받은 코드에 맞는 한지붕 앱(가계부 또는 메모)을 설치해요</span></li>
       <li><span class="num">2</span><span>첫 화면에서 <b>초대코드로 참여하기</b>를 눌러요</span></li>
       <li><span class="num">3</span><span>받은 코드와 닉네임을 넣으면 방장에게 참여 요청이 가요</span></li>
     </ol>
@@ -117,7 +139,7 @@ footer{margin-top:40px;font-size:12px;color:var(--muted);text-align:center}
     </div>
     <div class="feature">
       <div class="ficon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg></div>
-      <div><b>목록과 달력으로 한눈에</b><p>공통·지출·수입 카테고리로 나눠서 필터로 모아봐요.</p></div>
+      <div><b>가계부와 메모를 따로, 같은 방식으로</b><p>가계부는 내역과 카테고리로, 메모는 글과 체크리스트로 함께 써요.</p></div>
     </div>
   </section>
 

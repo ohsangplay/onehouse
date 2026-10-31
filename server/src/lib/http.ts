@@ -6,6 +6,8 @@ export class ApiError extends Error {
     public status: ContentfulStatusCode,
     public code: string,
     message: string,
+    /** 오류 응답에 함께 실을 값 (예: 충돌 시 지금 저장된 메모) */
+    public extra?: Record<string, unknown>,
   ) {
     super(message);
   }
