@@ -3,6 +3,7 @@ import type { AppEnv, CategoryType, TxType } from '../types';
 import { newId } from '../lib/crypto';
 import { badRequest, notFound, now, oneOf, readJson, str } from '../lib/http';
 import { requireDevice, requireMember } from '../middleware/auth';
+import { BUDGET } from '../kinds';
 
 const TX_TYPES = ['income', 'expense'] as const;
 const MAX_AMOUNT = 1_000_000_000_000;
@@ -55,7 +56,7 @@ async function checkCategory(db: D1Database, ledgerId: string, categoryId: strin
 // /ledgers/:ledgerId/transactions
 export const transactions = new Hono<AppEnv>();
 
-transactions.use('*', requireDevice, requireMember());
+transactions.use('*', requireDevice, requireMember(BUDGET));
 
 /**
  * 월별 조회: ?month=YYYY-MM [&category_ids=a,b] [&uncategorized=1]

@@ -5,7 +5,13 @@ export type Env = {
   /** 스토어 출시 후 채우면 안내 페이지 버튼이 링크로 바뀐다 */
   APP_STORE_URL?: string;
   PLAY_STORE_URL?: string;
+  /** 한지붕 메모 스토어 주소 */
+  MEMO_APP_STORE_URL?: string;
+  MEMO_PLAY_STORE_URL?: string;
 };
+
+/** 공간 종류: 한지붕 가계부(budget) / 한지붕 메모(memo). DB 테이블 이름은 처음 만든 가계부 기준(ledgers)을 그대로 쓴다 */
+export type SpaceKind = 'budget' | 'memo';
 
 export type Role = 'owner' | 'co_owner' | 'member';
 export type MemberStatus = 'pending' | 'approved' | 'rejected' | 'revoked' | 'left';
@@ -22,6 +28,7 @@ export type DeviceRow = {
 
 export type LedgerRow = {
   id: string;
+  kind: SpaceKind;
   name: string;
   owner_member_id: string | null;
   invite_code: string;

@@ -5,8 +5,10 @@ import type { AppEnv } from './types';
 import { ApiError } from './lib/http';
 import { LANDING_HEADERS, renderLanding } from './pages/landing';
 import { devices } from './routes/devices';
-import { ledgers } from './routes/ledgers';
-import { members } from './routes/members';
+import { spaceRoutes } from './routes/spaces';
+import { memberRoutes } from './routes/members';
+import { memos } from './routes/memos';
+import { BUDGET, MEMO } from './kinds';
 import { categories } from './routes/categories';
 import { transactions } from './routes/transactions';
 
@@ -37,7 +39,14 @@ app.use('*', async (c, next) => {
 
 const landing = (c: Context<AppEnv>) => {
   for (const [key, value] of Object.entries(LANDING_HEADERS)) c.header(key, value);
-  return c.html(renderLanding({ appStoreUrl: c.env.APP_STORE_URL, playStoreUrl: c.env.PLAY_STORE_URL }));
+  return c.html(
+    renderLanding({
+      appStoreUrl: c.env.APP_STORE_URL,
+      playStoreUrl: c.env.PLAY_STORE_URL,
+      memoAppStoreUrl: c.env.MEMO_APP_STORE_URL,
+      memoPlayStoreUrl: c.env.MEMO_PLAY_STORE_URL,
+    }),
+  );
 };
 
 // 브라우저로 들어오면 앱 설치 안내, 그 외(앱·헬스체크)는 JSON
@@ -47,10 +56,15 @@ app.get('/robots.txt', (c) => c.text('User-agent: *\nAllow: /$\nDisallow: /\n'))
 
 app.route('/devices', devices);
 // 하위 경로를 먼저 등록해야 /ledgers/:ledgerId 와 겹치지 않는다
-app.route('/ledgers/:ledgerId/members', members);
+// 한지붕 가계부
+app.route('/ledgers/:ledgerId/members', memberRoutes(BUDGET));
 app.route('/ledgers/:ledgerId/categories', categories);
 app.route('/ledgers/:ledgerId/transactions', transactions);
-app.route('/ledgers', ledgers);
+app.route('/ledgers', spaceRoutes(BUDGET));
+// 한지붕 메모
+app.route('/notebooks/:ledgerId/members', memberRoutes(MEMO));
+app.route('/notebooks/:ledgerId/memos', memos);
+app.route('/notebooks', spaceRoutes(MEMO));
 
 app.notFound((c) => {
   // 브라우저로 없는 주소에 들어오면 안내 페이지로
@@ -60,7 +74,7 @@ app.notFound((c) => {
 
 app.onError((err, c) => {
   if (err instanceof ApiError) {
-    return c.json({ error: { code: err.code, message: err.message } }, err.status);
+    return c.json({ error: { code: err.code, message: err.message }, ...err.extra }, err.status);
   }
   console.error(err);
   return c.json({ error: { code: 'internal', message: '서버 오류가 발생했어요.' } }, 500);

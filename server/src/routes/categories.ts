@@ -3,6 +3,7 @@ import type { AppEnv, CategoryType } from '../types';
 import { newId } from '../lib/crypto';
 import { badRequest, conflict, notFound, now, oneOf, readJson, reqStr, str } from '../lib/http';
 import { MANAGERS, requireDevice, requireMember } from '../middleware/auth';
+import { BUDGET } from '../kinds';
 
 const CATEGORY_TYPES = ['common', 'expense', 'income'] as const;
 
@@ -40,7 +41,7 @@ async function assertNameFree(db: D1Database, ledgerId: string, type: CategoryTy
   if (dup) throw conflict('duplicate_category', '같은 이름의 카테고리가 이미 있어요.');
 }
 
-categories.get('/', requireMember(), async (c) => {
+categories.get('/', requireMember(BUDGET), async (c) => {
   const { results } = await c.env.DB.prepare(
     `SELECT c.id, c.type, c.name, c.sort_order, c.created_by_member_id, m.nickname AS created_by_nickname
      FROM categories c
@@ -54,7 +55,7 @@ categories.get('/', requireMember(), async (c) => {
 });
 
 /** 카테고리 추가 (방장·부방장). type: common | expense | income */
-categories.post('/', requireMember(MANAGERS), async (c) => {
+categories.post('/', requireMember(BUDGET, MANAGERS), async (c) => {
   const body = await readJson(c);
   const type = oneOf(body.type, CATEGORY_TYPES, 'type');
   const name = reqStr(body, 'name', { min: 1, max: 10 });
@@ -81,7 +82,7 @@ categories.post('/', requireMember(MANAGERS), async (c) => {
 });
 
 /** 이름·순서 변경 (방장·부방장) */
-categories.patch('/:categoryId', requireMember(MANAGERS), async (c) => {
+categories.patch('/:categoryId', requireMember(BUDGET, MANAGERS), async (c) => {
   const body = await readJson(c);
   const db = c.env.DB;
   const category = await findCategory(db, c.var.ledger.id, c.req.param('categoryId'));
@@ -101,7 +102,7 @@ categories.patch('/:categoryId', requireMember(MANAGERS), async (c) => {
 });
 
 /** 삭제 (방장·부방장). 기존 내역은 미분류로 남는다 */
-categories.delete('/:categoryId', requireMember(MANAGERS), async (c) => {
+categories.delete('/:categoryId', requireMember(BUDGET, MANAGERS), async (c) => {
   const db = c.env.DB;
   const category = await findCategory(db, c.var.ledger.id, c.req.param('categoryId'));
   const ts = now();

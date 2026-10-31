@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "db:migrate:local": "wrangler d1 migrations apply onehouse --local",
     "db:migrate:remote": "wrangler d1 migrations apply onehouse --remote",
-    "test:smoke": "node test/smoke.mjs",
+    "test:smoke": "node test/smoke.mjs && node test/memo-smoke.mjs",
+    "test:smoke:memo": "node test/memo-smoke.mjs",
+    "test:unit": "node --experimental-strip-types --no-warnings --test test/merge.test.ts",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
