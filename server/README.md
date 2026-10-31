@@ -1,5 +1,7 @@
 # 한지붕 API (Cloudflare Workers + D1)
 
+한지붕 가계부(`/ledgers`)와 한지붕 메모(`/notebooks`)가 함께 쓰는 서버예요.
+
 ## 로컬 실행
 
 ```bash
@@ -7,7 +9,8 @@ cd server
 npm install
 npm run db:migrate:local   # 로컬 D1에 스키마 적용
 npm run dev                # http://127.0.0.1:8787
-npm run test:smoke         # 다른 터미널에서: 전체 흐름 50단계 스모크 테스트
+npm run test:smoke         # 다른 터미널에서: 가계부 50단계 + 메모 43단계 스모크 테스트
+npm run test:unit          # 줄 단위 3방향 병합 단위 테스트 (서버 없이)
 ```
 
 ## 확인
@@ -19,12 +22,12 @@ npm run build       # wrangler 번들 (dist/, 배포는 하지 않음)
 
 ## 웹 접근
 
-한지붕은 앱 전용이에요.
+한지붕 시리즈는 앱 전용이에요.
 
 - 브라우저로 서버 주소에 들어오면 **앱 설치 안내 페이지**가 나와요 (`src/pages/landing.ts`). API 주소로 들어와도 안내 페이지로 보내요.
 - 운영 서버는 CORS 헤더를 내지 않아서, 다른 웹 페이지에서 API를 부를 수 없어요. 네이티브 앱은 영향 없어요.
 - 로컬에서 Flutter 웹으로 확인할 때만 `npx wrangler dev --var "ALLOW_WEB_ORIGINS:*"` 로 허용하세요.
-- 스토어에 올라가면 `wrangler.toml`의 `APP_STORE_URL`, `PLAY_STORE_URL`을 채우고 배포하면 안내 페이지 버튼이 링크로 바뀌어요.
+- 스토어에 올라가면 `wrangler.toml`의 `APP_STORE_URL`, `PLAY_STORE_URL`(가계부), `MEMO_APP_STORE_URL`, `MEMO_PLAY_STORE_URL`(메모)을 채우고 배포하면 안내 페이지 버튼이 링크로 바뀌어요.
 
 ## 배포
 
@@ -60,14 +63,20 @@ src/
   lib/http.ts           ApiError, 입력 검증
   lib/rateLimit.ts      코드 입력 시도 횟수 제한
   lib/events.ts         관리 이력
-  middleware/auth.ts    기기 토큰 인증, 가계부 멤버·역할 검사
+  kinds.ts              공간 종류별 설정 (가계부 / 메모집: 이름, 기본 데이터, 통계)
+  lib/merge.ts          줄 단위 3방향 병합 (메모 동시 수정)
+  middleware/auth.ts    기기 토큰 인증, 공간 멤버·역할 검사 (종류가 다르면 404)
   routes/devices.ts     기기 등록·재설치 복구·기기 이전
-  routes/ledgers.ts     가계부, 참여 요청, 방장 복구·양도, 나가기
-  routes/members.ts     승인·연결·거절·차단·부방장
+  routes/spaces.ts      가계부·메모집 공통: 만들기, 참여 요청, 방장 복구·양도, 나가기 (/ledgers, /notebooks)
+  routes/members.ts     승인·연결·거절·차단·부방장 (공통)
+  routes/memos.ts       메모·체크리스트·보는 중·휴지통
   routes/categories.ts  공통/지출/수입 카테고리
   routes/transactions.ts 내역 + 월별 합계 + 카테고리 필터
 migrations/0001_init.sql
-test/smoke.mjs
+migrations/0002_memo.sql  ledgers.kind, memos, memo_revisions, memo_items, memo_presence
+test/smoke.mjs            가계부 흐름
+test/memo-smoke.mjs       메모 흐름 (공유·병합·충돌·체크리스트·보는 중·휴지통)
+test/merge.test.ts        병합 단위 테스트
 ```
 
 API 목록은 [`../docs/api.md`](../docs/api.md)에 있어요.
