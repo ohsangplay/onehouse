@@ -145,7 +145,7 @@ try {
 
   // 02 체크리스트 (엄마가 하나 더 체크)
   await text('주말 장보기').click();
-  await text('계란 한 판').waitFor({ timeout: 15_000 });
+  await page.getByRole('checkbox').nth(5).waitFor({ timeout: 15_000 });
   await page.getByRole('checkbox').nth(2).click();
   await page.waitForTimeout(800);
   await shot('02');
@@ -178,7 +178,9 @@ try {
 
   // 05 오프라인 체크: 여행 준비물
   await text('제주 여행 준비물').click();
-  await text('상비약').waitFor({ timeout: 15_000 });
+  // 목록 카드 글자가 아니라 체크리스트 항목이 다 뜬 뒤에 끊는다
+  await page.getByRole('checkbox').nth(4).waitFor({ timeout: 15_000 });
+  await page.waitForTimeout(1000);
   await context.setOffline(true);
   await page.getByRole('checkbox').nth(2).click();
   await text('연결되면 반영돼요').waitFor({ timeout: 15_000 });
