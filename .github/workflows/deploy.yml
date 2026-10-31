@@ -91,6 +91,9 @@ jobs:
           [ "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -H 'Accept: text/html' "$URL/ledgers")" = "302 $URL/" ] && r=yes || r=no
           check "브라우저로 API 주소 접속 → 안내 페이지로 이동" $r
 
+          curl -s -H 'Accept: text/html' "$URL/privacy" | grep -q '개인정보 보호책임자' && r=yes || r=no
+          check "개인정보처리방침 페이지 (/privacy)" $r
+
           [ "$(curl -s -o /dev/null -w '%{http_code}' "$URL/ledgers")" = "401" ] && r=yes || r=no
           check "토큰 없는 API 요청 → 401" $r
 
