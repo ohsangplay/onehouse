@@ -205,7 +205,7 @@ await step(owner, 'filter', async () => {
 
 // ── 필터가 많으면 +N
 await step(owner, 'filter-overflow', async () => {
-  await button(owner, '필터 3개 걸림').click();
+  await owner.getByRole('button', { name: '필터 3', exact: true }).click();
   await owner.getByText('카테고리 필터').waitFor({ timeout: 15_000 });
   await button(owner, '생활').first().click();
   await button(owner, '교통').first().click();

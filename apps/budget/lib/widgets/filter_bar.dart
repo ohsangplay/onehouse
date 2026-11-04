@@ -78,11 +78,7 @@ class FilterBar extends StatelessWidget {
     final labels = selection.labels(categories);
     final active = labels.isNotEmpty;
 
-    final button = Semantics(
-      button: true,
-      label: active ? '필터 ${labels.length}개 걸림' : '필터',
-      excludeSemantics: true,
-      child: Material(
+    final button = Material(
         color: active ? AppColors.text : AppColors.surface,
         shape: StadiumBorder(side: BorderSide(color: active ? AppColors.text : AppColors.border)),
         child: InkWell(
@@ -110,8 +106,7 @@ class FilterBar extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
 
     return Row(
       children: [
@@ -137,10 +132,8 @@ class FilterBar extends StatelessWidget {
                         ],
                         if (hidden > 0) ...[
                           if (shown > 0) const SizedBox(width: _gap),
-                          Semantics(
-                            button: true,
-                            label: '나머지 필터 $hidden개 보기',
-                            excludeSemantics: true,
+                          Tooltip(
+                            message: '나머지 필터 $hidden개 보기',
                             child: Material(
                               color: AppColors.surface,
                               shape: const StadiumBorder(side: BorderSide(color: Color(0xFFC7CCD2))),

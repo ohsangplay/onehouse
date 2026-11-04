@@ -81,8 +81,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Future<void> _reorder(int oldIndex, int newIndex) async {
+    // onReorderItem: newIndex는 이미 뺀 자리 기준으로 맞춰져 온다
     final list = _current;
-    if (newIndex > oldIndex) newIndex -= 1;
     final moved = list.removeAt(oldIndex);
     list.insert(newIndex, moved);
     // 화면부터 바로 바꾸고, 순서가 바뀐 것만 서버에 저장
@@ -166,7 +166,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 buildDefaultDragHandles: false,
                                 padding: EdgeInsets.zero,
                                 itemCount: items.length,
-                                onReorder: _reorder,
+                                onReorderItem: _reorder,
                                 itemBuilder: (context, i) {
                                   final c = items[i];
                                   return Material(
