@@ -1,2 +1,21 @@
-시작 09:29:53
+시작 09:49:51
+ANR 팝업 닫음
+Starting: Intent { cmp=com.ohsang.util.onehouse.memo/.MainActivity }
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: com.ohsang.util.onehouse.memo/.MainActivity
+WaitTime: 1561
+Complete
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
+ANR 팝업 닫음
 ✗ 안 보임: 새 메모집 만들기

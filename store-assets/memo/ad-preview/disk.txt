@@ -1,1 +1,1 @@
-/dev/root        72G   61G   12G  85% /
+/dev/root        72G   61G   11G  85% /
