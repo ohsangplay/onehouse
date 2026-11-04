@@ -60,7 +60,7 @@ lib/
 
 ## 광고
 
-메모집 목록·메모 목록·휴지통 하단에 AdMob 배너 (`lib/ads/`). 광고 ID는 `config/ads.json` (비어 있으면 테스트 ID). 설정 방법은 `store-assets/memo/playstore-guide.md`의 "광고".
+메모집 목록·메모 목록·휴지통 하단에 AdMob 적응형 배너 (`lib/widgets/ad_banner.dart`, 가계부와 같은 코드). 광고 ID는 저장소 Variables `MEMO_ADMOB_*` (없으면 테스트 광고, 업로드는 막힘). 설정 방법은 `store-assets/memo/playstore-guide.md`의 "광고".
 
 ## 출시 후
 

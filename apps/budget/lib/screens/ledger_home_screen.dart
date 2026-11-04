@@ -6,6 +6,7 @@ import '../models/category.dart';
 import '../models/ledger_summary.dart';
 import '../models/transaction.dart';
 import '../utils/format.dart';
+import '../widgets/ad_banner.dart';
 import '../widgets/category_widgets.dart';
 import '../widgets/filter_bar.dart';
 import 'categories_screen.dart';
@@ -200,6 +201,7 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
             IconButton(tooltip: '가계부 설정', icon: const Icon(Icons.menu), onPressed: _openSettings),
           ],
         ),
+        bottomNavigationBar: const AdBanner(),
         floatingActionButton: FloatingActionButton(
           tooltip: '내역 추가',
           backgroundColor: Theme.of(context).colorScheme.primary,

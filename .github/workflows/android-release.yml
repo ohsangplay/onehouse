@@ -16,6 +16,12 @@ name: Android 빌드 (Play 스토어용 AAB)
 #   play_track 을 internal(내부 테스트) / alpha(비공개 테스트)로 고르면 빌드한 AAB를 그 트랙에 "초안"으로 올린다.
 #   올린 뒤 Play Console에서 출시 노트를 확인하고 "검토를 위해 전송"만 누르면 된다.
 #   주의: 앱의 맨 처음 AAB는 Google 정책상 Play Console에서 직접 한 번 올려야 한다 (그 뒤부터 자동 업로드 가능).
+#
+# 광고(AdMob) — 저장소 Variables (Settings → Secrets and variables → Actions → Variables 탭)
+#   가계부: BUDGET_ADMOB_APP_ID_ANDROID, BUDGET_ADMOB_BANNER_ANDROID
+#   메모:   MEMO_ADMOB_APP_ID_ANDROID,   MEMO_ADMOB_BANNER_ANDROID
+#   (앱 ID는 ca-app-pub-xxxx~yyyy, 배너 광고 단위 ID는 ca-app-pub-xxxx/zzzz)
+# 없으면 Google 테스트 광고로 빌드하고, Play 업로드는 막는다 (직접 올릴 AAB에도 테스트 광고가 들어 있으니 주의).
 
 on:
   workflow_dispatch:
@@ -45,8 +51,22 @@ jobs:
     defaults:
       run:
         working-directory: apps/${{ inputs.app }}
+    env:
+      ADMOB_APP_ID_ANDROID: ${{ inputs.app == 'budget' && vars.BUDGET_ADMOB_APP_ID_ANDROID || inputs.app == 'memo' && vars.MEMO_ADMOB_APP_ID_ANDROID || '' }}
+      ADMOB_BANNER_ANDROID: ${{ inputs.app == 'budget' && vars.BUDGET_ADMOB_BANNER_ANDROID || inputs.app == 'memo' && vars.MEMO_ADMOB_BANNER_ANDROID || '' }}
+      ADMOB_VAR_PREFIX: ${{ inputs.app == 'memo' && 'MEMO' || 'BUDGET' }}
     steps:
       - uses: actions/checkout@v5
+
+      - name: AdMob ID 확인
+        working-directory: .
+        run: |
+          if [ -n "$ADMOB_APP_ID_ANDROID" ] && [ -n "$ADMOB_BANNER_ANDROID" ]; then echo "AdMob: 실제 ID"; exit 0; fi
+          if [ "${{ inputs.play_track }}" != none ]; then
+            echo "::error title=AdMob ID 없음::저장소 Variables에 ${ADMOB_VAR_PREFIX}_ADMOB_APP_ID_ANDROID, ${ADMOB_VAR_PREFIX}_ADMOB_BANNER_ANDROID를 넣어야 Play에 올릴 수 있어요 (테스트 광고로 출시 방지)."
+            exit 1
+          fi
+          echo "::warning title=테스트 광고::AdMob ID가 없어 Google 테스트 광고로 빌드해요. 이 AAB는 스토어에 올리지 마세요."
 
       - uses: actions/setup-java@v5
         with:
@@ -111,7 +131,9 @@ jobs:
       - name: AAB 빌드
         run: |
           set -o pipefail
-          if ! flutter build appbundle --release $( [ -f config/ads.json ] && echo --dart-define-from-file=config/ads.json ) --build-number=${{ github.run_number }} 2>&1 | tee "$RUNNER_TEMP/build.log"; then
+          defines=()
+          [ -n "$ADMOB_BANNER_ANDROID" ] && defines+=("--dart-define=ADMOB_BANNER_ANDROID=$ADMOB_BANNER_ANDROID")
+          if ! flutter build appbundle --release --build-number=${{ github.run_number }} "${defines[@]}" 2>&1 | tee "$RUNNER_TEMP/build.log"; then
             msg=$(grep -iE "error|failed|exception" "$RUNNER_TEMP/build.log" | tail -15 | sed ':a;N;$!ba;s/\n/%0A/g')
             echo "::error title=AAB 빌드 실패::$msg"
             exit 1
@@ -161,7 +183,9 @@ jobs:
       # 휴대폰에 바로 설치해서 확인하는 용도 (Play에는 위 AAB를 올린다)
       - name: 설치용 APK 빌드
         run: |
-          flutter build apk --release $( [ -f config/ads.json ] && echo --dart-define-from-file=config/ads.json ) --build-number=${{ github.run_number }}
+          defines=()
+          [ -n "$ADMOB_BANNER_ANDROID" ] && defines+=("--dart-define=ADMOB_BANNER_ANDROID=$ADMOB_BANNER_ANDROID")
+          flutter build apk --release --build-number=${{ github.run_number }} "${defines[@]}"
           cp build/app/outputs/flutter-apk/app-release.apk "build/onehouse-${{ inputs.app }}-${{ github.run_number }}.apk"
           echo "::notice title=설치용 APK::Artifacts의 ${{ inputs.app }}-apk를 내려받아 압축을 풀고 휴대폰에서 설치하세요"
 

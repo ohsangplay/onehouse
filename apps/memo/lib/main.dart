@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
-import 'ads/banner_ad.dart';
 import 'config.dart';
 import 'screens/notebook_list_screen.dart';
 import 'services/memo_services.dart';
 import 'services/memo_store.dart';
 import 'theme.dart';
+import 'widgets/ad_banner.dart';
 
 /// CI 스크린샷용: 웹에서 버튼·입력창을 접근성 트리로 찾을 수 있게 켠다.
 const _e2e = bool.fromEnvironment('E2E');
@@ -34,8 +34,8 @@ class _MemoAppState extends State<MemoApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // 첫 화면이 뜬 뒤 광고 준비 (iOS는 여기서 추적 허용을 묻는다)
-    WidgetsBinding.instance.addPostFrameCallback((_) => initAds());
+    // 광고 SDK 준비 (웹·테스트에서는 아무것도 안 함)
+    Ads.init();
   }
 
   @override

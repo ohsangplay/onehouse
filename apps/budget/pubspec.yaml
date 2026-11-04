@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  google_mobile_ads: ^8.0.0
   http: ^1.2.2
   onehouse_core:
     path: ../../packages/onehouse_core

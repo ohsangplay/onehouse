@@ -219,37 +219,33 @@ Play Console → **모든 앱 → 앱 만들기**
 
 ## 광고 (AdMob 하단 배너)
 
-메모집 목록, 메모 목록, 휴지통 화면 맨 아래에 배너(320×50)가 나와요. 메모를 쓰는 화면(글 메모, 체크리스트, 충돌 화면)은 잘못 누르기 쉬워서 넣지 않았어요(AdMob 정책). 한지붕 가계부에는 광고가 없어요.
+메모집 목록, 메모 목록, 휴지통 화면 맨 아래에 **Google AdMob 적응형 배너**가 나와요 (한지붕 가계부와 같은 코드·방식). 메모를 쓰는 화면(글 메모, 체크리스트, 충돌 화면)은 잘못 누르기 쉬워서 넣지 않았어요(AdMob 정책).
 
-지금은 **Google 테스트 광고 ID**가 들어가 있어요. 4S 챌린지와 같은 AdMob 계정(게시자 `pub-3934873497580609`)에서 아래를 하고 ID를 알려주시면 넣어 드릴게요.
+실제 광고 ID를 넣지 않으면 Google 테스트 광고로 빌드되고, 업로드 워크플로(TestFlight·Play 자동 업로드)는 테스트 광고 출시를 막으려고 멈춰요.
 
-1. AdMob → **앱 → 앱 추가**
-   - Android: "앱이 지원되는 앱 스토어에 등록되어 있나요?" → 아직이면 **아니요**, 이름 `한지붕 메모`
-   - iOS도 똑같이 하나 더 (Android·iOS는 앱 ID가 따로 나와요)
-2. 각 앱에서 **광고 단위 추가 → 배너** → 이름 `하단 배너`
-3. 나온 값 4개를 `apps/memo/config/ads.json`에 넣어요
+1. https://admob.google.com (4S 챌린지와 같은 계정) → **앱 → 앱 추가**
+   - 플랫폼 **iOS** → "앱이 지원되는 앱 스토어에 등록되어 있나요?" → **아니요** → 앱 이름 `한지붕 메모`
+   - 같은 방법으로 **Android** 앱도 하나 더 추가
+2. 각 앱에서 **광고 단위 → 배너** → 이름 `메모 하단 배너` → 만들기
+3. 나오는 ID 4개를 GitHub에 넣기: `ohsangplay/onehouse` → Settings → Secrets and variables → Actions → **Variables** 탭 → New repository variable (비밀값이 아니라서 Secrets가 아니라 Variables예요)
 
-| 키 | 값 | 예시 모양 |
+| Name | 값 | 모양 |
 |---|---|---|
-| `ADMOB_ANDROID_APP_ID` | Android 앱 ID | `ca-app-pub-3934873497580609~…` (`~` 들어감) |
-| `ADMOB_IOS_APP_ID` | iOS 앱 ID | `ca-app-pub-3934873497580609~…` |
-| `ADMOB_ANDROID_BANNER_ID` | Android 배너 광고 단위 ID | `ca-app-pub-3934873497580609/…` (`/` 들어감) |
-| `ADMOB_IOS_BANNER_ID` | iOS 배너 광고 단위 ID | `ca-app-pub-3934873497580609/…` |
+| `MEMO_ADMOB_APP_ID_IOS` | iOS 앱의 **앱 ID** | `ca-app-pub-3934873497580609~…` (물결 ~) |
+| `MEMO_ADMOB_BANNER_IOS` | iOS 배너의 **광고 단위 ID** | `ca-app-pub-3934873497580609/…` (빗금 /) |
+| `MEMO_ADMOB_APP_ID_ANDROID` | Android 앱의 앱 ID | `ca-app-pub-…~…` |
+| `MEMO_ADMOB_BANNER_ANDROID` | Android 배너의 광고 단위 ID | `ca-app-pub-…/…` |
 
-- 빈 칸은 테스트 ID로 빌드돼요. 디버그 빌드(`flutter run`)는 값과 상관없이 항상 테스트 광고예요.
-- 앱 ID는 `scripts/flutter_platforms.sh`가 AndroidManifest·Info.plist에 넣고, 배너 ID는 출시 워크플로가 `--dart-define-from-file=config/ads.json`으로 넣어요.
-
-**app-ads.txt**: `https://ohsangplay.com/app-ads.txt`에 아래 한 줄이 있어야 해요 (4S 챌린지와 같은 줄). 스토어 등록정보의 **웹사이트**를 `https://ohsangplay.com`으로 넣어야 AdMob이 이 파일을 찾아요.
-```
-google.com, pub-3934873497580609, DIRECT, f08c47fec0942fa0
-```
-
-**출시 후**: AdMob → 앱 → 앱 설정 → **앱 스토어 연결**로 스토어 앱을 연결하면 AdMob 앱 검토가 시작돼요. 통과 전에는 광고가 적게 나오거나 안 나올 수 있어요.
+4. **app-ads.txt**: `https://ohsangplay.com/app-ads.txt`에 아래 한 줄이 있어야 광고가 제대로 나와요 (4S 챌린지와 같은 게시자). 스토어의 웹사이트(마케팅 URL)를 `https://ohsangplay.com`으로 두면 AdMob이 여기서 찾아요. 출시 뒤에 해도 돼요.
+   ```
+   google.com, pub-3934873497580609, DIRECT, f08c47fec0942fa0
+   ```
+5. 출시 후 AdMob → 앱 → 앱 설정 → **앱 스토어 연결**로 스토어 앱을 연결하면 AdMob 앱 검토가 시작돼요. 통과 전에는 광고가 적게 나올 수 있어요.
 
 **주의**
-- 스토어에서 받은 앱에 나오는 내 광고를 직접 누르지 마세요 (무효 클릭으로 계정이 제한될 수 있어요). 내 폰으로 확인할 땐 AdMob **설정 → 테스트 기기**에 등록해요.
+- 내 폰에서 실제 광고를 반복해서 누르면 계정이 정지될 수 있어요. 확인할 땐 AdMob → 설정 → **테스트 기기**에 내 폰을 등록하세요. 디버그 빌드(`flutter run`)는 항상 테스트 광고예요.
+- iOS는 추적 허용(ATT)을 묻지 않아요. IDFA를 쓰지 않고 맞춤형이 아닌 광고가 나올 수 있어요.
 - 유럽(EEA·영국)에 내면 동의 팝업(UMP)이 필요해요. 처음엔 **대한민국만** 출시하세요.
-- iOS는 첫 실행 때 "앱이 추적하도록 허용" 창이 떠요 (허용 안 해도 앱은 그대로 쓸 수 있고, 맞춤형이 아닌 광고가 나와요).
 
 ## 자주 걸리는 부분
 
