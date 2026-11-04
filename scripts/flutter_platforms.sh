@@ -110,8 +110,13 @@ if 'google_mobile_ads' in pathlib.Path('pubspec.yaml').read_text(encoding='utf-8
                 if 'proguard-rules.pro' not in k:
                     print('[주의] build.gradle.kts에 proguard 규칙을 연결하지 못했어요')
                 kts.write_text(k, encoding='utf-8')
-    test = '3940256099942544' in android_id or '3940256099942544' in ios_id
-    print('AdMob 앱 ID: ' + ('테스트 ID (실제 ID 환경변수 없음)' if test else '실제 ID'))
+    # 플랫폼별로 따로 표시 (iOS 빌드에는 Android ID가 없어서 한 줄로 보이면 헷갈림)
+    def kind(v):
+        return '테스트 ID' if '3940256099942544' in v else f'실제 ID ({v})'
+    if manifest.exists():
+        print('AdMob 앱 ID (Android): ' + kind(android_id))
+    if plist.exists():
+        print('AdMob 앱 ID (iOS): ' + kind(ios_id))
 
 index = pathlib.Path('web/index.html')
 if index.exists():
