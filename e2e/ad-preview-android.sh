@@ -32,9 +32,24 @@ for n in root.iter("node"):
 ' "$1" "${2:-}"
 }
 
+# "응답하지 않음" 팝업이 뜨면 '기다리기'
+dismiss_anr() {
+  local raw; raw=$(dump)
+  if echo "$raw" | grep -q "isn't responding"; then
+    local xy; xy=$(echo "$raw" | python3 -c '
+import re,sys,xml.etree.ElementTree as ET
+raw=sys.stdin.read(); root=ET.fromstring(raw[raw.find("<?xml"):])
+for n in root.iter("node"):
+    if (n.get("text") or "")=="Wait":
+        x1,y1,x2,y2=map(int,re.findall(r"\d+",n.get("bounds"))); print((x1+x2)//2,(y1+y2)//2); break')
+    [ -n "$xy" ] && { adb shell input tap $xy; say "ANR 팝업 닫음"; sleep 2; }
+  fi
+}
+
 wait_for() { # 글자 [초]
   local t=${2:-40}
-  for _ in $(seq 1 "$t"); do
+  for k in $(seq 1 "$t"); do
+    [ $((k % 10)) = 0 ] && dismiss_anr
     [ -n "$(find_xy "$1")" ] && { say "✓ 보임: $1"; return 0; }
     sleep 1
   done
@@ -70,17 +85,21 @@ shot() { sleep "${2:-6}"; timeout 20 adb exec-out screencap -p > "$OUT/$1.png"; 
 
 start_app() {
   adb shell am force-stop $PKG
-  adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+  dismiss_anr
+  timeout 90 adb shell am start -W -n $PKG/.MainActivity | tee -a "$LOG"
 }
 
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
 
+trap 'timeout 20 adb logcat -d -b crash > "$OUT/crash.txt" 2>&1; timeout 20 adb logcat -d -t 400 flutter:V *:E > "$OUT/logcat.txt" 2>&1' EXIT
 say "시작 $(date +%T)"
+sleep 45   # 막 부팅한 에뮬레이터가 안정될 때까지
+dismiss_anr
 start_app
-sleep 8; timeout 20 adb exec-out screencap -p > "$OUT/00-launch.png"
-wait_for "새 메모집 만들기" 40 || exit 1
+sleep 15; timeout 20 adb exec-out screencap -p > "$OUT/00-launch.png"
+wait_for "새 메모집 만들기" 120 || exit 1
 tap "새 메모집 만들기" || exit 1
 wait_for "메모집 이름" || exit 1
 type_into 0 "Home" || exit 1
