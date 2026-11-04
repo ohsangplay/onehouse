@@ -1,21 +1,38 @@
-시작 09:49:51
-ANR 팝업 닫음
+시작 10:17:10
 Starting: Intent { cmp=com.ohsang.util.onehouse.memo/.MainActivity }
 Status: ok
-LaunchState: UNKNOWN (0)
+LaunchState: COLD
 Activity: com.ohsang.util.onehouse.memo/.MainActivity
-WaitTime: 1561
+TotalTime: 5634
+WaitTime: 5899
 Complete
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-ANR 팝업 닫음
-✗ 안 보임: 새 메모집 만들기
+✓ 보임: 새 메모집 만들기
+탭: 새 메모집 만들기 (540 1759)
+✓ 보임: 메모집 이름
+입력: Home
+입력: Mom
+탭: 만들기 (540 2200)
+✓ 보임: 복구코드
+탭: 안전한 곳에 저장했어요 (540 2032)
+탭: 메모집 시작하기 (540 2200)
+✓ 보임: 내 메모집
+데이터 채움: 27baae57-1099-40d6-ac56-d9a5dadfe6ea
+Starting: Intent { cmp=com.ohsang.util.onehouse.memo/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.ohsang.util.onehouse.memo/.MainActivity
+TotalTime: 4728
+WaitTime: 4803
+Complete
+✓ 보임: 우리집 메모
+📸 01-notebook-list
+탭: 우리집 메모 (540 460)
+✓ 보임: 주말 장보기
+📸 02-memo-list
+탭: 휴지통 (891 202)
+✓ 보임: 지난주 장보기
+📸 03-trash
+탭: 이번 주 저녁 메뉴 (540 964)
+✓ 보임: 김치찌개
+📸 04-editor-no-ad
+끝

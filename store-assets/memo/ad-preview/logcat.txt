@@ -1,0 +1,11 @@
+--------- beginning of main
+11-04 10:21:11.531  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:11.684  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:11.910  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:12.024  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:12.649  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:12.808  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:12.984  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:13.218  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:13.319  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
+11-04 10:21:13.515  7087  7104 E FrameEvents: updateAcquireFence: Did not find frame.
