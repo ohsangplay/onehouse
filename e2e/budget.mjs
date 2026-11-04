@@ -107,7 +107,7 @@ await step(owner, 'recovery-code', async () => {
   await shot(owner, 'ledger-list-new');
 });
 
-// ── 데이터 채우기: 엄마(API로 참여 후 승인) + 이번 달 내역
+// ── 데이터 채우기: 엄마(API로 참여 후 승인, 부방장) + 지출·수입 카테고리 + 이번 달 내역
 let inviteCode = '';
 await step(owner, 'seed', async () => {
   const [ledger] = sql(
@@ -117,19 +117,25 @@ await step(owner, 'seed', async () => {
   const mom = await api(null, 'POST', '/devices', { install_key: randomBytes(32).toString('hex') });
   await api(mom.token, 'POST', '/ledgers/join', { code: inviteCode, nickname: '엄마' });
   sql(
-    `UPDATE ledger_members SET status = 'approved', decided_at = datetime('now'), decided_by_member_id = '${ledger.owner_member_id}' WHERE device_id = '${mom.device_id}'`,
+    `UPDATE ledger_members SET status = 'approved', role = 'co_owner', decided_at = datetime('now'), decided_by_member_id = '${ledger.owner_member_id}' WHERE device_id = '${mom.device_id}'`,
   );
   const L = `/ledgers/${ledger.id}`;
+  for (const [type, name] of [['expense', '반려동물'], ['expense', '구독료'], ['income', '용돈'], ['income', '부수입']]) {
+    await api(mom.token, 'POST', `${L}/categories`, { type, name });
+  }
   const { categories } = await api(mom.token, 'GET', `${L}/categories`);
   const cat = (name) => categories.find((c) => c.name === name).id;
   const kst = new Date(Date.now() + 9 * 3600_000);
   const day = (d) => `${kst.toISOString().slice(0, 8)}${String(Math.min(d, kst.getUTCDate())).padStart(2, '0')}`;
   const txs = [
-    { type: 'income', amount: 4200000, category_id: cat('급여'), memo: '10월 월급', spent_at: day(1) },
+    { type: 'income', amount: 4200000, category_id: cat('급여'), memo: '이번 달 월급', spent_at: day(1) },
     { type: 'expense', amount: 70000, category_id: cat('교통'), memo: '주유', spent_at: day(3) },
     { type: 'expense', amount: 86400, category_id: cat('생활'), memo: '마트 장보기', spent_at: day(5) },
+    { type: 'expense', amount: 35000, category_id: cat('반려동물'), memo: '고양이 사료', spent_at: day(6) },
     { type: 'expense', amount: 12000, category_id: cat('식비'), memo: '점심 식사', spent_at: day(7) },
+    { type: 'income', amount: 50000, category_id: cat('용돈'), memo: '할머니 용돈', spent_at: day(8) },
     { type: 'expense', amount: 650000, category_id: cat('주거'), memo: '관리비', spent_at: day(9) },
+    { type: 'expense', amount: 17000, category_id: cat('구독료'), memo: '영상 구독', spent_at: day(10) },
   ];
   for (const tx of txs) await api(mom.token, 'POST', `${L}/transactions`, tx);
 });
@@ -160,6 +166,73 @@ await step(owner, 'ledger-home', async () => {
   await owner.getByText('이번 달 남은 돈').waitFor({ timeout: 15_000 });
   await owner.getByText('관리비').waitFor({ timeout: 15_000 });
   await shot(owner, 'ledger-home');
+});
+
+// ── 내역 추가 (화면에서 직접)
+await step(owner, 'add-transaction', async () => {
+  await button(owner, '내역 추가').click();
+  await owner.getByText('카테고리').first().waitFor({ timeout: 15_000 });
+  await typeInto(owner, 0, '23000');
+  await button(owner, '식비').first().click();
+  await typeInto(owner, 1, '저녁 장보기');
+  await shot(owner, 'transaction-new');
+  await owner.getByRole('button', { name: '저장', exact: true }).click();
+  await owner.getByText('저녁 장보기').waitFor({ timeout: 15_000 });
+  await shot(owner, 'ledger-home-added');
+});
+
+// ── 달력 보기
+await step(owner, 'calendar', async () => {
+  await button(owner, '달력 보기').click();
+  await owner.getByText('일요일').or(owner.getByText('월요일')).or(owner.getByText('화요일')).or(owner.getByText('수요일'))
+    .or(owner.getByText('목요일')).or(owner.getByText('금요일')).or(owner.getByText('토요일')).first()
+    .waitFor({ timeout: 15_000 });
+  await shot(owner, 'calendar');
+});
+
+// ── 카테고리 필터 (전체 화면 → 라벨)
+await step(owner, 'filter', async () => {
+  await owner.getByRole('button', { name: '필터', exact: true }).click();
+  await owner.getByText('카테고리 필터').waitFor({ timeout: 15_000 });
+  await button(owner, '식비').first().click();
+  await button(owner, '반려동물').first().click();
+  await button(owner, '용돈').first().click();
+  await shot(owner, 'filter-screen');
+  await button(owner, '필터 3개 적용').click();
+  await owner.getByText('필터 합계').waitFor({ timeout: 15_000 });
+  await shot(owner, 'calendar-filtered');
+});
+
+// ── 필터가 많으면 +N
+await step(owner, 'filter-overflow', async () => {
+  await button(owner, '필터 3개 걸림').click();
+  await owner.getByText('카테고리 필터').waitFor({ timeout: 15_000 });
+  await button(owner, '생활').first().click();
+  await button(owner, '교통').first().click();
+  await button(owner, '구독료').first().click();
+  await button(owner, '필터 6개 적용').click();
+  await owner.getByText('필터 합계').waitFor({ timeout: 15_000 });
+  await button(owner, '목록 보기').click();
+  await owner.getByText('고양이 사료').waitFor({ timeout: 15_000 });
+  await shot(owner, 'list-filtered-overflow');
+});
+
+// ── 설정 → 카테고리 관리 → 카테고리 추가
+await step(owner, 'categories', async () => {
+  await button(owner, '가계부 설정').click();
+  await owner.getByText('카테고리 관리').waitFor({ timeout: 15_000 });
+  await shot(owner, 'settings');
+  await owner.getByText('카테고리 관리').click();
+  await owner.getByText('오른쪽 손잡이를 끌어').waitFor({ timeout: 15_000 });
+  await shot(owner, 'categories');
+  await owner.getByRole('button', { name: '카테고리 추가', exact: true }).click();
+  await owner.getByText('라벨 미리보기').waitFor({ timeout: 15_000 });
+  await button(owner, '수입').last().click();
+  await typeInto(owner, 0, '이자');
+  await shot(owner, 'category-add');
+  await owner.getByRole('button', { name: '추가', exact: true }).click();
+  await owner.getByText('이자').first().waitFor({ timeout: 15_000 });
+  await shot(owner, 'categories-income');
 });
 
 await browser.close();

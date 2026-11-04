@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
 import 'config.dart';
@@ -27,6 +28,10 @@ class BudgetApp extends StatelessWidget {
       title: '한지붕 가계부',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(BudgetColors.primary),
+      // 날짜 고르기 등 기본 위젯을 한국어로
+      locale: const Locale('ko', 'KR'),
+      supportedLocales: const [Locale('ko', 'KR')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: BootstrapScreen(
         services: services,
         home: (_) => LedgerListScreen(services: services),

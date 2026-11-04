@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A8A72"/><stop offset="1" stop-color="#164F41"/></linearGradient></defs>
+  <rect width="1024" height="500" fill="url(#bg)"/>
+  <g transform="translate(60 40) scale(0.41)">
+  <!-- 지붕 -->
+  <polyline points="232,452 512,250 792,452" fill="none" stroke="#FFFFFF" stroke-width="58" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 가계부 카드 -->
+  <rect x="300" y="430" width="424" height="400" rx="56" fill="#FFFFFF"/>
+  <!-- 원 동전 -->
+  <circle cx="512" cy="590" r="104" fill="#1F6F5C"/>
+  <polyline points="452,540 480,642 512,566 544,642 572,540" fill="none" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="438" y1="584" x2="586" y2="584" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+  <line x1="438" y1="614" x2="586" y2="614" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+  <!-- 내역 줄 -->
+  <line x1="352" y1="756" x2="672" y2="756" stroke="#BFDCD2" stroke-width="28" stroke-linecap="round"/>
+  </g>
+  <g font-family="Noto Sans CJK KR, sans-serif" fill="#FFFFFF">
+    <text x="500" y="200" font-size="76" font-weight="700">한지붕 가계부</text>
+    <text x="502" y="268" font-size="34" font-weight="500" fill-opacity="0.92">가족과 함께 쓰는 공유 가계부</text>
+    <g font-size="26" font-weight="500">
+      <rect x="500" y="318" width="124" height="48" rx="24" fill="#FFFFFF" fill-opacity="0.18"/>
+      <text x="562" y="351" text-anchor="middle">초대코드</text>
+      <rect x="638" y="318" width="96" height="48" rx="24" fill="#FFFFFF" fill-opacity="0.18"/>
+      <text x="686" y="351" text-anchor="middle">달력</text>
+      <rect x="748" y="318" width="166" height="48" rx="24" fill="#FFFFFF" fill-opacity="0.18"/>
+      <text x="831" y="351" text-anchor="middle">카테고리 필터</text>
+    </g>
+  </g>
+</svg>

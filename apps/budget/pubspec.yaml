@@ -1,13 +1,15 @@
 name: budget
 description: "한지붕 가계부 - 함께 쓰는 공유 가계부"
 publish_to: "none"
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.5.0
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   http: ^1.2.2
   onehouse_core:
@@ -17,6 +19,16 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
+
+# 앱 아이콘 (scripts/flutter_platforms.sh가 dart run flutter_launcher_icons로 만든다)
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "../../store-assets/budget/out/icon-1024.png"
+  adaptive_icon_background: "../../store-assets/budget/out/android-adaptive-background.png"
+  adaptive_icon_foreground: "../../store-assets/budget/out/android-adaptive-foreground.png"
+  remove_alpha_ios: true

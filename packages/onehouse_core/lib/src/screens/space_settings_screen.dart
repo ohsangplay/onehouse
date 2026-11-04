@@ -13,10 +13,14 @@ import 'recovery_code_screen.dart';
 
 /// 가계부·메모집 설정. 나가거나 삭제하면 true를 돌려준다 (목록으로 돌아가야 함).
 class SpaceSettingsScreen extends StatefulWidget {
-  const SpaceSettingsScreen({super.key, required this.services, required this.spaceId});
+  const SpaceSettingsScreen({super.key, required this.services, required this.spaceId, this.extraTiles});
 
   final AppServices services;
   final String spaceId;
+
+  /// 앱마다 더 넣을 항목 (예: 가계부의 카테고리 관리). 멤버 관리와 같은 묶음 맨 위에 들어간다.
+  /// 탭해서 무언가 바뀌었으면 [markChanged]를 불러 주면 설정을 닫을 때 목록을 새로 고친다.
+  final List<Widget> Function(BuildContext context, SpaceRole role, VoidCallback markChanged)? extraTiles;
 
   @override
   State<SpaceSettingsScreen> createState() => _SpaceSettingsScreenState();
@@ -317,6 +321,7 @@ class _SpaceSettingsScreenState extends State<SpaceSettingsScreen> {
               ListTile(leading: const Icon(Icons.refresh), title: const Text('초대코드 새로 만들기'), onTap: _reissueInvite),
           ]),
         _Group(children: [
+          ...?widget.extraTiles?.call(context, role, () => _changed = true),
           if (manager)
             ListTile(
               leading: const Icon(Icons.group_outlined),
