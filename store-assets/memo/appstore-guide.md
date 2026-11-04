@@ -207,6 +207,7 @@ Notes are visible only to members approved by the notebook owner; there is no pu
 
 **실행**: Actions → **iOS 빌드 → TestFlight 업로드** → Run workflow → 앱 **memo**, upload 체크
 - 15~25분 뒤 App Store Connect → TestFlight에 빌드가 보여요 (처리 10~30분 추가).
+- 앱은 운영 서버 `https://api.ohsangplay.com/onehouse/memo`에 붙어요 (빌드에 기본값으로 들어가 있음).
 - TestFlight → 내부 테스트에 본인을 추가하고, 아이폰 TestFlight 앱으로 설치해서 확인하세요.
 - 수출 규정 질문은 빌드에 `ITSAppUsesNonExemptEncryption = NO`가 들어가 있어서 따로 안 물어봐요.
 - 실패하면 실행 로그의 빨간 단계를 알려주세요.

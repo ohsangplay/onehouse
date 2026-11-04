@@ -10,6 +10,12 @@ name: Android 빌드 (Play 스토어용 AAB)
 #   ANDROID_KEY_ALIAS          키 별칭 (예: upload)
 #   ANDROID_KEY_PASSWORD       키 비밀번호 (키스토어 비밀번호와 같게 만들었으면 같은 값)
 # Secrets가 없으면 디버그 키로 서명한 확인용 파일만 만든다 (Play에는 못 올림).
+#
+# Play Console 자동 업로드 (선택)
+#   PLAY_SERVICE_ACCOUNT_JSON  Google Play Android Developer API 서비스 계정 키(JSON 파일 내용 그대로)
+#   play_track 을 internal(내부 테스트) / alpha(비공개 테스트)로 고르면 빌드한 AAB를 그 트랙에 "초안"으로 올린다.
+#   올린 뒤 Play Console에서 출시 노트를 확인하고 "검토를 위해 전송"만 누르면 된다.
+#   주의: 앱의 맨 처음 AAB는 Google 정책상 Play Console에서 직접 한 번 올려야 한다 (그 뒤부터 자동 업로드 가능).
 
 on:
   workflow_dispatch:
@@ -19,6 +25,11 @@ on:
         type: choice
         options: [memo, budget]
         default: memo
+      play_track:
+        description: "Play Console에 업로드 (none = 빌드만, internal = 내부 테스트, alpha = 비공개 테스트)"
+        type: choice
+        options: [none, internal, alpha]
+        default: none
 
 permissions:
   contents: read
@@ -114,6 +125,38 @@ jobs:
           name: ${{ inputs.app }}-aab
           path: apps/${{ inputs.app }}/build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
+
+      - name: Play 업로드 준비 확인
+        id: play
+        if: ${{ inputs.play_track != 'none' }}
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$PLAY_JSON" ]; then
+            echo "::error title=Play 업로드 불가::PLAY_SERVICE_ACCOUNT_JSON Secret이 없어요. AAB는 Artifacts에서 내려받아 직접 올릴 수 있어요."
+            exit 1
+          fi
+          if [ -z "$ANDROID_KEYSTORE_PATH" ]; then
+            echo "::error title=Play 업로드 불가::업로드 키(ANDROID_KEYSTORE_BASE64 등)가 없어 디버그 키로 서명됐어요. Play에는 올릴 수 없어요."
+            exit 1
+          fi
+          ver=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          echo "release_name=$ver (${{ github.run_number }})" >> "$GITHUB_OUTPUT"
+
+      - name: Play Console 업로드 (초안)
+        if: ${{ inputs.play_track != 'none' }}
+        uses: r0adkll/upload-google-play@v1.1.3
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.ohsang.util.onehouse.${{ inputs.app }}
+          releaseFiles: apps/${{ inputs.app }}/build/app/outputs/bundle/release/app-release.aab
+          track: ${{ inputs.play_track }}
+          status: draft
+          releaseName: ${{ steps.play.outputs.release_name }}
+
+      - name: Play 업로드 안내
+        if: ${{ inputs.play_track != 'none' }}
+        run: echo "::notice title=Play 업로드 완료::${{ inputs.play_track }} 트랙에 초안으로 올렸어요. Play Console → 테스트 → 해당 트랙에서 출시 노트 확인 후 '검토를 위해 전송'을 눌러 주세요."
 
       # 휴대폰에 바로 설치해서 확인하는 용도 (Play에는 위 AAB를 올린다)
       - name: 설치용 APK 빌드

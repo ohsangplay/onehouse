@@ -54,9 +54,30 @@ $kt = "C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe"
 | `ANDROID_KEY_ALIAS` | `upload` |
 | `ANDROID_KEY_PASSWORD` | 키 비밀번호 (같게 했으면 같은 값) |
 
-**빌드**: Actions → **Android 빌드 (Play 스토어용 AAB)** → Run workflow → 앱 **memo**
+**빌드**: Actions → **Android 빌드 (Play 스토어용 AAB)** → Run workflow → 앱 **memo**, Play 업로드 **none**
 - 5~10분 뒤 실행 화면 아래 **Artifacts → memo-aab**를 내려받아 압축을 풀면 `app-release.aab`가 있어요.
 - 실행 요약에 "업로드 키로 서명해요"가 떠야 해요. "업로드 키 없음" 경고가 뜨면 Secrets를 다시 확인해 주세요.
+- 앱은 운영 서버 `https://api.ohsangplay.com/onehouse/memo`에 붙어요 (빌드에 기본값으로 들어가 있음).
+
+## 1-1. Play 자동 업로드 (처음 한 번 설정)
+
+맨 처음 AAB는 Google 정책상 **Play Console에서 직접** 올려야 해요(6번). 그 뒤부터는 워크플로가 빌드하고 바로 올릴 수 있어요.
+
+1. **Google Cloud Console** (https://console.cloud.google.com) → 프로젝트 하나 고르기(없으면 `ohsangplay` 같은 이름으로 만들기)
+   - **API 및 서비스 → 라이브러리** → `Google Play Android Developer API` → **사용**
+   - **IAM 및 관리자 → 서비스 계정 → 서비스 계정 만들기** → 이름 `play-upload` → 역할은 비워 두고 완료
+   - 만든 계정 → **키 → 키 추가 → 새 키 만들기 → JSON** → 파일이 내려받아져요
+2. **Play Console → 사용자 및 권한 → 새 사용자 초대**
+   - 이메일: 서비스 계정 이메일(`play-upload@<프로젝트>.iam.gserviceaccount.com`)
+   - **앱 권한 → 앱 추가 → 한지붕 메모**(가계부도 올릴 거면 같이) → 권한: **테스트 트랙에 앱 출시**, **테스트 트랙 관리 및 테스터 목록 수정**
+   - (프로덕션까지 자동으로 올리려면 **프로덕션에 앱 출시**도 체크. 지금 워크플로는 테스트 트랙만 올려요)
+   - **사용자 초대**
+3. GitHub 저장소 Secrets에 추가: `PLAY_SERVICE_ACCOUNT_JSON` = JSON 파일 내용 전체 (메모장으로 열어서 그대로 복사)
+   - JSON 파일은 비밀번호와 같아요. 저장소에 올리지 말고 안전한 곳에 보관하세요.
+
+**자동 업로드 실행**: Actions → **Android 빌드 (Play 스토어용 AAB)** → 앱 **memo**, Play 업로드 **alpha**(비공개 테스트) 또는 **internal**(내부 테스트)
+- 빌드한 AAB가 그 트랙에 **초안**으로 올라가요. Play Console → 테스트 → 해당 트랙에서 출시 노트를 넣고 **검토를 위해 전송**을 누르면 끝이에요.
+- 권한을 준 직후에는 "권한 없음"으로 실패할 수 있어요. 보통 몇 분~하루 안에 풀려요.
 
 ## 2. 앱 만들기
 
@@ -165,6 +186,7 @@ Play Console → **모든 앱 → 앱 만들기**
 4. **다음 → 저장 → 검토를 위해 전송**
 5. 검토가 끝나면 테스터 탭의 **참여 링크(웹에서 참여)**를 테스터들에게 보내요
    - 테스터가 링크에서 **테스터 되기**를 누르고 Play 스토어에서 설치해야 참여로 세어져요.
+6. 다음 버전부터는 1-1의 **자동 업로드**(Play 업로드 **alpha**)로 올리면 돼요.
 
 ## 7. 프로덕션 액세스 신청 (14일 뒤)
 
