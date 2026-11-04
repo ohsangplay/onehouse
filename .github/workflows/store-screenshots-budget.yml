@@ -9,6 +9,7 @@ on:
   push:
     paths:
       - e2e/store-budget.mjs
+      - apps/budget/lib/**
       - store-assets/budget/frame_screenshots.py
       - .github/workflows/store-screenshots-budget.yml
 
