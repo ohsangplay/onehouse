@@ -91,6 +91,25 @@ if 'google_mobile_ads' in pathlib.Path('pubspec.yaml').read_text(encoding='utf-8
         # Google 광고 네트워크 (SKAdNetwork)
         data['SKAdNetworkItems'] = [{'SKAdNetworkIdentifier': 'cstr6suwn9.skadnetwork'}]
         plist.write_bytes(plistlib.dumps(data))
+    # 출시 빌드(R8 축소)에서 광고 SDK가 쓰는 WorkManager/Room 클래스가 지워져 실행하자마자 죽는 문제 방지
+    rules = pathlib.Path('android/app/proguard-rules.pro')
+    if rules.parent.exists():
+        keep = ('# google_mobile_ads -> WorkManager(Room). 지우면 시작 시 WorkDatabase 생성 실패로 앱이 죽는다\n'
+                '-keep class * extends androidx.room.RoomDatabase { <init>(); *; }\n'
+                '-keep class androidx.work.** { *; }\n'
+                '-keep class androidx.startup.** { *; }\n'
+                '-dontwarn androidx.work.**\n')
+        old = rules.read_text(encoding='utf-8') if rules.exists() else ''
+        if 'androidx.work' not in old:
+            rules.write_text(old + keep, encoding='utf-8')
+        kts = pathlib.Path('android/app/build.gradle.kts')
+        if kts.exists():
+            k = kts.read_text(encoding='utf-8')
+            if 'proguard-rules.pro' not in k:
+                k = re.sub(r'(\n([ \t]*)release \{)', lambda m: m.group(1) + f'\n{m.group(2)}    proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")', k, count=1)
+                if 'proguard-rules.pro' not in k:
+                    print('[주의] build.gradle.kts에 proguard 규칙을 연결하지 못했어요')
+                kts.write_text(k, encoding='utf-8')
     test = '3940256099942544' in android_id or '3940256099942544' in ios_id
     print('AdMob 앱 ID: ' + ('테스트 ID (실제 ID 환경변수 없음)' if test else '실제 ID'))
 
