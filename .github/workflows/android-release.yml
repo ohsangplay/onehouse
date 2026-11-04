@@ -36,9 +36,13 @@ on:
         type: choice
         options: [none, internal, alpha]
         default: none
+      share_files:
+        description: "AAB·APK를 release-files 브랜치에도 올리기 (Claude가 받아서 전달할 때)"
+        type: boolean
+        default: false
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: android-release-${{ inputs.app }}
@@ -194,3 +198,20 @@ jobs:
           name: ${{ inputs.app }}-apk
           path: apps/${{ inputs.app }}/build/onehouse-${{ inputs.app }}-${{ github.run_number }}.apk
           if-no-files-found: error
+
+      - name: release-files 브랜치에 올리기
+        if: ${{ inputs.share_files }}
+        working-directory: .
+        run: |
+          d="$RUNNER_TEMP/release-files"
+          mkdir -p "$d/${{ inputs.app }}"
+          cp apps/${{ inputs.app }}/build/app/outputs/bundle/release/app-release.aab "$d/${{ inputs.app }}/onehouse-${{ inputs.app }}-${{ github.run_number }}.aab"
+          cp apps/${{ inputs.app }}/build/onehouse-${{ inputs.app }}-${{ github.run_number }}.apk "$d/${{ inputs.app }}/"
+          cd "$d"
+          git init -q -b release-files
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "${{ inputs.app }} ${{ github.run_number }} (${GITHUB_SHA::7})"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" release-files
+          echo "::notice title=release-files::release-files 브랜치에 올렸어요"
