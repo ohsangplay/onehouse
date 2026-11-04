@@ -1,7 +1,7 @@
 // 한지붕 시리즈(가계부·메모) 개인정보처리방침. 스토어에 등록하는 주소: <서버>/privacy
 // 서버·앱이 실제로 저장하는 내용과 맞춰야 한다 (migrations/, src/lib/purge.ts, apps/*/lib/services).
 
-export const PRIVACY_EFFECTIVE_DATE = '2026년 11월 1일';
+export const PRIVACY_EFFECTIVE_DATE = '2026년 11월 4일';
 export const CONTACT_EMAIL = 'dkwkehd2@gmail.com';
 
 /** base: 서버가 붙어 있는 경로 (예: /onehouse/budget). 안내 페이지 링크에 쓴다. 정해진 값만 들어온다 */
@@ -42,9 +42,10 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
 <div class="summary">
 <b>요약</b>
 <ul>
-<li>회원가입·로그인이 없고 이름, 전화번호, 이메일, 위치, 광고 ID를 수집하지 않습니다.</li>
+<li>회원가입·로그인이 없고 운영자는 이름, 전화번호, 이메일, 위치, 광고 ID를 수집하지 않습니다.</li>
 <li>함께 쓰기 위해 이용자가 직접 입력한 <b>닉네임과 가계부 내역·메모</b>를 서버에 저장합니다.</li>
-<li>광고, 분석 도구, 추적을 사용하지 않고, 개인정보를 판매하거나 제3자에게 제공하지 않습니다.</li>
+<li><b>한지붕 가계부</b>는 화면 아래에 Google AdMob 배너 광고를 보여 줍니다. 광고를 위해 Google이 기기에서 광고 식별자 등을 직접 수집할 수 있습니다(4번 참고). 한지붕 메모에는 광고가 없습니다.</li>
+<li>분석 도구를 쓰지 않고, 개인정보를 판매하지 않습니다.</li>
 <li>삭제한 가계부·메모집·메모는 30일 뒤 서버에서 완전히 지워집니다.</li>
 </ul>
 </div>
@@ -72,10 +73,19 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
 <h2>3. 공유 범위</h2>
 <p>이용자가 쓴 내용과 닉네임은 <b>같은 가계부·메모집에서 승인된 멤버</b>에게만 보입니다. 방장·부방장은 참여 요청자의 닉네임을 볼 수 있습니다. 차단되거나 나간 멤버는 즉시 볼 수 없게 됩니다.</p>
 
-<h2>4. 처리 위탁과 국외 이전</h2>
+<h2>4. 처리 위탁·국외 이전과 광고</h2>
 <p>운영자는 서버와 데이터베이스를 Cloudflare, Inc.(미국)의 Cloudflare Workers·D1에 두고 운영합니다. 위 1번의 정보가 서비스 이용 시점에 암호화된 통신(HTTPS)으로 Cloudflare의 데이터센터(국외 포함)에 저장·처리되며, 보관 기간은 아래 5번과 같습니다. Cloudflare는 서비스 운영을 위해 접속 IP 등을 자체 정책에 따라 처리할 수 있습니다
 (<a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare 개인정보 처리방침</a>).
-이 밖에 제3자에게 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
+</p>
+
+<p><b>광고 (한지붕 가계부)</b><br>
+한지붕 가계부는 광고를 보여 주기 위해 Google LLC(미국)의 Google 모바일 광고 SDK(AdMob)를 씁니다. 이 SDK는 앱 안에서 광고를 고르고 보여 주며 부정 클릭을 막기 위해 다음 정보를 <b>Google에 직접</b> 보냅니다: 광고 식별자(Android 광고 ID), IP 주소와 대략적인 위치, 기기·운영체제·앱 정보, 광고 노출·클릭 기록, 오류·성능 정보. 운영자는 이 정보를 받거나 저장하지 않으며, 가계부 내역·메모·닉네임은 광고에 쓰이지 않습니다.</p>
+<ul>
+<li>iOS: 앱 추적 허용을 요청하지 않으므로 IDFA(광고 식별자)를 쓰지 않고, 맞춤형이 아닌 광고가 나올 수 있습니다.</li>
+<li>Android: 기기 설정 → Google → 광고(또는 개인 정보 보호 → 광고)에서 광고 ID를 재설정·삭제하거나 맞춤 광고를 끌 수 있습니다.</li>
+<li>Google이 정보를 처리하는 방식: <a href="https://policies.google.com/technologies/partner-sites?hl=ko" rel="noopener">Google 파트너 사이트·앱의 데이터 사용</a>, <a href="https://policies.google.com/privacy?hl=ko" rel="noopener">Google 개인정보처리방침</a></li>
+</ul>
+<p>이 밖에 제3자에게 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
 
 <h2>5. 보유 기간과 파기</h2>
 <ul>
@@ -107,7 +117,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
 <p>개인정보 침해에 관한 상담이 필요하시면 개인정보침해신고센터(privacy.kisa.or.kr, 국번 없이 118), 개인정보분쟁조정위원회(www.kopico.go.kr, 1833-6972)에 문의하실 수 있습니다.</p>
 
 <h2>10. 방침의 변경</h2>
-<p>이 방침이 바뀌면 이 페이지에 시행일과 함께 알립니다. 광고·분석 도구를 넣는 등 처리 방식이 달라지면 시행 7일 전까지 먼저 공지합니다.</p>
+<p>이 방침이 바뀌면 이 페이지에 시행일과 함께 알립니다. 광고·분석 도구를 새로 넣는 등 처리 방식이 달라지면 시행 7일 전까지 먼저 공지합니다.</p>
 
 <footer>시행일: ${PRIVACY_EFFECTIVE_DATE} · <a href="${base}/">한지붕</a></footer>
 </main>

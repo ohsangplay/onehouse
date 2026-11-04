@@ -14,13 +14,34 @@
 | SKU | `onehouse-budget-001` |
 | 버전 / 빌드 | 1.0.0 / 자동 (GitHub Actions 실행 번호) |
 | 지원 기기 | iPhone 전용 |
-| 가격 | 무료 · 광고 없음 · 인앱 결제 없음 |
+| 가격 | 무료 · **하단 배너 광고(AdMob)** · 인앱 결제 없음 |
 | 개인정보처리방침 | https://api.ohsangplay.com/onehouse/budget/privacy |
 | 안내 페이지 (마케팅 URL) | https://api.ohsangplay.com/onehouse/budget/ |
 
 > 서버 주소는 `https://api.ohsangplay.com/onehouse/budget`이에요 (한지붕 메모와 같은 서버). 앱 안 링크(개인정보처리방침·문의)는 서버 주소를 따라가서 따로 고칠 필요가 없어요.
 
 ---
+
+## 0. AdMob 광고 설정 (먼저)
+
+앱 하단에 **Google AdMob 배너**가 들어가 있어요. 실제 광고 ID를 넣지 않으면 Google 테스트 광고로 빌드되고, 업로드 워크플로는 테스트 광고 출시를 막으려고 멈춰요.
+
+1. https://admob.google.com → **앱 → 앱 추가**
+   - 플랫폼 **iOS** → "앱이 지원되는 앱 스토어에 등록되어 있나요?" → **아니요** (출시 후 스토어와 연결) → 앱 이름 `한지붕 가계부`
+   - 같은 방법으로 **Android** 앱도 하나 더 추가
+2. 각 앱에서 **광고 단위 → 배너** → 이름 `가계부 하단 배너` → 만들기
+3. 나오는 ID 4개를 GitHub에 넣기: `ohsangplay/onehouse` → Settings → Secrets and variables → Actions → **Variables** 탭 → New repository variable (비밀값이 아니라서 Secrets가 아니라 Variables예요)
+
+| Name | 값 | 모양 |
+|---|---|---|
+| `BUDGET_ADMOB_APP_ID_IOS` | iOS 앱의 **앱 ID** | `ca-app-pub-1234567890123456~1111111111` (물결 ~) |
+| `BUDGET_ADMOB_BANNER_IOS` | iOS 배너의 **광고 단위 ID** | `ca-app-pub-1234567890123456/2222222222` (빗금 /) |
+| `BUDGET_ADMOB_APP_ID_ANDROID` | Android 앱의 앱 ID | `ca-app-pub-…~…` |
+| `BUDGET_ADMOB_BANNER_ANDROID` | Android 배너의 광고 단위 ID | `ca-app-pub-…/…` |
+
+4. AdMob → **결제** 정보(지급 받을 계좌·세금 정보)는 수익이 쌓이기 전까지만 넣으면 돼요.
+5. **app-ads.txt**: AdMob → 앱 → app-ads.txt 설정에 나오는 한 줄을 개발자 웹사이트 도메인 루트에 올려야 광고가 제대로(더 많이) 나와요. 스토어의 개발자 웹사이트/마케팅 URL을 `https://ohsangplay.com`으로 두고 `https://ohsangplay.com/app-ads.txt`에 올리는 걸 추천해요. 출시 뒤에 해도 돼요.
+6. 내 폰에서 실제 광고를 반복해서 누르면 계정이 정지될 수 있어요. 확인할 땐 AdMob → 설정 → **테스트 기기**에 내 폰을 등록하세요.
 
 ## 1. Certificates, Identifiers & Profiles
 
@@ -69,7 +90,7 @@ https://appstoreconnect.apple.com/apps → **+ → 신규 앱**
 - 사용자 생성 콘텐츠·사용자 간 공유: 가계부는 초대코드 + 방장 승인을 거친 멤버끼리만 보이는 비공개 공유예요.
   "다른 사용자와 콘텐츠를 공유할 수 있나요"처럼 묻는 문항이 있으면 **예**로 답해 주세요.
   공개 게시판·검색·채팅은 없어요.
-- 광고: **아니요**
+- 광고: **예** (하단 배너) — 등급에는 영향 없음
 - 예상 결과: **4+**
 
 ## 4. 앱 개인정보 보호
@@ -81,9 +102,15 @@ https://appstoreconnect.apple.com/apps → **+ → 신규 앱**
 | 금융 정보 → **기타 금융 정보** (가계부 금액·수입/지출·카테고리) | 앱 기능 | **예** | 아니요 |
 | 사용자 콘텐츠 → **기타 사용자 콘텐츠** (내역 메모·닉네임) | 앱 기능 | **예** | 아니요 |
 | 식별자 → **사용자 ID** (앱이 만든 기기 계정, 기기 고유번호·광고 ID 아님) | 앱 기능 | **예** | 아니요 |
+| 식별자 → **기기 ID** (AdMob) | 타사 광고 | 아니요 | 아니요 |
+| 위치 → **대략적인 위치** (AdMob, IP 기반) | 타사 광고 | 아니요 | 아니요 |
+| 사용 데이터 → **제품 상호 작용**, **광고 데이터** (AdMob) | 타사 광고, 분석 | 아니요 | 아니요 |
+| 진단 → **충돌 데이터**, **성능 데이터**, **기타 진단 데이터** (AdMob) | 타사 광고, 분석 | 아니요 | 아니요 |
 
+- AdMob(Google 모바일 광고 SDK)이 기기에서 Google로 직접 보내는 항목도 Apple 기준으로는 "앱이 수집"하는 것이라 적어야 해요.
+- **추적: 아니요** — 앱 추적 투명성(ATT) 허용을 묻지 않아서 IDFA를 쓰지 않아요. 나중에 ATT 팝업을 넣어 맞춤 광고를 켜면 기기 ID·광고 데이터를 "추적: 예"로 바꿔야 해요.
 - **결제 정보·신용 정보는 수집하지 않아요.** 카드번호·계좌번호를 읽거나 저장하지 않고, 이용자가 직접 적은 금액만 저장해요.
-- 연락처·이메일·이름·위치·건강·검색 기록·사용 데이터·진단: **수집 안 함**
+- 연락처·이메일·이름·정확한 위치·건강·검색 기록: **수집 안 함**
 - Apple 정의상 "기타 금융 정보"는 수입·자산 등 금융 관련 정보 전반이라, 직접 적은 가계부 금액도 여기에 넣는 게 안전해요.
 
 ## 5. 가격 및 사용 가능 여부
@@ -112,7 +139,7 @@ https://appstoreconnect.apple.com/apps → **+ → 신규 앱**
 
 **프로모션 텍스트** (170자)
 ```
-초대코드 하나로 가족과 함께 쓰는 가계부예요. 누가 쓴 내역인지 바로 보이고, 달력과 카테고리 필터로 한 달 지출을 한눈에. 회원가입·광고 없음.
+초대코드 하나로 가족과 함께 쓰는 가계부예요. 누가 쓴 내역인지 바로 보이고, 달력과 카테고리 필터로 한 달 지출을 한눈에. 회원가입 없이 바로 시작.
 ```
 
 **설명** (4,000자)
@@ -144,7 +171,7 @@ https://appstoreconnect.apple.com/apps → **+ → 신규 앱**
 · 순서 바꾸기, 이름 바꾸기, 지우기 (지워도 내역은 미분류로 남아요)
 
 ■ 개인정보
-회원가입, 로그인, 광고가 없습니다. 이름, 연락처, 위치, 광고 ID를 수집하지 않고, 카드·계좌 정보도 읽지 않습니다. 직접 적은 내역과 닉네임만 서버에 저장되고, 같은 가계부 멤버에게만 보여요.
+회원가입과 로그인이 없습니다. 이름, 연락처를 받지 않고, 카드·계좌 정보도 읽지 않습니다. 직접 적은 내역과 닉네임만 서버에 저장되고, 같은 가계부 멤버에게만 보여요. 무료로 쓰실 수 있도록 화면 아래에 배너 광고가 나와요.
 
 한지붕 시리즈: 가족과 함께 쓰는 메모장 "한지붕 메모"도 있어요.
 
@@ -186,7 +213,7 @@ How to test on one device:
 
 Sharing (needs a second device or simulator): on the second device choose "초대코드로 참여하기" (Join with invite code), enter the code and a nickname. The owner approves the request in Settings → 멤버 관리 (Members).
 
-Records are visible only to members approved by the budget owner; there is no public content, search or chat. Owners and co-owners can block members at any time. No ads, no tracking, no third-party analytics.
+Records are visible only to members approved by the budget owner; there is no public content, search or chat. Owners and co-owners can block members at any time. The app shows a Google AdMob banner at the bottom of the main screens; it does not request App Tracking Transparency and does not use IDFA. No third-party analytics.
 ```
 
 ## 7. 빌드 업로드 (GitHub Actions)
@@ -206,6 +233,8 @@ Records are visible only to members approved by the budget owner; there is no pu
   ```powershell
   [Convert]::ToBase64String([IO.File]::ReadAllBytes("$HOME\Downloads\AuthKey_XXXXXXXXXX.p8")) | Set-Clipboard
   ```
+
+**저장소 Variables**: 0번의 `BUDGET_ADMOB_APP_ID_IOS`, `BUDGET_ADMOB_BANNER_IOS`가 있어야 업로드돼요 (없으면 "AdMob ID 없음"으로 멈춤).
 
 **실행**: Actions → **iOS 빌드 → TestFlight 업로드** → Run workflow → 앱 **budget**, upload 체크
 - 15~25분 뒤 App Store Connect → TestFlight에 빌드가 보여요 (처리 10~30분 추가).
