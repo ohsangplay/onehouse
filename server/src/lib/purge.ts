@@ -1,6 +1,6 @@
 /**
  * 하루 한 번 (wrangler.toml [triggers]) 지운 지 30일 지난 데이터를 완전히 지운다.
- * - 휴지통의 메모 (항목·버전 기록·보는 중 기록 포함)
+ * - 휴지통의 메모 (항목·버전 기록·보는 중 기록 포함), 지운 가계부 내역
  * - 삭제한 가계부·메모집과 그 안의 모든 내용·멤버·관리 이력
  * - 오래된 "보는 중" 기록, 시도 횟수 기록
  */
@@ -17,7 +17,7 @@ export async function purge(db: D1Database, now = Date.now()): Promise<Record<st
     ['memo_revisions', db.prepare(`DELETE FROM memo_revisions WHERE memo_id IN (${deletedMemos}) OR memo_id IN (${spaceMemos})`).bind(cutoff)],
     ['memo_presence', db.prepare(`DELETE FROM memo_presence WHERE memo_id IN (${deletedMemos}) OR memo_id IN (${spaceMemos}) OR seen_at < ?2`).bind(cutoff, new Date(now - 86_400_000).toISOString())],
     ['memos', db.prepare(`DELETE FROM memos WHERE deleted_at IS NOT NULL AND deleted_at < ?1 OR ledger_id IN (${deletedSpaces})`).bind(cutoff)],
-    ['transactions', db.prepare(`DELETE FROM transactions WHERE ledger_id IN (${deletedSpaces})`).bind(cutoff)],
+    ['transactions', db.prepare(`DELETE FROM transactions WHERE deleted_at IS NOT NULL AND deleted_at < ?1 OR ledger_id IN (${deletedSpaces})`).bind(cutoff)],
     ['categories', db.prepare(`DELETE FROM categories WHERE ledger_id IN (${deletedSpaces})`).bind(cutoff)],
     ['ledger_events', db.prepare(`DELETE FROM ledger_events WHERE ledger_id IN (${deletedSpaces})`).bind(cutoff)],
     ['ledger_members', db.prepare(`DELETE FROM ledger_members WHERE ledger_id IN (${deletedSpaces})`).bind(cutoff)],
