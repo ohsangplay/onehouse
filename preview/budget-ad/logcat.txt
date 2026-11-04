@@ -1,0 +1,200 @@
+11-04 07:50:30.975   552   967 E IPCThreadState: binder thread pool (31 threads) starved for 6108 ms
+11-04 07:50:31.011   552  3895 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.adservices.AdServicesManagerService$Lifecycle
+11-04 07:50:31.011   552  3895 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.adservices.AdServicesManagerService$Lifecycle took to complete: 0ms
+11-04 07:50:32.631  1651  3886 I AiAiCaptions: downloadSuperpack(): Successfully loaded embedded manifest of superpack 'captions_i18n_v0_mandatory' (version 20210623)
+11-04 07:50:32.632  1651  3886 I AiAiCaptions: downloadSuperpack(): Successfully loaded embedded manifest of superpack 'captions_i18n_v0_en-US' (version 20210623)
+11-04 07:50:32.820  3716  3716 D FlutterRenderer: Width is zero. 0,0
+11-04 07:50:35.474  2767  3709 V Backup  : [CustomDownloadSchedulingIO] Received Action: com.google.android.chimera.IntentOperation.NEW_MODULE
+11-04 07:50:35.474  2767  3709 V Backup  : [CustomDownloadSchedulingIO] listenToSetupWizardFinishedBroadcast or customBackupDownloadEnableSuwTriggerWithGmsUpdateCheck flag on
+11-04 07:50:35.475  2767  3709 V Backup  : [CustomDownloadSchedulingIO] Flag to run custom backup downloads is off.
+11-04 07:50:35.895  1077  1397 I HeadsetPhoneState: stopListenForPhoneState(), no listener indicates nothing is listening
+11-04 07:50:35.896  1077  1397 W HeadsetPhoneState: startListenForPhoneState, no event to listen
+11-04 07:50:36.799  3716  3716 D FlutterRenderer: Width is zero. 0,0
+11-04 07:50:36.946  3716  3716 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:50:39.961  3716  3716 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:50:40.853  3716  3716 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:50:41.897  3716  4261 D SharedPreferencesImpl: Time required to fsync /data/user/0/com.ohsang.util.onehouse.budget/shared_prefs/FlutterSecureKeyStorage.xml: [<1: 0, <2: 0, <4: 0, <8: 0, <16: 0, <32: 0, <64: 0, <128: 0, <256: 0, <512: 1, <1024: 0, <2048: 0, <4096: 0, <8192: 0, <16384: 0, >=16384: 0]
+11-04 07:50:41.982   552  1819 I AppsFilter: interaction: PackageSetting{453739c com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:50:42.392  3716  4261 D SharedPreferencesImpl: Time required to fsync /data/user/0/com.ohsang.util.onehouse.budget/shared_prefs/FlutterSecureStorage.xml: [<1: 0, <2: 0, <4: 0, <8: 0, <16: 0, <32: 0, <64: 0, <128: 0, <256: 0, <512: 1, <1024: 0, <2048: 0, <4096: 0, <8192: 0, <16384: 0, >=16384: 0]
+11-04 07:50:42.628  3716  4236 W onehouse.budget: Verification of long com.google.android.gms.internal.ads.zzbhn.zzc(java.lang.String, long) took 101.659ms (157.39 bytecodes/s) (1640B approximate peak alloc)
+11-04 07:50:44.314  3716  4236 W onehouse.budget: Verification of int com.google.android.gms.ads.internal.util.zzs.zzA(android.view.View) took 309.086ms (119.71 bytecodes/s) (2560B approximate peak alloc)
+11-04 07:50:44.630  3716  4236 W onehouse.budget: Verification of void com.google.android.gms.ads.internal.util.zzs.zzM(android.view.View, int, android.view.MotionEvent) took 312.357ms (867.60 bytecodes/s) (7504B approximate peak alloc)
+11-04 07:50:44.900  3716  4236 W onehouse.budget: Verification of boolean com.google.android.gms.internal.ads.zzcdn.zza(android.content.Context) took 113.779ms (896.47 bytecodes/s) (3536B approximate peak alloc)
+11-04 07:50:46.002  4287  4287 D nativeloader:   com_android_adservices: libhpke_jni.so:libtflite_support_classifiers_native.so
+11-04 07:50:46.016   552  2370 I AppsFilter: interaction: PackageSetting{453739c com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:50:47.127  1651  3886 I AiAiCaptions: downloadSuperpack(): Successfully downloaded superpack 'captions_i18n_v0_mandatory' version 20210623.
+11-04 07:50:47.894  4371  4371 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-04 07:50:47.895  4371  4371 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-04 07:50:49.121  3716  4236 W onehouse.budget: Verification of java.lang.Object com.google.android.gms.internal.ads.zzhab.zze(com.google.common.util.concurrent.ListenableFuture) took 181.526ms (1167.87 bytecodes/s) (5704B approximate peak alloc)
+11-04 07:50:50.463  3716  4424 W onehouse.budget: Long monitor contention with owner Thread-4 (4236) at void com.google.android.gms.ads.internal.client.zzeu.zzc(android.content.Context, java.lang.String, com.google.android.gms.ads.initialization.OnInitializationCompleteListener)(com.google.android.gms:play-services-ads-api@@25.1.0:30) waiters=0 in void com.google.android.gms.ads.internal.client.zzeu.zzt(java.lang.String) for 556ms
+11-04 07:50:53.754  3716  3716 I Ads     : JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html:1103)
+11-04 07:50:53.754  3716  3716 I chromium: [INFO:CONSOLE(1103)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html (1103)
+11-04 07:50:57.477  1823  2429 I BlobLobber: Canceling downloads: []
+11-04 07:50:57.915  1106  1129 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.inputmethod.TrackpadSettingsController
+11-04 07:51:02.245  1106  1129 D LocalBluetoothProfileManager: Adding local HEADSET profile
+11-04 07:51:02.246  1106  1129 D BluetoothHeadset: Binding service...
+11-04 07:51:02.350  1106  4617 D BluetoothHeadset: Proxy object connected
+11-04 07:51:03.371  1823  1916 W earchbox:search: Suspending all threads took: 47.182ms
+11-04 07:51:04.242  4838  4838 D nativeloader:   com_android_adservices: libhpke_jni.so:libtflite_support_classifiers_native.so
+11-04 07:51:04.522   552   566 W system_server: Suspending all threads took: 25.807ms
+11-04 07:51:04.757  2455  4828 I NearbyDiscovery: FastPair: HeadsetPieceImage, grant permission files:0 [CONTEXT service_id=265 ]
+11-04 07:51:06.151  1764  2337 D BluetoothHeadset: Binding service...
+11-04 07:51:06.251  1764  3632 D BluetoothHeadset: Proxy object connected
+11-04 07:51:06.256  1764  1764 E VS.BluetoothShim: java.lang.NoSuchMethodException: android.bluetooth.BluetoothHeadset.startScoUsingVirtualVoiceCall [class android.bluetooth.BluetoothDevice]
+11-04 07:51:16.035  5029  5080 D FlutterJNI: Beginning load of flutter...
+11-04 07:51:16.121  5029  5080 D FlutterJNI: flutter (null) was loaded normally!
+11-04 07:51:16.518  1823  2513 I A       : incrementApaDataDownloadStoreStatus(latency = PT7.924S, appVersion = 13.17.16.23, status = NOT_FOUND, locale = *, fileGroupnames = apa_head_suggest, accountScoped = false, localGroupsAvailable = false, timeSinceSearchBoot = Optional[PT1M32.98S] (ONE_TO_FIVE_MINUTES), timeSinceDataDownloadInit = PT0S (ZERO_TO_TWO_SECONDS))
+11-04 07:51:16.527  1823  2512 I A       : incrementApaDataDownloadStoreStatus(latency = PT3.835S, appVersion = 13.17.16.23, status = NOT_FOUND, locale = *, fileGroupnames = apa_head_suggest, accountScoped = false, localGroupsAvailable = false, timeSinceSearchBoot = Optional[PT1M37.083S] (ONE_TO_FIVE_MINUTES), timeSinceDataDownloadInit = PT4.104S (TWO_TO_FIVE_SECONDS))
+11-04 07:51:16.527  1823  2512 I A       : incrementApaDataDownloadStoreStatusNotFound(appVersion = 13.17.16.23, locale = *, groupName = apa_head_suggest, accountScoped = false, foundGroups = 0, status = 0, localGroupsAvailable = false)
+11-04 07:51:16.999  5029  5085 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+11-04 07:51:17.048  1823  2513 I A       : incrementApaDataDownloadStoreStatusNotFound(appVersion = 13.17.16.23, locale = *, groupName = apa_head_suggest, accountScoped = false, foundGroups = 0, status = 0, localGroupsAvailable = false)
+11-04 07:51:18.074  5029  5105 I flutter : The Dart VM service is listening on http://127.0.0.1:36015/VnkCm6Wq9v8=/
+11-04 07:51:18.139   552  2371 I ActivityManager: Background started FGS: Allowed [callingPackage: com.google.android.googlequicksearchbox; callingUid: 10132; uidState: BTOP; uidBFSL: [BFSL]; intent: Intent { cmp=com.google.android.googlequicksearchbox/com.google.android.libraries.mdi.download.foreground.sting.ForegroundDownloadService (has extras) }; code:ACTIVITY_STARTER; tempAllowListReason:<f3e825 android.intent.action.BOOT_COMPLETED/u0,reasonCode:BOOT_COMPLETED,duration:20000,callingUid:1000>; targetSdkVersion:31; callerTargetSdkVersion:31; startForegroundCount:0; bindFromPackage:null: isBindService:false]
+11-04 07:51:19.688  5029  5029 D FlutterRenderer: Width is zero. 0,0
+11-04 07:51:23.997  5029  5029 D FlutterRenderer: Width is zero. 0,0
+11-04 07:51:24.095  5029  5029 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:51:25.144  1150  1184 I IPCThreadState: oneway function results for code 2 on binder at 0x79860b26f540 will be dropped but finished with status UNKNOWN_TRANSACTION
+11-04 07:51:27.617  5029  5029 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:51:27.631  5029  5029 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:51:28.382   552  2376 I AppsFilter: interaction: PackageSetting{35cc765 com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:51:28.743  5029  5277 W onehouse.budget: Verification of java.lang.Boolean com.google.android.gms.internal.ads.zzbhy.zza(java.lang.String, boolean) took 212.690ms (126.95 bytecodes/s) (1880B approximate peak alloc)
+11-04 07:51:29.121  5029  5277 W onehouse.budget: Verification of void com.google.android.gms.ads.internal.util.zzs.<clinit>() took 109.196ms (109.89 bytecodes/s) (1592B approximate peak alloc)
+11-04 07:51:29.320  5029  5277 W onehouse.budget: Verification of java.lang.String com.google.android.gms.ads.internal.util.zzs.zzB() took 198.656ms (100.68 bytecodes/s) (1848B approximate peak alloc)
+11-04 07:51:30.401   552  1938 I AppsFilter: interaction: PackageSetting{35cc765 com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:51:32.743  2455  5138 E IPCThreadState: Binder transaction failure: 356888/29189/-22
+11-04 07:51:33.954  5029  5029 W onehouse.budget: Verification of com.google.android.gms.internal.ads.zzbut com.google.android.gms.internal.ads.zzbum.zzb(java.lang.String) took 114.533ms (1676.37 bytecodes/s) (4792B approximate peak alloc)
+11-04 07:51:34.302  5029  5412 I Ads     : This request is sent from a test device.
+11-04 07:51:34.472  5029  5412 W onehouse.budget: Long monitor contention with owner Thread-4 (5277) at java.lang.Object com.google.android.gms.internal.ads.zzimh.zzd()(com.google.android.gms:play-services-ads@@25.1.0:2) waiters=0 in java.lang.Object com.google.android.gms.internal.ads.zzimh.zzd() for 162ms
+11-04 07:51:34.944   552   633 I AppsFilter: interaction: PackageSetting{35cc765 com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:51:35.206  5445  5445 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-04 07:51:35.207  5445  5445 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-04 07:51:35.603  5029  5470 W onehouse.budget: Long monitor contention with owner gads-8 (5456) at byte[] com.google.android.gms.internal.ads.zzbaq.zzb(byte[], java.lang.String)(com.google.android.gms:play-services-ads@@25.1.0:11) waiters=12 in byte[] com.google.android.gms.internal.ads.zzbaq.zzb(byte[], java.lang.String) for 180ms
+11-04 07:51:36.007  5029  5040 W onehouse.budget: Suspending all threads took: 31.142ms
+11-04 07:51:37.288  5029  5412 W onehouse.budget: Verification of void com.google.android.gms.internal.ads.zzetw.zza(java.lang.Object) took 191.991ms (2343.85 bytecodes/s) (11040B approximate peak alloc)
+11-04 07:51:37.509  5029  5436 W Ads     : Invoke Firebase method getInstance error.
+11-04 07:51:37.559  5029  5436 W Ads     : The Google Mobile Ads SDK will not integrate with Firebase. Admob/Firebase integration requires the latest Firebase SDK jar, but Firebase SDK is either missing or out of date
+11-04 07:51:38.899  5029  5414 W onehouse.budget: Verification of int com.google.android.gms.internal.ads.zzicw.zzH(com.google.android.gms.internal.ads.zzifc) took 130.353ms (76.71 bytecodes/s) (1368B approximate peak alloc)
+11-04 07:51:39.163  5029  5414 W Ads     : Not retrying to fetch app settings
+11-04 07:51:40.240  5029  5029 I Ads     : JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html:1103)
+11-04 07:51:40.240  5029  5029 I chromium: [INFO:CONSOLE(1103)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html (1103)
+11-04 07:51:41.838  2767  5551 I ModuleSetMgr: Computing pending module set with APKs: [[AdsFdrDynamite.integ:231004600100000], [Cronetdynamite:231818190800], [Dynamiteloader:231818190000], [Dynamitemodulesa:231818190000], [Dynamitemodulesc:231818190000], [Googlecertificates:231818190000], [Mapsdynamite:231818190000], [Measurementdynamite:231818190000]]
+11-04 07:51:41.899  2767  5551 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:51:42.346  5029  5029 I Ads     : JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/production/sdk-core-v40-impl.js?n=true&lv=sdk_20190107_RC02:1096)
+11-04 07:51:42.346  5029  5029 I chromium: [INFO:CONSOLE(1096)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/production/sdk-core-v40-impl.js?n=true&lv=sdk_20190107_RC02 (1096)
+11-04 07:51:43.130  5029  5423 I Ads     : SDK version: afma-sdk-a-v260910000.260910000.0
+11-04 07:51:43.137  5029  5423 I Ads     : HTTP timeout: 60000 milliseconds.
+11-04 07:51:44.412  5029  5412 I Ads     : This request is sent from a test device.
+11-04 07:51:46.103  2455  5532 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ads.social.GcmSchedulerWakeupService started execution. cause:5 exec_start_elapsed_seconds: 199 [CONTEXT service_id=218 ]
+11-04 07:51:46.358  2455  5138 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ads.social.GcmSchedulerWakeupService finished executing. cause:5 result: 1 elapsed_millis: 1608 uptime_millis: 1608 exec_start_elapsed_seconds: 199 [CONTEXT service_id=218 ]
+11-04 07:51:48.397  2767  4140 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:51:48.909  2767  4140 I ModuleSetMgr: Computing pending module set with APKs: [[AdsFdrDynamite.integ:231004600100000], [Cronetdynamite:231818190800], [Dynamiteloader:231818190000], [Dynamitemodulesa:231818190000], [Dynamitemodulesc:231818190000], [Googlecertificates:231818190000], [Mapsdynamite:231818190000], [Measurementdynamite:231818190000]]
+11-04 07:51:50.054  2767  4140 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:51:51.557  5029  5433 I Ads     : SDK version: afma-sdk-a-v260910000.260910000.0
+11-04 07:51:51.558  5029  5433 I Ads     : HTTP timeout: 60000 milliseconds.
+11-04 07:51:52.859  2767  5266 I ModuleSetMgr: Computing pending module set with APKs: [[AdsFdrDynamite.integ:231004600100000], [Cronetdynamite:231818190800], [Dynamiteloader:231818190000], [Dynamitemodulesa:231818190000], [Dynamitemodulesc:231818190000], [Googlecertificates:231818190000], [Mapsdynamite:231818190000], [Measurementdynamite:231818190000]]
+11-04 07:51:53.291  2767  5266 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:51:53.862  2767  4140 I ModuleSetMgr: Computing pending module set with APKs: [[AdsFdrDynamite.integ:231004600100000], [Cronetdynamite:231818190800], [Dynamiteloader:231818190000], [Dynamitemodulesa:231818190000], [Dynamitemodulesc:231818190000], [Googlecertificates:231818190000], [Mapsdynamite:231818190000], [Measurementdynamite:231818190000]]
+11-04 07:51:54.761  2767  3899 I Ads     : Initialized AdMob in container 23.18.18 (190800-535401451)
+11-04 07:51:55.299  2767  4140 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:51:56.765  5029  5029 I Ads     : JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html:1103)
+11-04 07:51:56.765  5029  5029 I chromium: [INFO:CONSOLE(1103)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html (1103)
+11-04 07:51:57.075  5029  5040 W onehouse.budget: Suspending all threads took: 11.016ms
+11-04 07:51:59.487  5029  5029 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:51:59.617  2767  5769 E IPCThreadState: Binder transaction failure: 447966/29201/-28
+11-04 07:51:59.968  5029  5029 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:52:02.445   552  2371 W JobScheduler: Job didn't exist in JobStore: 99f1ff4 #u0a86/3 DownloadManager:com.android.providers.downloads
+11-04 07:52:03.211  5845  5845 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-04 07:52:03.212  5845  5845 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-04 07:52:05.209   402   411 E IPCThreadState: binder thread pool (1 threads) starved for 309 ms
+11-04 07:52:05.851  1651  5874 I AiAiCaptions: downloadSuperpack(): Successfully downloaded superpack 'captions_i18n_v0_en-US' version 20210623.
+11-04 07:52:06.018  1651  2593 I AiAiCaptions: Would enable com.google.android.apps.miphone.aiai.captions.downloadservice.CaptionsDownloadService but already enabled
+11-04 07:52:07.839  5029  5029 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:52:08.531  5029  5029 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:52:08.571  2767  5776 I NearbyDiscovery: FastPair: HeadsetPieceImage, grant permission files:0 [CONTEXT service_id=265 ]
+11-04 07:52:11.593  5892  5922 E IPCThreadState: Binder transaction failure: 469697/29202/0
+11-04 07:52:11.721   552  1819 E IPCThreadState: Binder transaction failure: 469738/29202/0
+11-04 07:52:19.270  2767  5966 I ModuleSetMgr: Computing pending module set with APKs: [[AdsFdrDynamite.integ:231004600100000], [Cronetdynamite:231818190800], [Dynamiteloader:231818190000], [Dynamitemodulesa:231818190000], [Dynamitemodulesc:231818190000], [Googlecertificates:231818190000], [Mapsdynamite:231818190000], [Measurementdynamite:231818190000]]
+11-04 07:52:19.355  2767  5966 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:52:20.526  2767  4142 I ModuleSetMgr: Computing pending module set with APKs: [[AdsFdrDynamite.integ:231004600100000], [Cronetdynamite:231818190800], [Dynamiteloader:231818190000], [Dynamitemodulesa:231818190000], [Dynamitemodulesc:231818190000], [Googlecertificates:231818190000], [Mapsdynamite:231818190000], [Measurementdynamite:231818190000]]
+11-04 07:52:20.622  2767  4142 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:52:23.932  6064  6064 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-04 07:52:23.933  6064  6064 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-04 07:52:24.346  2084  2097 V DownloadManager: Deleting /data/data/com.android.providers.downloads/cache/08202014-metadata.txt via provider delete
+11-04 07:52:25.242  1673  3655 W ModernMediaScanner: Failed to visit /data/data/com.android.providers.downloads/cache/08202014-metadata.txt: java.nio.file.NoSuchFileException: /data/data/com.android.providers.downloads/cache/08202014-metadata.txt
+11-04 07:52:25.740  2084  2097 V DownloadManager: Deleting /data/data/com.android.providers.downloads/cache/08202014-pins.txt via provider delete
+11-04 07:52:25.741  1673  3655 W ModernMediaScanner: Failed to visit /data/data/com.android.providers.downloads/cache/08202014-pins.txt: java.nio.file.NoSuchFileException: /data/data/com.android.providers.downloads/cache/08202014-pins.txt
+11-04 07:52:30.496  2084  6123 V DownloadManager: Deleting /data/data/com.android.providers.downloads/cache/09252026-sms-denylist-metadata.txt via provider delete
+11-04 07:52:30.634  1673  1721 W ModernMediaScanner: Failed to visit /data/data/com.android.providers.downloads/cache/09252026-sms-denylist-metadata.txt: java.nio.file.NoSuchFileException: /data/data/com.android.providers.downloads/cache/09252026-sms-denylist-metadata.txt
+11-04 07:52:30.722  2084  6123 V DownloadManager: Deleting /data/data/com.android.providers.downloads/cache/09252026-sms-denylist.txt via provider delete
+11-04 07:52:30.724  1673  1721 W ModernMediaScanner: Failed to visit /data/data/com.android.providers.downloads/cache/09252026-sms-denylist.txt: java.nio.file.NoSuchFileException: /data/data/com.android.providers.downloads/cache/09252026-sms-denylist.txt
+11-04 07:52:37.758  2455  5338 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ads.social.GcmSchedulerWakeupService started execution. cause:5 exec_start_elapsed_seconds: 252 [CONTEXT service_id=218 ]
+11-04 07:52:37.765  2455  5338 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ads.social.GcmSchedulerWakeupService finished executing. cause:5 result: 1 elapsed_millis: 110 uptime_millis: 110 exec_start_elapsed_seconds: 252 [CONTEXT service_id=218 ]
+11-04 07:52:41.127  1823  2513 I A       : incrementApaDataDownloadStoreStatus(latency = PT0.023S, appVersion = 13.17.16.23, status = NOT_FOUND, locale = *, fileGroupnames = apa_head_suggest, accountScoped = false, localGroupsAvailable = false, timeSinceSearchBoot = Optional[PT3M5.496S] (ONE_TO_FIVE_MINUTES), timeSinceDataDownloadInit = PT1M32.516S (ONE_TO_FIVE_MINUTES))
+11-04 07:52:41.183  1823  2512 I A       : incrementApaDataDownloadStoreStatusNotFound(appVersion = 13.17.16.23, locale = *, groupName = apa_head_suggest, accountScoped = false, foundGroups = 0, status = 0, localGroupsAvailable = false)
+11-04 07:52:46.078  6240  6276 D FlutterJNI: Beginning load of flutter...
+11-04 07:52:46.113  6240  6276 D FlutterJNI: flutter (null) was loaded normally!
+11-04 07:52:47.163  6240  6277 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/kernel_blob.bin
+11-04 07:52:47.166  6240  6277 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/vm_snapshot_data
+11-04 07:52:47.261  6240  6277 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/isolate_snapshot_data
+11-04 07:52:47.693  6240  6284 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+11-04 07:52:47.976  6240  6290 I flutter : The Dart VM service is listening on http://127.0.0.1:41129/tAlJ691Zxns=/
+11-04 07:52:49.561  6240  6240 D FlutterRenderer: Width is zero. 0,0
+11-04 07:52:53.552  6240  6240 D FlutterRenderer: Width is zero. 0,0
+11-04 07:52:53.630  6240  6240 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:52:53.999  1150  1458 I IPCThreadState: oneway function results for code 2 on binder at 0x79860b263a80 will be dropped but finished with status UNKNOWN_TRANSACTION
+11-04 07:52:56.545  6240  6318 W onehouse.budget: Verification of androidx.browser.customtabs.CustomTabsSession com.google.android.gms.ads.MobileAds.registerCustomTabsSession(android.content.Context, androidx.browser.customtabs.CustomTabsClient, java.lang.String, androidx.browser.customtabs.CustomTabsCallback) took 201.018ms (268.63 bytecodes/s) (2944B approximate peak alloc)
+11-04 07:52:56.674  6240  6318 W onehouse.budget: Verification of com.google.android.gms.common.api.Status com.google.android.gms.ads.internal.client.zzeu.zze(android.content.Context, java.util.List, com.google.android.gms.ads.preload.PreloadCallback) took 113.690ms (4899.25 bytecodes/s) (12904B approximate peak alloc)
+11-04 07:52:56.865  6240  6318 W onehouse.budget: Verification of void com.google.android.gms.ads.internal.util.client.zzf.<clinit>() took 189.034ms (275.08 bytecodes/s) (2240B approximate peak alloc)
+11-04 07:52:57.016  6240  6318 W onehouse.budget: Verification of void com.google.android.gms.ads.internal.util.client.zzf.zzK(android.view.ViewGroup, com.google.android.gms.ads.internal.client.zzr, java.lang.String, int, int) took 147.952ms (425.81 bytecodes/s) (2656B approximate peak alloc)
+11-04 07:52:57.089  6240  6240 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:52:58.152  6240  6240 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:52:59.259   552   935 I AppsFilter: interaction: PackageSetting{cfcd22e com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:52:59.320  6240  6318 W onehouse.budget: Verification of void com.google.android.gms.internal.ads.zzbie.<clinit>() took 106.461ms (83090.94 bytecodes/s) (154760B approximate peak alloc)
+11-04 07:53:00.310  6240  6318 W onehouse.budget: Verification of com.google.android.gms.internal.ads.zzelb com.google.android.gms.internal.ads.zzekv.zzl(java.lang.String, java.lang.String, java.lang.String, com.google.android.gms.internal.ads.zzekx, java.lang.String, android.webkit.WebView, java.lang.String, java.lang.String, com.google.android.gms.internal.ads.zzeky) took 120.175ms (973.58 bytecodes/s) (3464B approximate peak alloc)
+11-04 07:53:00.953   552  1910 I AppsFilter: interaction: PackageSetting{cfcd22e com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:53:01.281  2767  6335 V Backup  : [CustomDownloadSchedulingIO] Received Action: com.google.android.gms.chimera.container.CONTAINER_UPDATED
+11-04 07:53:01.289  2767  6335 V Backup  : [CustomDownloadSchedulingIO] listenToSetupWizardFinishedBroadcast or customBackupDownloadEnableSuwTriggerWithGmsUpdateCheck flag on
+11-04 07:53:01.393  2767  6335 V Backup  : [CustomDownloadSchedulingIO] Flag to run custom backup downloads is off.
+11-04 07:53:01.718  2767  6353 I Ads     : Initialized AdMob in container 23.18.18 (190800-535401451)
+11-04 07:53:02.596  6240  6352 W onehouse.budget: Long monitor contention with owner Thread-4 (6318) at com.google.android.gms.internal.ads.zzcmx com.google.android.gms.internal.ads.zzcmx.zzH(android.content.Context, com.google.android.gms.internal.ads.zzbuq, int, boolean, int, com.google.android.gms.internal.ads.zzcoh)(com.google.android.gms:play-services-ads@@25.1.0:60) waiters=0 in com.google.android.gms.internal.ads.zzcmx com.google.android.gms.internal.ads.zzcmx.zzH(android.content.Context, com.google.android.gms.internal.ads.zzbuq, int, boolean, int, com.google.android.gms.internal.ads.zzcoh) for 827ms
+11-04 07:53:02.642  6240  6352 I Ads     : This request is sent from a test device.
+11-04 07:53:02.983   552  2370 I AppsFilter: interaction: PackageSetting{cfcd22e com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:53:03.305  2767  6356 V Backup  : [CustomDownloadSchedulingIO] Received Action: com.google.android.chimera.IntentOperation.NEW_MODULE
+11-04 07:53:03.305  2767  6356 V Backup  : [CustomDownloadSchedulingIO] listenToSetupWizardFinishedBroadcast or customBackupDownloadEnableSuwTriggerWithGmsUpdateCheck flag on
+11-04 07:53:03.305  2767  6356 V Backup  : [CustomDownloadSchedulingIO] Flag to run custom backup downloads is off.
+11-04 07:53:04.317  6240  6247 W onehouse.budget: Suspending all threads took: 6.675ms
+11-04 07:53:04.852   552  1637 I AppsFilter: interaction: PackageSetting{cfcd22e com.ohsang.util.onehouse.budget/10192} -> PackageSetting{510187b com.google.mainline.adservices/10136} BLOCKED
+11-04 07:53:05.779  6240  6352 W onehouse.budget: Verification of java.lang.Object com.google.android.gms.internal.ads.zzemp.zzb(com.google.android.gms.internal.ads.zzfke, com.google.android.gms.internal.ads.zzfjt, com.google.android.gms.internal.ads.zzelj) took 146.986ms (1040.92 bytecodes/s) (7888B approximate peak alloc)
+11-04 07:53:05.914  6240  6452 W onehouse.budget: Verification of java.lang.String com.google.android.gms.internal.ads.zzaza.toString() took 112.890ms (292.32 bytecodes/s) (2248B approximate peak alloc)
+11-04 07:53:05.990  6500  6500 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-04 07:53:05.991  6500  6500 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-04 07:53:06.005  6240  6460 W onehouse.budget: Verification of void com.google.android.ads.z__.ad.<init>() took 124.285ms (32.18 bytecodes/s) (1336B approximate peak alloc)
+11-04 07:53:06.010  6240  6454 W onehouse.budget: Verification of void com.google.android.ads.z__.w.<init>() took 128.724ms (31.07 bytecodes/s) (1336B approximate peak alloc)
+11-04 07:53:06.034  6240  6352 W onehouse.budget: Verification of void com.google.android.gms.internal.ads.zzekf.zzs(android.app.Activity, com.google.android.gms.ads.internal.overlay.zzm) took 141.784ms (923.93 bytecodes/s) (3904B approximate peak alloc)
+11-04 07:53:06.786  2455  2467 W .gms.persistent: Suspending all threads took: 13.014ms
+11-04 07:53:06.962  2767  4146 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:53:07.031  6240  6431 W Ads     : Invoke Firebase method getInstance error.
+11-04 07:53:07.081  6240  6431 W Ads     : The Google Mobile Ads SDK will not integrate with Firebase. Admob/Firebase integration requires the latest Firebase SDK jar, but Firebase SDK is either missing or out of date
+11-04 07:53:07.392  6240  6240 I Ads     : JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html:1103)
+11-04 07:53:07.393  6240  6240 I chromium: [INFO:CONSOLE(1103)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html (1103)
+11-04 07:53:08.655  2767  4146 I ModuleSetMgr: Computing pending module set with APKs: [[AdsFdrDynamite.integ:231004600100000], [Cronetdynamite:231818190800], [Dynamiteloader:231818190000], [Dynamitemodulesa:231818190000], [Dynamitemodulesc:231818190000], [Googlecertificates:231818190000], [Mapsdynamite:231818190000], [Measurementdynamite:231818190000]]
+11-04 07:53:08.771  2767  4146 W PackageParser: Unknown element under <manifest>: queries at /data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.apk Binary XML file line #15
+11-04 07:53:10.229  6240  6240 I Ads     : JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/production/sdk-core-v40-impl.js?n=true&lv=sdk_20190107_RC02:1096)
+11-04 07:53:10.230  6240  6240 I chromium: [INFO:CONSOLE(1096)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/production/sdk-core-v40-impl.js?n=true&lv=sdk_20190107_RC02 (1096)
+11-04 07:53:10.571  6240  6406 I Ads     : SDK version: afma-sdk-a-v260910000.260910000.0
+11-04 07:53:10.579  6240  6406 I Ads     : HTTP timeout: 60000 milliseconds.
+11-04 07:53:12.585  6240  6247 W onehouse.budget: Suspending all threads took: 7.241ms
+11-04 07:53:14.373  6240  6247 W onehouse.budget: Suspending all threads took: 5.076ms
+11-04 07:53:15.937  6240  6352 I Ads     : This request is sent from a test device.
+11-04 07:53:16.767  6240  6428 I Ads     : SDK version: afma-sdk-a-v260910000.260910000.0
+11-04 07:53:16.767  6240  6428 I Ads     : HTTP timeout: 60000 milliseconds.
+11-04 07:53:16.962  6240  6240 I Ads     : JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html:1103)
+11-04 07:53:16.962  6240  6240 I chromium: [INFO:CONSOLE(1103)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html (1103)
+11-04 07:53:17.715  6240  6240 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:53:18.271  6240  6240 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:53:21.269  6240  6247 W onehouse.budget: Suspending all threads took: 8.136ms
+11-04 07:53:23.011  6240  6247 W onehouse.budget: Suspending all threads took: 5.139ms
+11-04 07:53:24.374  6240  6240 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:53:24.427  6240  6240 D FlutterJNI: Sending viewport metrics to the engine.
+11-04 07:53:34.747  6631  6631 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-04 07:53:34.748  6631  6631 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
