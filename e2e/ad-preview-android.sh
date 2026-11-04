@@ -9,7 +9,7 @@ LOG="$OUT/run.txt"
 : > "$LOG"
 say() { echo "$*" | tee -a "$LOG"; }
 
-dump() { adb exec-out uiautomator dump /dev/tty 2>/dev/null | sed 's/UI hierchary dumped to.*//'; }
+dump() { timeout 25 adb exec-out uiautomator dump /dev/tty 2>/dev/null | sed 's/UI hierchary dumped to.*//'; }
 
 # 화면에서 text 또는 content-desc에 $1이 들어간 요소의 가운데 좌표 (없으면 빈 값)
 find_xy() {
@@ -66,7 +66,7 @@ if len(eds) > i:
   adb shell input tap $xy; sleep 0.8; adb shell input text "$2"; sleep 0.8; say "입력: $2"
 }
 
-shot() { sleep "${2:-6}"; adb exec-out screencap -p > "$OUT/$1.png"; say "📸 $1"; }
+shot() { sleep "${2:-6}"; timeout 20 adb exec-out screencap -p > "$OUT/$1.png"; say "📸 $1"; }
 
 start_app() {
   adb shell am force-stop $PKG
@@ -77,8 +77,10 @@ adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
 
+say "시작 $(date +%T)"
 start_app
-wait_for "새 메모집 만들기" 90 || exit 1
+sleep 8; timeout 20 adb exec-out screencap -p > "$OUT/00-launch.png"
+wait_for "새 메모집 만들기" 40 || exit 1
 tap "새 메모집 만들기" || exit 1
 wait_for "메모집 이름" || exit 1
 type_into 0 "Home" || exit 1
