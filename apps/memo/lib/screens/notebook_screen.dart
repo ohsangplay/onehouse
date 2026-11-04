@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
+import '../widgets/ad_banner.dart';
 import '../models/memo.dart';
 import '../services/memo_services.dart';
 import '../theme.dart';
@@ -205,6 +206,7 @@ class _NotebookScreenState extends State<NotebookScreen> {
           IconButton(tooltip: '메모집 설정', icon: const Icon(Icons.settings_outlined), onPressed: _settings),
         ],
       ),
+      bottomNavigationBar: const AdBanner(),
       floatingActionButton: OnlineBuilder(
         network: _s.network,
         builder: (context, online) => FloatingActionButton.extended(

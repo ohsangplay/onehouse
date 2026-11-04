@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   http: ^1.2.2
   shared_preferences: ^2.3.2
+  # 하단 배너 광고 (한지붕 가계부와 같은 방식, lib/widgets/ad_banner.dart)
+  google_mobile_ads: ^8.0.0
   onehouse_core:
     path: ../../packages/onehouse_core
 

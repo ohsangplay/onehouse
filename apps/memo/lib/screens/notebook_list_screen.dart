@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
+import '../widgets/ad_banner.dart';
 import '../services/memo_services.dart';
 import '../utils/time.dart';
 import '../widgets/offline_banner.dart';
@@ -129,8 +130,10 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
+      bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: OnlineBuilder(
             network: _s.network,
@@ -152,8 +155,11 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
               ],
             ),
           ),
+            ),
+            // 광고가 없으면 아래 안전 영역만 차지한다
+            const AdBanner(),
+          ],
         ),
-      ),
     );
   }
 }

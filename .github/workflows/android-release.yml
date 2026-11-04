@@ -17,9 +17,10 @@ name: Android 빌드 (Play 스토어용 AAB)
 #   올린 뒤 Play Console에서 출시 노트를 확인하고 "검토를 위해 전송"만 누르면 된다.
 #   주의: 앱의 맨 처음 AAB는 Google 정책상 Play Console에서 직접 한 번 올려야 한다 (그 뒤부터 자동 업로드 가능).
 #
-# 광고(AdMob, 가계부) — 저장소 Variables (Settings → Secrets and variables → Actions → Variables 탭)
-#   BUDGET_ADMOB_APP_ID_ANDROID   AdMob 앱 ID (ca-app-pub-xxxx~yyyy)
-#   BUDGET_ADMOB_BANNER_ANDROID   배너 광고 단위 ID (ca-app-pub-xxxx/zzzz)
+# 광고(AdMob) — 저장소 Variables (Settings → Secrets and variables → Actions → Variables 탭)
+#   가계부: BUDGET_ADMOB_APP_ID_ANDROID, BUDGET_ADMOB_BANNER_ANDROID
+#   메모:   MEMO_ADMOB_APP_ID_ANDROID,   MEMO_ADMOB_BANNER_ANDROID
+#   (앱 ID는 ca-app-pub-xxxx~yyyy, 배너 광고 단위 ID는 ca-app-pub-xxxx/zzzz)
 # 없으면 Google 테스트 광고로 빌드하고, Play 업로드는 막는다 (직접 올릴 AAB에도 테스트 광고가 들어 있으니 주의).
 
 on:
@@ -51,18 +52,18 @@ jobs:
       run:
         working-directory: apps/${{ inputs.app }}
     env:
-      ADMOB_APP_ID_ANDROID: ${{ inputs.app == 'budget' && vars.BUDGET_ADMOB_APP_ID_ANDROID || '' }}
-      ADMOB_BANNER_ANDROID: ${{ inputs.app == 'budget' && vars.BUDGET_ADMOB_BANNER_ANDROID || '' }}
+      ADMOB_APP_ID_ANDROID: ${{ inputs.app == 'budget' && vars.BUDGET_ADMOB_APP_ID_ANDROID || inputs.app == 'memo' && vars.MEMO_ADMOB_APP_ID_ANDROID || '' }}
+      ADMOB_BANNER_ANDROID: ${{ inputs.app == 'budget' && vars.BUDGET_ADMOB_BANNER_ANDROID || inputs.app == 'memo' && vars.MEMO_ADMOB_BANNER_ANDROID || '' }}
+      ADMOB_VAR_PREFIX: ${{ inputs.app == 'memo' && 'MEMO' || 'BUDGET' }}
     steps:
       - uses: actions/checkout@v5
 
       - name: AdMob ID 확인
         working-directory: .
         run: |
-          [ "${{ inputs.app }}" = budget ] || exit 0
           if [ -n "$ADMOB_APP_ID_ANDROID" ] && [ -n "$ADMOB_BANNER_ANDROID" ]; then echo "AdMob: 실제 ID"; exit 0; fi
           if [ "${{ inputs.play_track }}" != none ]; then
-            echo "::error title=AdMob ID 없음::저장소 Variables에 BUDGET_ADMOB_APP_ID_ANDROID, BUDGET_ADMOB_BANNER_ANDROID를 넣어야 Play에 올릴 수 있어요 (테스트 광고로 출시 방지)."
+            echo "::error title=AdMob ID 없음::저장소 Variables에 ${ADMOB_VAR_PREFIX}_ADMOB_APP_ID_ANDROID, ${ADMOB_VAR_PREFIX}_ADMOB_BANNER_ANDROID를 넣어야 Play에 올릴 수 있어요 (테스트 광고로 출시 방지)."
             exit 1
           fi
           echo "::warning title=테스트 광고::AdMob ID가 없어 Google 테스트 광고로 빌드해요. 이 AAB는 스토어에 올리지 마세요."
