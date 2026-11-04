@@ -18,7 +18,7 @@
 | 개인정보처리방침 | https://api.ohsangplay.com/onehouse/memo/privacy |
 | 안내 페이지 (마케팅 URL) | https://api.ohsangplay.com/onehouse/memo/ |
 
-> 주소를 `onehouse.ohsangplay.com` 같은 내 도메인으로 바꾸고 싶으면, Cloudflare 대시보드 → Workers → `onehouse-api` → 설정 → 도메인 및 경로 → 사용자 지정 도메인 추가. 바꾼 뒤 아래 URL 칸들도 같이 바꿔 주세요. 앱 안 링크는 서버 주소를 따라가서 따로 고칠 필요가 없어요.
+> 서버 주소는 `https://api.ohsangplay.com/onehouse/memo`예요 (가계부는 `…/onehouse/budget`, 같은 서버). 예전 주소 `onehouse-api.shark-keeper.workers.dev`도 당분간 열려 있지만, 스토어에는 위 새 주소를 넣어 주세요. 앱 안 링크는 서버 주소를 따라가서 따로 고칠 필요가 없어요.
 
 ---
 
