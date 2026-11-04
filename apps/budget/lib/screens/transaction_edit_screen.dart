@@ -33,6 +33,7 @@ class TransactionEditScreen extends StatefulWidget {
     required this.myNickname,
     this.existing,
     this.initialDate,
+    this.onReport,
   });
 
   final BudgetApi api;
@@ -41,6 +42,9 @@ class TransactionEditScreen extends StatefulWidget {
   final String myNickname;
   final Txn? existing;
   final DateTime? initialDate;
+
+  /// 다른 사람이 쓴 내역을 열었을 때만 준다 (신고하기)
+  final void Function(Txn txn)? onReport;
 
   @override
   State<TransactionEditScreen> createState() => _TransactionEditScreenState();
@@ -162,6 +166,12 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
         ),
         title: Text(_editing ? '내역 고치기' : '내역 추가'),
         actions: [
+          if (_editing && widget.onReport != null)
+            IconButton(
+              tooltip: '내역 신고',
+              icon: const Icon(Icons.flag_outlined),
+              onPressed: () => widget.onReport!(widget.existing!),
+            ),
           if (_editing)
             IconButton(
               tooltip: '내역 지우기',
