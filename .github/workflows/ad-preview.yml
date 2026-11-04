@@ -20,12 +20,15 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: 디스크 비우기 (Flutter + Android SDK + 에뮬레이터 이미지가 커서)
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/node_modules /opt/ghc /usr/local/.ghcup /usr/share/swift \
-            /opt/hostedtoolcache/CodeQL /opt/hostedtoolcache/go /opt/hostedtoolcache/PyPy /usr/local/share/powershell \
-            /usr/local/share/chromium /usr/local/lib/heroku /opt/az /opt/microsoft || true
-          sudo docker image prune --all --force > /dev/null 2>&1 || true
-          df -h / | tail -1
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: false      # Android SDK는 빌드·에뮬레이터에 필요
+          tool-cache: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false
 
       - uses: actions/checkout@v4
 
@@ -63,7 +66,10 @@ jobs:
           cd apps/memo
           # 로컬 http 서버에 붙으려고 평문 통신 허용 (미리보기 빌드에서만)
           sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
-          flutter build apk --release --dart-define=API_BASE_URL=http://10.0.2.2:8787
+          df -h / | tail -1
+          # 에뮬레이터(x86_64)용만 빌드해서 시간·디스크를 줄인다
+          flutter build apk --release --target-platform android-x64 --dart-define=API_BASE_URL=http://10.0.2.2:8787
+          df -h / | tail -1
 
       - name: 에뮬레이터에서 촬영
         uses: reactivecircus/android-emulator-runner@v2
