@@ -133,6 +133,19 @@ jobs:
             -archivePath build/ios/Runner.xcarchive \
             CODE_SIGNING_ALLOWED=NO
 
+      # 서명 없이 아카이브하면 미리 서명된 외부 프레임워크(GoogleMobileAds 등)가 복사·정리 과정에서 서명이 깨진 채 남는다.
+      # 서명을 지워 두면 아래 내보내기 단계에서 앱과 같은 배포 인증서로 다시 서명된다 (Flutter.framework와 같은 처리).
+      - name: 외부 프레임워크 서명 정리
+        run: |
+          APPDIR=build/ios/Runner.xcarchive/Products/Applications/Runner.app
+          for fw in "$APPDIR"/Frameworks/*.framework; do
+            name=$(basename "$fw" .framework)
+            if codesign -dv "$fw" 2>/dev/null; then :; fi
+            codesign --remove-signature "$fw/$name" 2>/dev/null || true
+            rm -rf "$fw/_CodeSignature"
+            echo "정리: $name"
+          done
+
       - name: 서명해서 ipa 만들기 (클라우드 서명)
         run: |
           cat > build/ExportOptions.plist <<EOF
