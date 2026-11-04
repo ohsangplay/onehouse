@@ -4,6 +4,7 @@ import 'package:onehouse_core/onehouse_core.dart';
 
 import '../models/ledger_summary.dart';
 import '../utils/format.dart';
+import '../widgets/ad_banner.dart';
 import 'ledger_home_screen.dart';
 
 class LedgerListScreen extends StatefulWidget {
@@ -118,27 +119,32 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
           },
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => _open(JoinScreen(services: services)),
-                  child: const Text('코드로 참여'),
+      // 버튼 아래에 광고 배너 (아래 안전 영역은 배너가 챙긴다)
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _open(JoinScreen(services: services)),
+                    child: const Text('코드로 참여'),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: FilledButton(
-                  onPressed: () => _open(CreateSpaceScreen(services: services)),
-                  child: const Text('새 가계부'),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => _open(CreateSpaceScreen(services: services)),
+                    child: const Text('새 가계부'),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          const AdBanner(),
+        ],
       ),
     );
   }

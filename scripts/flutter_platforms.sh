@@ -71,6 +71,29 @@ if kts.exists():
             print('[주의] build.gradle.kts에 출시 서명 설정을 넣지 못했어요')
         kts.write_text(s, encoding='utf-8')
 
+# AdMob 앱 ID (google_mobile_ads를 쓰는 앱만). 환경변수가 없으면 Google 테스트 앱 ID.
+#   ADMOB_APP_ID_ANDROID=ca-app-pub-xxxx~yyyy  ADMOB_APP_ID_IOS=ca-app-pub-xxxx~zzzz
+import os
+if 'google_mobile_ads' in pathlib.Path('pubspec.yaml').read_text(encoding='utf-8'):
+    android_id = os.environ.get('ADMOB_APP_ID_ANDROID') or 'ca-app-pub-3940256099942544~3347511713'
+    ios_id = os.environ.get('ADMOB_APP_ID_IOS') or 'ca-app-pub-3940256099942544~1458002511'
+    if manifest.exists():
+        s = manifest.read_text(encoding='utf-8')
+        if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
+            meta = ('\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"'
+                    f' android:value="{android_id}"/>')
+            s = re.sub(r'(<application[^>]*>)', lambda m: m.group(1) + meta, s, count=1)
+            manifest.write_text(s, encoding='utf-8')
+    if plist.exists():
+        import plistlib
+        data = plistlib.loads(plist.read_bytes())
+        data['GADApplicationIdentifier'] = ios_id
+        # Google 광고 네트워크 (SKAdNetwork)
+        data['SKAdNetworkItems'] = [{'SKAdNetworkIdentifier': 'cstr6suwn9.skadnetwork'}]
+        plist.write_bytes(plistlib.dumps(data))
+    test = '3940256099942544' in android_id or '3940256099942544' in ios_id
+    print('AdMob 앱 ID: ' + ('테스트 ID (실제 ID 환경변수 없음)' if test else '실제 ID'))
+
 index = pathlib.Path('web/index.html')
 if index.exists():
     s = index.read_text(encoding='utf-8')
