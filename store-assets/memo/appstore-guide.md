@@ -16,7 +16,8 @@
 | 지원 기기 | iPhone 전용 |
 | 가격 | 무료 · 하단 배너 광고(AdMob) · 인앱 결제 없음 |
 | 개인정보처리방침 | https://api.ohsangplay.com/onehouse/memo/privacy |
-| 안내 페이지 (마케팅 URL) | https://api.ohsangplay.com/onehouse/memo/ |
+| 웹사이트 (마케팅 URL) | https://ohsangplay.com (app-ads.txt 있는 주소) |
+| 지원 URL | https://api.ohsangplay.com/onehouse/memo/privacy#contact |
 
 > 서버 주소는 `https://api.ohsangplay.com/onehouse/memo`예요 (가계부는 `…/onehouse/budget`, 같은 서버). 예전 주소 `onehouse-api.shark-keeper.workers.dev`도 당분간 열려 있지만, 스토어에는 위 새 주소를 넣어 주세요. 앱 안 링크는 서버 주소를 따라가서 따로 고칠 필요가 없어요.
 
@@ -136,7 +137,7 @@ https://appstoreconnect.apple.com/apps → **+ → 신규 앱**
 · 글 메모는 고치다 멈추면 자동으로 저장돼요
 · 체크리스트는 누가 체크했는지 함께 보여요
 · 자주 보는 메모는 맨 위에 고정
-· 지운 메모는 휴지통에서 30일 동안 되살릴 수 있어요
+· 지운 메모는 휴지통에서 30일 동안 되살릴 수 있고, 바로 완전히 지울 수도 있어요
 
 ■ 같이 고쳐도 안전하게
 · 지금 누가 같은 메모를 보고 있거나 고치고 있는지 보여줘요
@@ -185,12 +186,16 @@ Onehouse Memo is a shared memo app for families. There is no sign-up or login: t
 
 How to test on one device:
 1. Tap "새 메모집 만들기" (Create notebook), enter a notebook name and a nickname, tap "만들기". A one-time owner recovery code is shown; check "안전한 곳에 저장했어요" and continue.
-2. Tap "새 메모" (New memo) → "글 메모" (text memo) or "체크리스트" (checklist). Text memos save automatically. Long-press a memo to pin it or move it to the trash (restorable for 30 days).
+2. Tap "새 메모" (New memo) → "글 메모" (text memo) or "체크리스트" (checklist). Text memos save automatically. Long-press a memo to pin it or move it to the trash. The trash (icon at the top of the memo list) can restore a memo within 30 days, or delete it permanently right away.
 3. Settings (gear icon) shows the invite code, member management, privacy policy and contact.
 
 Sharing (needs a second device or simulator): on the second device choose "초대코드로 참여하기" (Join with invite code), enter the code and a nickname. The owner approves the request in Settings → 멤버 관리 (Members). Members can edit any memo; if two people edit different lines at the same time the server merges them, and if they edit the same line a comparison screen lets the user choose.
 
-Notes are visible only to members approved by the notebook owner; there is no public content, search or chat. Owners and co-owners can block members at any time. No ads, no tracking, no third-party analytics.
+Notes are visible only to members approved by the notebook owner; there is no public content, search or chat. Owners and co-owners can block members at any time.
+
+Ads: list screens (notebook list, memo list, trash) show a Google AdMob banner at the bottom. Editing screens have no ads. The app does not request App Tracking Transparency and does not use the IDFA; there is no other analytics or tracking SDK.
+
+Data deletion: memos can be deleted permanently from the trash; the owner can delete the whole notebook in Settings. See the privacy policy, section "데이터 삭제 요청 방법" (#delete).
 ```
 
 ## 7. 빌드 업로드 (GitHub Actions)
@@ -254,7 +259,7 @@ Notes are visible only to members approved by the notebook owner; there is no pu
 
 **자주 걸리는 부분**
 - **5.1.1 개인정보처리방침**: 링크가 열려야 하고, 앱 안(메모집 설정 → 개인정보처리방침, 시작 화면 아래)에서도 열려요. 서버 배포 후 주소가 열리는지 한 번 확인해 주세요.
-- **5.1.1(v) 계정 삭제**: 회원가입이 없어서 해당하지 않을 가능성이 높아요. 그래도 "계정을 만드는 앱"으로 판단해 거절되면, 설정에 "내 데이터 모두 지우기"(모든 메모집 나가기 + 기기 계정 삭제)를 넣으면 돼요.
+- **5.1.1(v) 계정 삭제**: 회원가입이 없어서 해당하지 않을 가능성이 높아요. 개인정보처리방침에 삭제 방법(`#delete`)이 있고, 휴지통에서 메모를 바로 완전히 지울 수 있어요. 그래도 "계정을 만드는 앱"으로 판단해 거절되면, 설정에 "내 데이터 모두 지우기"(모든 메모집 나가기 + 기기 계정 삭제)를 넣으면 돼요.
 - **1.2 사용자 생성 콘텐츠**: 공개 공간이 없고 승인된 멤버끼리만 보이며, 방장·부방장 차단과 문의 이메일이 있어요. 공개 커뮤니티로 오해받으면 심사 메모의 마지막 문단을 근거로 답하면 돼요.
 - **2.3 정확한 메타데이터**: 스크린샷은 실제 앱 화면이에요. 상태바 없이 캡션 틀 안에 들어가 있어서 문제없지만, 지적받으면 아이폰에서 직접 찍은 걸로 바꾸세요.
 - **4.2 최소 기능**: 네이티브 앱(Flutter)이고 오프라인·동시 수정·멤버 관리가 있어 괜찮을 가능성이 높아요.
