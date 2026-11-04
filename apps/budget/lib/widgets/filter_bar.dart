@@ -78,35 +78,25 @@ class FilterBar extends StatelessWidget {
     final labels = selection.labels(categories);
     final active = labels.isNotEmpty;
 
-    final button = Material(
-        color: active ? AppColors.text : AppColors.surface,
-        shape: StadiumBorder(side: BorderSide(color: active ? AppColors.text : AppColors.border)),
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: onOpen,
-          child: SizedBox(
-            height: FilterLabel.height + 4,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.filter_alt_outlined, size: 17, color: active ? Colors.white : AppColors.text),
-                  const SizedBox(width: 4),
-                  Text(
-                    active ? '필터 ${labels.length}' : '필터',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                      color: active ? Colors.white : AppColors.text,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
+    // 머티리얼 버튼을 써야 접근성(버튼 역할·탭 동작)이 제대로 잡힌다
+    final fg = active ? Colors.white : AppColors.text;
+    final button = OutlinedButton.icon(
+      onPressed: onOpen,
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(0, FilterLabel.height + 4),
+        maximumSize: const Size(double.infinity, FilterLabel.height + 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: VisualDensity.compact,
+        backgroundColor: active ? AppColors.text : AppColors.surface,
+        foregroundColor: fg,
+        side: BorderSide(color: active ? AppColors.text : AppColors.border),
+        shape: const StadiumBorder(),
+        textStyle: TextStyle(fontSize: 14, fontWeight: active ? FontWeight.w700 : FontWeight.w500),
+      ),
+      icon: Icon(Icons.filter_alt_outlined, size: 17, color: fg),
+      label: Text(active ? '필터 ${labels.length}' : '필터'),
+    );
 
     return Row(
       children: [
@@ -134,23 +124,21 @@ class FilterBar extends StatelessWidget {
                           if (shown > 0) const SizedBox(width: _gap),
                           Tooltip(
                             message: '나머지 필터 $hidden개 보기',
-                            child: Material(
-                              color: AppColors.surface,
-                              shape: const StadiumBorder(side: BorderSide(color: Color(0xFFC7CCD2))),
-                              child: InkWell(
-                                customBorder: const StadiumBorder(),
-                                onTap: onOpen,
-                                child: SizedBox(
-                                  height: FilterLabel.height,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                                    child: Center(
-                                      child: Text('+$hidden',
-                                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                                    ),
-                                  ),
-                                ),
+                            child: OutlinedButton(
+                              onPressed: onOpen,
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(0, FilterLabel.height),
+                                maximumSize: const Size(double.infinity, FilterLabel.height),
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
+                                backgroundColor: AppColors.surface,
+                                foregroundColor: AppColors.text,
+                                side: const BorderSide(color: Color(0xFFC7CCD2)),
+                                shape: const StadiumBorder(),
+                                textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                               ),
+                              child: Text('+$hidden'),
                             ),
                           ),
                         ],
