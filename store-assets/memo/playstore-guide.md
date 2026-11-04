@@ -14,8 +14,8 @@ Play Console 화면 순서대로 칸마다 넣을 값을 정리했어요. 안드
 | 버전 / 버전 코드 | 1.0.0 / 자동 (GitHub Actions 실행 번호) |
 | targetSdk | Flutter stable 기본값 (빌드 결과 요약에 표시됨) |
 | 가격 | 무료 · 광고 없음 · 인앱 결제 없음 |
-| 웹사이트 | https://onehouse-api.shark-keeper.workers.dev/ |
-| 개인정보처리방침 | https://onehouse-api.shark-keeper.workers.dev/privacy |
+| 웹사이트 | https://api.ohsangplay.com/onehouse/memo/ |
+| 개인정보처리방침 | https://api.ohsangplay.com/onehouse/memo/privacy |
 
 ---
 
@@ -74,7 +74,7 @@ Play Console → **모든 앱 → 앱 만들기**
 
 | 항목 | 답 |
 |---|---|
-| 개인정보처리방침 | `https://onehouse-api.shark-keeper.workers.dev/privacy` |
+| 개인정보처리방침 | `https://api.ohsangplay.com/onehouse/memo/privacy` |
 | 앱 액세스 권한 | **모든 기능을 특별한 액세스 권한 없이 사용할 수 있음** (로그인 없음) |
 | 광고 | **아니요, 앱에 광고가 없습니다** |
 | 콘텐츠 등급 | 아래 설문 참고 |
@@ -119,7 +119,7 @@ Play Console → **모든 앱 → 앱 만들기**
 | 태그 | 메모, 할 일 목록, 생산성, 가족 관련 태그 중 최대 5개 |
 | 이메일 | `dkwkehd2@gmail.com` (스토어에 공개돼요) |
 | 전화번호 | 비워 둬도 됨 |
-| 웹사이트 | `https://onehouse-api.shark-keeper.workers.dev/` |
+| 웹사이트 | `https://api.ohsangplay.com/onehouse/memo/` |
 | 외부 마케팅 | 체크 (기본값) |
 
 ## 5. 기본 스토어 등록정보

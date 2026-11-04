@@ -31,6 +31,8 @@ export type LandingOptions = {
   playStoreUrl?: string;
   memoAppStoreUrl?: string;
   memoPlayStoreUrl?: string;
+  /** 서버가 붙어 있는 경로 (예: /onehouse/budget). 링크를 이 경로 기준으로 만든다 */
+  base?: string;
 };
 
 function appSection(name: string, desc: string, appStoreUrl?: string, playStoreUrl?: string): string {
@@ -143,7 +145,7 @@ footer{margin-top:40px;font-size:12px;color:var(--muted);text-align:center}
     </div>
   </section>
 
-  <footer><a href="/privacy" style="color:inherit">개인정보처리방침</a> · © ${year} 오상플레이</footer>
+  <footer><a href="${escapeHtml(opts.base ?? '')}/privacy" style="color:inherit">개인정보처리방침</a> · © ${year} 오상플레이</footer>
 </main>
 </body>
 </html>`;

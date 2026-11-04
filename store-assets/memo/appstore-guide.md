@@ -15,8 +15,8 @@
 | 버전 / 빌드 | 1.0.0 / 자동 (GitHub Actions 실행 번호) |
 | 지원 기기 | iPhone 전용 |
 | 가격 | 무료 · 광고 없음 · 인앱 결제 없음 |
-| 개인정보처리방침 | https://onehouse-api.shark-keeper.workers.dev/privacy |
-| 안내 페이지 (마케팅 URL) | https://onehouse-api.shark-keeper.workers.dev/ |
+| 개인정보처리방침 | https://api.ohsangplay.com/onehouse/memo/privacy |
+| 안내 페이지 (마케팅 URL) | https://api.ohsangplay.com/onehouse/memo/ |
 
 > 주소를 `onehouse.ohsangplay.com` 같은 내 도메인으로 바꾸고 싶으면, Cloudflare 대시보드 → Workers → `onehouse-api` → 설정 → 도메인 및 경로 → 사용자 지정 도메인 추가. 바꾼 뒤 아래 URL 칸들도 같이 바꿔 주세요. 앱 안 링크는 서버 주소를 따라가서 따로 고칠 필요가 없어요.
 
@@ -61,7 +61,7 @@ https://appstoreconnect.apple.com/apps → **+ → 신규 앱**
 | 부제 | `초대코드로 가족과 같이 쓰는 메모` |
 | 카테고리 | 기본: **생산성** / 보조: **라이프스타일** |
 | 콘텐츠 권한 | "타사 콘텐츠를 포함하거나 표시하나요?" → **아니요** |
-| 개인정보 처리방침 URL | `https://onehouse-api.shark-keeper.workers.dev/privacy` |
+| 개인정보 처리방침 URL | `https://api.ohsangplay.com/onehouse/memo/privacy` |
 
 **연령 등급 설문**
 - 폭력·선정성·공포·약물·욕설·도박·경연: 전부 **없음**
@@ -159,8 +159,8 @@ https://appstoreconnect.apple.com/apps → **+ → 신규 앱**
 
 | 칸 | 값 |
 |---|---|
-| 지원 URL | `https://onehouse-api.shark-keeper.workers.dev/privacy#contact` |
-| 마케팅 URL | `https://onehouse-api.shark-keeper.workers.dev/` |
+| 지원 URL | `https://api.ohsangplay.com/onehouse/memo/privacy#contact` |
+| 마케팅 URL | `https://api.ohsangplay.com/onehouse/memo/` |
 | 빌드 | 7단계에서 업로드한 빌드 선택 |
 | 저작권 | `2026 오상원` (개인 계정이면 본인 이름, 사업자 명의면 `2026 오상플레이`) |
 | 버전 출시 | 이 버전을 수동으로 출시 |

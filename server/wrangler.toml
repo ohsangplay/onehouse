@@ -1,7 +1,16 @@
 name = "onehouse-api"
 main = "src/index.ts"
 compatibility_date = "2025-10-01"
+# 이전 앱 빌드·스토어 문서가 쓰던 주소라 당분간 켜둔다
 workers_dev = true
+
+# 운영 주소: api.ohsangplay.com 아래 경로 (DNS: api AAAA 100:: 프록시 켬)
+#   /onehouse/budget/*  한지붕 가계부,  /onehouse/memo/*  한지붕 메모
+# 서버가 접두 경로를 떼고 처리한다 (src/index.ts stripBasePath)
+routes = [
+  { pattern = "api.ohsangplay.com/onehouse", zone_name = "ohsangplay.com" },
+  { pattern = "api.ohsangplay.com/onehouse/*", zone_name = "ohsangplay.com" },
+]
 
 # 하루 한 번 (한국 시간 새벽 4시): 지운 지 30일 지난 데이터 완전 삭제 (src/lib/purge.ts)
 [triggers]

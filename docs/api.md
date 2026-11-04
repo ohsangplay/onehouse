@@ -1,5 +1,7 @@
 # API 명세
 
+- 운영 주소: 한지붕 가계부 `https://api.ohsangplay.com/onehouse/budget`, 한지붕 메모 `https://api.ohsangplay.com/onehouse/memo`.
+  같은 서버이고, 아래 경로를 이 주소 뒤에 붙인다 (예: `…/onehouse/budget/ledgers`). 이전 주소 `onehouse-api.shark-keeper.workers.dev`도 당분간 동작한다.
 - 기기 토큰은 `Authorization: Bearer <token>` 헤더로 보낸다.
 - 가계부 하위 API는 매 요청마다 `status = approved`와 역할을 서버에서 확인한다.
 - 오류 응답: `{"error": {"code": "...", "message": "..."}}` (충돌 등은 같은 객체에 `current` 같은 값이 더 붙는다)

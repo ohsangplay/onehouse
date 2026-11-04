@@ -102,6 +102,22 @@ jobs:
           grep -qi '^access-control-allow-origin' preflight.txt && r=no || r=yes
           check "웹 출처 CORS 차단" $r
 
+          # 운영 주소: api.ohsangplay.com 아래 경로 (가계부·메모)
+          for BASE_URL in https://api.ohsangplay.com/onehouse/budget https://api.ohsangplay.com/onehouse/memo; do
+            for i in $(seq 1 10); do curl -sf "$BASE_URL/health" > /dev/null && break; sleep 3; done
+            [ "$(curl -s "$BASE_URL/health")" = '{"ok":true}' ] && r=yes || r=no
+            check "$BASE_URL 헬스체크" $r
+            curl -s -H 'Accept: text/html' "$BASE_URL/" > base-landing.html
+            grep -q '앱에서만 쓸 수 있어요' base-landing.html && grep -q "href=\"${BASE_URL#https://api.ohsangplay.com}/privacy\"" base-landing.html && r=yes || r=no
+            check "$BASE_URL 안내 페이지 (링크가 이 경로 기준)" $r
+            [ "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' -H 'Accept: text/html' "$BASE_URL/ledgers")" = "302 $BASE_URL/" ] && r=yes || r=no
+            check "$BASE_URL 브라우저로 API 주소 접속 → 안내 페이지로 이동" $r
+            curl -s -H 'Accept: text/html' "$BASE_URL/privacy" | grep -q '개인정보 보호책임자' && r=yes || r=no
+            check "$BASE_URL/privacy 개인정보처리방침" $r
+            [ "$(curl -s -o /dev/null -w '%{http_code}' "$BASE_URL/notebooks")" = "401" ] && r=yes || r=no
+            check "$BASE_URL 토큰 없는 API 요청 → 401" $r
+          done
+
           exit $fail
 
       - name: Publish results to deploy-results branch

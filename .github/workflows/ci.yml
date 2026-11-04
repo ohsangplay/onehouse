@@ -77,7 +77,11 @@ jobs:
         working-directory: server
         run: |
           set -o pipefail
-          npm run test:smoke 2>&1 | tee ../ci-out/server/smoke.log
+          # 운영과 같은 경로(/onehouse/budget, /onehouse/memo)로 확인한다
+          {
+            BASE=http://127.0.0.1:8787/onehouse/budget node test/smoke.mjs &&
+            BASE=http://127.0.0.1:8787/onehouse/memo node test/memo-smoke.mjs
+          } 2>&1 | tee ../ci-out/server/smoke.log
 
       - name: Summary
         if: always()

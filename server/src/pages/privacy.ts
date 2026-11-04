@@ -4,7 +4,8 @@
 export const PRIVACY_EFFECTIVE_DATE = '2026년 11월 1일';
 export const CONTACT_EMAIL = 'dkwkehd2@gmail.com';
 
-export function renderPrivacy(): string {
+/** base: 서버가 붙어 있는 경로 (예: /onehouse/budget). 안내 페이지 링크에 쓴다. 정해진 값만 들어온다 */
+export function renderPrivacy(base = ''): string {
   return `<!doctype html>
 <html lang="ko">
 <head>
@@ -108,7 +109,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
 <h2>10. 방침의 변경</h2>
 <p>이 방침이 바뀌면 이 페이지에 시행일과 함께 알립니다. 광고·분석 도구를 넣는 등 처리 방식이 달라지면 시행 7일 전까지 먼저 공지합니다.</p>
 
-<footer>시행일: ${PRIVACY_EFFECTIVE_DATE} · <a href="/">한지붕</a></footer>
+<footer>시행일: ${PRIVACY_EFFECTIVE_DATE} · <a href="${base}/">한지붕</a></footer>
 </main>
 </body>
 </html>`;

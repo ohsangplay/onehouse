@@ -7,7 +7,7 @@ class AppConfig {
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
     // 운영 서버 (Cloudflare Workers, 한지붕 가계부·메모 공용)
-    defaultValue: 'https://onehouse-api.shark-keeper.workers.dev',
+    defaultValue: 'https://api.ohsangplay.com/onehouse/budget',
   );
 }
 
