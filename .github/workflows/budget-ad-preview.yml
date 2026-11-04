@@ -1,0 +1,125 @@
+name: 광고 미리보기 (한지붕 가계부, Android 에뮬레이터)
+
+# 저장소 Variables의 AdMob ID를 확인하고, Android 에뮬레이터에서 하단 배너가 들어간 화면을 찍어 이 브랜치의 preview/budget-ad/에 커밋한다.
+# 에뮬레이터는 AdMob이 자동으로 테스트 기기로 보므로 실제 광고 단위 ID로 띄워도 "테스트 광고"만 나온다 (수익·정책 문제 없음).
+on:
+  workflow_dispatch:
+  push:
+    branches: [budget-ad-preview]
+    paths:
+      - .github/workflows/budget-ad-preview.yml
+      - scripts/budget_ad_preview.sh
+      - e2e/budget-ad-preview-seed.mjs
+
+permissions:
+  contents: write
+
+concurrency:
+  group: budget-ad-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      ADMOB_APP_ID_ANDROID: ${{ vars.BUDGET_ADMOB_APP_ID_ANDROID }}
+      ADMOB_BANNER_ANDROID: ${{ vars.BUDGET_ADMOB_BANNER_ANDROID }}
+      ADMOB_APP_ID_IOS: ${{ vars.BUDGET_ADMOB_APP_ID_IOS }}
+      ADMOB_BANNER_IOS: ${{ vars.BUDGET_ADMOB_BANNER_IOS }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: AdMob ID 확인
+        run: |
+          mkdir -p preview/budget-ad
+          check() {
+            local name=$1 value=$2 pattern=$3 kind=$4
+            if [ -z "$value" ]; then echo "| \`$name\` | ❌ 없음 | |"; return; fi
+            local shown="${value:0:15}…${value: -4}"
+            if echo "$value" | grep -qE "$pattern"; then echo "| \`$name\` | ✅ $kind 형식 | \`$shown\` |"
+            else echo "| \`$name\` | ⚠️ 형식이 달라요 (기대: $kind) | \`$shown\` (길이 ${#value}) |"; fi
+          }
+          {
+            echo "## AdMob ID 확인 ($(date -u +%FT%TZ), ${GITHUB_SHA::7})"
+            echo
+            echo "| Variable | 결과 | 값 (앞뒤만) |"
+            echo "| --- | --- | --- |"
+            check BUDGET_ADMOB_APP_ID_IOS "$ADMOB_APP_ID_IOS" '^ca-app-pub-[0-9]{16}~[0-9]{10}$' '앱 ID(~)'
+            check BUDGET_ADMOB_BANNER_IOS "$ADMOB_BANNER_IOS" '^ca-app-pub-[0-9]{16}/[0-9]{10}$' '광고 단위 ID(/)'
+            check BUDGET_ADMOB_APP_ID_ANDROID "$ADMOB_APP_ID_ANDROID" '^ca-app-pub-[0-9]{16}~[0-9]{10}$' '앱 ID(~)'
+            check BUDGET_ADMOB_BANNER_ANDROID "$ADMOB_BANNER_ANDROID" '^ca-app-pub-[0-9]{16}/[0-9]{10}$' '광고 단위 ID(/)'
+            pubs=$(printf '%s\n' "$ADMOB_APP_ID_IOS" "$ADMOB_BANNER_IOS" "$ADMOB_APP_ID_ANDROID" "$ADMOB_BANNER_ANDROID" | grep -oE 'pub-[0-9]{16}' | sort -u | wc -l)
+            echo
+            echo "게시자 ID 종류: $pubs개 (같은 AdMob 계정이면 1개)"
+            [ "$ADMOB_APP_ID_IOS" != "$ADMOB_APP_ID_ANDROID" ] || echo "⚠️ iOS·Android 앱 ID가 같아요. AdMob에서 플랫폼별로 앱을 따로 만들어야 해요."
+          } | tee preview/budget-ad/ids.md
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 로컬 API
+        working-directory: server
+        run: |
+          npm ci
+          npm run db:migrate:local
+          nohup npx wrangler dev --port 8787 --ip 0.0.0.0 > /tmp/wrangler.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8787/health && break; sleep 1; done
+
+      - name: APK 두 개 빌드 (실제 ID / 테스트 ID)
+        run: |
+          set -e
+          bash scripts/flutter_platforms.sh apps/budget budget "한지붕 가계부"
+          cd apps/budget
+          # 에뮬레이터에서 로컬 API(http)로 붙도록 이 미리보기 빌드에서만 평문 통신 허용
+          sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
+          grep -n "APPLICATION_ID\|usesCleartext" android/app/src/main/AndroidManifest.xml
+          mkdir -p ../../build-preview
+          flutter build apk --debug --dart-define=API_BASE_URL=http://10.0.2.2:8787 --dart-define=ADMOB_BANNER_ANDROID="$ADMOB_BANNER_ANDROID"
+          cp build/app/outputs/flutter-apk/app-debug.apk ../../build-preview/real.apk
+          flutter build apk --debug --dart-define=API_BASE_URL=http://10.0.2.2:8787
+          cp build/app/outputs/flutter-apk/app-debug.apk ../../build-preview/test.apk
+
+      - name: KVM 켜기
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: e2e 의존성
+        working-directory: e2e
+        run: npm install --no-audit --no-fund
+
+      - name: 에뮬레이터에서 촬영
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: bash scripts/budget_ad_preview.sh
+
+      - name: 결과 커밋
+        if: always()
+        run: |
+          cp /tmp/wrangler.log preview/budget-ad/wrangler.txt 2>/dev/null || true
+          rm -f preview/budget-ad/ui.xml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add preview/budget-ad
+          git commit -m "preview: 가계부 광고 화면 (${GITHUB_SHA::7})" || exit 0
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push origin "HEAD:${GITHUB_REF_NAME}"
