@@ -237,7 +237,7 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
                   ),
                 ),
               if (data != null) ...[
-                _SummaryCard(data: data, filtered: !_filter.isEmpty),
+                _SummaryCard(data: data, filtered: !_filter.isEmpty, current: _month == currentMonth()),
                 const SizedBox(height: 16),
                 if (_calendar) ..._calendarView(data) else ..._listView(data),
               ],
@@ -367,10 +367,13 @@ class _MonthBar extends StatelessWidget {
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.data, required this.filtered});
+  const _SummaryCard({required this.data, required this.filtered, required this.current});
 
   final MonthData data;
   final bool filtered;
+
+  /// 이번 달이면 "이번 달 남은 돈", 아니면 "10월 남은 돈"
+  final bool current;
 
   @override
   Widget build(BuildContext context) {
@@ -381,7 +384,7 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(filtered ? '필터 합계' : '이번 달 남은 돈',
+          Text(filtered ? '필터 합계' : (current ? '이번 달 남은 돈' : '${int.parse(data.month.substring(5))}월 남은 돈'),
               style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
           const SizedBox(height: 2),
           Text(won(balance), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700)),

@@ -1,0 +1,92 @@
+name: 스토어 스크린샷 (한지붕 가계부)
+
+# 웹 빌드를 iPhone 크기(402×874, 3배 = 1206×2622)로 띄워 데모 화면 6장을 찍고,
+# 캡션을 입힌 App Store·Google Play 이미지를 만들어 이 브랜치에 커밋한다.
+#   촬영 스크립트: e2e/store-budget.mjs   캡션: store-assets/budget/frame_screenshots.py
+#   결과: store-assets/budget/raw/, store-assets/budget/out/screenshots/{appstore,appstore-6.9,play}/
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - e2e/store-budget.mjs
+      - store-assets/budget/frame_screenshots.py
+      - .github/workflows/store-screenshots-budget.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: store-screenshots-budget-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 한글 글꼴 (캡션용)
+        run: sudo apt-get install -y -qq fonts-noto-cjk > /dev/null
+
+      - name: Start API (wrangler dev)
+        working-directory: server
+        run: |
+          npm ci
+          npm run db:migrate:local
+          nohup npx wrangler dev --port 8787 --ip 127.0.0.1 --var "ALLOW_WEB_ORIGINS:*" > /tmp/wrangler.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8787/health && break; sleep 1; done
+
+      - name: 웹 빌드
+        run: |
+          bash scripts/flutter_platforms.sh apps/budget budget "한지붕 가계부" web
+          cd apps/budget
+          flutter pub get
+          flutter build web --release --dart-define=API_BASE_URL=http://127.0.0.1:8787 --dart-define=E2E=true
+
+      - name: 촬영
+        id: capture
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          nohup python3 -m http.server 8080 --directory apps/budget/build/web > /dev/null 2>&1 &
+          cd e2e
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium > /dev/null
+          rm -rf ../store-assets/budget/raw
+          mkdir -p ../store-assets/budget/raw
+          OUT=../store-assets/budget/raw node store-budget.mjs 2>&1 | tee ../store-assets/budget/raw/capture.log
+
+      - name: 캡션 입히기
+        if: steps.capture.outcome == 'success'
+        run: |
+          rm -f store-assets/budget/raw/error.png
+          pip install -q pillow
+          python3 store-assets/budget/frame_screenshots.py
+
+      # 실패해도 촬영 기록(capture.log, error.png)은 커밋해서 원인을 볼 수 있게 한다
+      - name: 커밋
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A store-assets/budget
+          if git diff --cached --quiet; then echo "바뀐 이미지 없음"; exit 0; fi
+          git commit -m "store: 한지붕 가계부 스크린샷 갱신"
+          git pull --rebase --autostash
+          git push
+
+      - name: 촬영 실패 표시
+        if: steps.capture.outcome == 'failure'
+        run: |
+          echo "::error::촬영 실패 — store-assets/budget/raw/capture.log, error.png 확인"
+          exit 1
