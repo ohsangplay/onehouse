@@ -28,6 +28,17 @@ jobs:
       ADMOB_APP_ID_IOS: ${{ vars.BUDGET_ADMOB_APP_ID_IOS }}
       ADMOB_BANNER_IOS: ${{ vars.BUDGET_ADMOB_BANNER_IOS }}
     steps:
+      # 에뮬레이터 이미지 + Flutter + Gradle 캐시로 기본 디스크(14GB)가 모자라서, 안 쓰는 도구를 지운다
+      - name: 디스크 비우기
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/share/swift /usr/local/share/boost \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/powershell /usr/local/share/chromium /usr/local/lib/node_modules \
+            /usr/local/julia* /opt/az /opt/microsoft /opt/google/chrome /usr/lib/jvm/temurin-8* /usr/lib/jvm/temurin-11* || true
+          sudo docker image prune --all --force > /dev/null 2>&1 || true
+          sudo apt-get clean
+          df -h /
+
       - uses: actions/checkout@v5
 
       - name: AdMob ID 확인
