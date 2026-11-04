@@ -66,16 +66,21 @@ jobs:
           cd apps/memo
           # 로컬 http 서버에 붙으려고 평문 통신 허용 (미리보기 빌드에서만)
           sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
-          df -h / | tail -1
           # 에뮬레이터(x86_64)용만 빌드해서 시간·디스크를 줄인다
           flutter build apk --release --target-platform android-x64 --dart-define=API_BASE_URL=http://10.0.2.2:8787
-          df -h / | tail -1
+          # 빌드 데몬이 메모리를 잡고 있으면 에뮬레이터가 죽는다
+          (cd android && ./gradlew --stop) || true
+          pkill -f GradleDaemon || true; pkill -f kotlin-daemon || true
+          rm -rf ~/.gradle/caches build/app/intermediates || true
+          df -h / | tail -1; free -m
 
       - name: 에뮬레이터에서 촬영
         timeout-minutes: 30
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 33
+          ram-size: 3072M
+          heap-size: 512M
           target: google_apis
           arch: x86_64
           profile: pixel_6
