@@ -97,6 +97,14 @@ ok('카테고리 필터', r.json.transactions.length === 1 && r.json.summary.exp
 r = await call(owner.token, 'PATCH', `${L}/transactions/${txId}`, { amount: 90000 });
 ok('다른 사람 내역 수정', r.status === 200 && r.json.amount === 90000 && r.json.member_nickname === '엄마', r);
 
+// 신고 (멤버 누구나)
+r = await call(owner.token, 'POST', `${L}/reports`, { target_type: 'transaction', target_id: txId, target_member_id: r.json.member_id, reason: '부적절한 내용', detail: '테스트' });
+ok('내역 신고', r.status === 200 && r.json.ok === true, r);
+r = await call(b.token, 'POST', `${L}/reports`, { reason: '기타' });
+ok('공간 신고 (기본 대상)', r.status === 200, r);
+r = await call(b.token, 'POST', `${L}/reports`, { target_type: 'member', target_id: 'nope', reason: '기타' });
+ok('없는 멤버 신고는 404', r.status === 404, r);
+
 // 이름 수정 권한
 r = await call(b.token, 'PATCH', L, { name: '해킹' });
 ok('멤버는 가계부 이름 수정 403', r.status === 403, r);

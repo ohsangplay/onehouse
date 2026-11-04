@@ -4,6 +4,7 @@ import '../app_services.dart';
 import '../space_summary.dart';
 import '../theme.dart';
 import '../widgets/dialogs.dart';
+import '../widgets/report_sheet.dart';
 import '../widgets/role_badge.dart';
 
 /// 멤버 관리 (방장·부방장): 참여 요청 승인·거절·기존 멤버로 연결, 부방장 지정, 차단, 방장 넘기기
@@ -146,7 +147,8 @@ class _MembersScreenState extends State<MembersScreen> {
         (_isOwner || (_myRole == SpaceRole.coOwner && m.role == SpaceRole.member));
     final canRole = _isOwner && m.role != SpaceRole.owner;
     final canTransfer = _isOwner && m.id != widget.myMemberId;
-    if (!canRevoke && !canRole && !canTransfer) return;
+    final canReport = m.id != widget.myMemberId;
+    if (!canRevoke && !canRole && !canTransfer && !canReport) return;
 
     final action = await showModalBottomSheet<String>(
       context: context,
@@ -169,6 +171,12 @@ class _MembersScreenState extends State<MembersScreen> {
                 title: const Text('방장 넘기기'),
                 onTap: () => Navigator.of(context).pop('transfer'),
               ),
+            if (canReport)
+              ListTile(
+                leading: const Icon(Icons.flag_outlined),
+                title: const Text('신고'),
+                onTap: () => Navigator.of(context).pop('report'),
+              ),
             if (canRevoke)
               ListTile(
                 leading: const Icon(Icons.block, color: AppColors.danger),
@@ -184,6 +192,16 @@ class _MembersScreenState extends State<MembersScreen> {
     final noun = widget.services.space.noun;
 
     switch (action) {
+      case 'report':
+        await showReportSheet(
+          context,
+          services: widget.services,
+          spaceId: widget.spaceId,
+          targetType: 'member',
+          targetId: m.id,
+          targetMemberId: m.id,
+          targetLabel: '${m.nickname}님',
+        );
       case 'role':
         final next = m.role == SpaceRole.coOwner ? 'member' : 'co_owner';
         await _run(
@@ -303,7 +321,7 @@ class _MembersScreenState extends State<MembersScreen> {
                   const Padding(
                     padding: EdgeInsets.fromLTRB(4, 10, 4, 0),
                     child: Text(
-                      '멤버를 누르면 부방장 지정·차단 등을 할 수 있어요.',
+                      '멤버를 누르면 부방장 지정·차단·신고를 할 수 있어요.',
                       style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     ),
                   ),

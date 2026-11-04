@@ -29,6 +29,7 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
 
   late String _name = widget.ledger.name;
   late String _nickname = widget.ledger.nickname;
+  String? _memberId;
   late SpaceRole? _role = widget.ledger.role;
   List<Category> _categories = const [];
 
@@ -59,6 +60,7 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
       setState(() {
         _name = detail['name'] as String;
         _nickname = member['nickname'] as String;
+        _memberId = member['id'] as String?;
         _role = parseRole(member['role'] as String?);
         _categories = results[1] as List<Category>;
         _filter = _filter.prune(_categories);
@@ -145,6 +147,17 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
           myNickname: _nickname,
           existing: existing,
           initialDate: initial,
+          onReport: existing == null || existing.memberId == _memberId
+              ? null
+              : (txn) => showReportSheet(
+                    context,
+                    services: widget.services,
+                    spaceId: widget.ledger.id,
+                    targetType: 'transaction',
+                    targetId: txn.id,
+                    targetMemberId: txn.memberId,
+                    targetLabel: '${txn.memberNickname}님이 쓴 내역 · ${txn.title}',
+                  ),
         ),
       ),
     );

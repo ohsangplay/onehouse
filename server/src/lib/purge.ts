@@ -20,6 +20,7 @@ export async function purge(db: D1Database, now = Date.now()): Promise<Record<st
     ['transactions', db.prepare(`DELETE FROM transactions WHERE deleted_at IS NOT NULL AND deleted_at < ?1 OR ledger_id IN (${deletedSpaces})`).bind(cutoff)],
     ['categories', db.prepare(`DELETE FROM categories WHERE ledger_id IN (${deletedSpaces})`).bind(cutoff)],
     ['ledger_events', db.prepare(`DELETE FROM ledger_events WHERE ledger_id IN (${deletedSpaces})`).bind(cutoff)],
+    ['reports', db.prepare(`DELETE FROM reports WHERE ledger_id IN (${deletedSpaces})`).bind(cutoff)],
     ['ledger_members', db.prepare(`DELETE FROM ledger_members WHERE ledger_id IN (${deletedSpaces})`).bind(cutoff)],
     ['ledgers', db.prepare('DELETE FROM ledgers WHERE deleted_at IS NOT NULL AND deleted_at < ?1').bind(cutoff)],
     ['device_transfer_codes', db.prepare('DELETE FROM device_transfer_codes WHERE expires_at < ?1').bind(cutoff)],

@@ -245,6 +245,44 @@ export function spaceRoutes(kind: KindConfig) {
     return c.json({ id: ledger.id, name });
   });
 
+  /**
+   * 신고 (승인된 멤버 누구나). 부적절한 내용·멤버를 운영자에게 알린다. 운영자가 확인 후 조치한다.
+   * target_type: space(공간 전체) · member · transaction(가계부 내역) · memo
+   */
+  ledgers.post('/:ledgerId/reports', requireMember(kind), async (c) => {
+    const body = await readJson(c);
+    const { ledger, member } = c.var;
+    const db = c.env.DB;
+    const targetType = typeof body.target_type === 'string' ? body.target_type : 'space';
+    if (!['space', 'member', 'transaction', 'memo'].includes(targetType)) {
+      throw badRequest('invalid_target_type', '신고 대상을 알 수 없어요.');
+    }
+    const reason = reqStr(body, 'reason', { min: 1, max: 30 });
+    const detail = typeof body.detail === 'string' ? body.detail.trim().slice(0, 500) || null : null;
+    const targetId = typeof body.target_id === 'string' ? body.target_id.slice(0, 64) : null;
+    let targetMemberId = typeof body.target_member_id === 'string' ? body.target_member_id : null;
+    if (targetType === 'member') targetMemberId = targetMemberId ?? targetId;
+    if (targetMemberId) {
+      const ok = await db.prepare('SELECT 1 FROM ledger_members WHERE id = ? AND ledger_id = ?')
+        .bind(targetMemberId, ledger.id)
+        .first();
+      if (!ok) throw notFound('member_not_found', '멤버를 찾을 수 없어요.');
+    }
+    const recent = await db.prepare(
+      "SELECT COUNT(*) AS n FROM reports WHERE reporter_member_id = ? AND created_at > ?",
+    )
+      .bind(member.id, new Date(Date.now() - 86_400_000).toISOString())
+      .first<{ n: number }>();
+    if ((recent?.n ?? 0) >= 20) throw badRequest('too_many_reports', '신고는 하루 20번까지 보낼 수 있어요.');
+    await db.prepare(
+      `INSERT INTO reports (id, ledger_id, reporter_member_id, target_type, target_id, target_member_id, reason, detail, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+      .bind(newId(), ledger.id, member.id, targetType, targetId, targetMemberId, reason, detail, now())
+      .run();
+    return c.json({ ok: true });
+  });
+
   /** 삭제 (방장만, 이름을 다시 입력해야 함) */
   ledgers.delete('/:ledgerId', requireMember(kind, OWNER), async (c) => {
     const body = await readJson(c);

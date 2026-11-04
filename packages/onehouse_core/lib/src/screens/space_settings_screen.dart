@@ -7,6 +7,7 @@ import '../space_summary.dart';
 import '../theme.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/links.dart';
+import '../widgets/report_sheet.dart';
 import '../widgets/role_badge.dart';
 import 'members_screen.dart';
 import 'recovery_code_screen.dart';
@@ -362,6 +363,17 @@ class _SpaceSettingsScreenState extends State<SpaceSettingsScreen> {
             title: const Text('개인정보처리방침'),
             trailing: const Icon(Icons.open_in_new, size: 18),
             onTap: () => openExternal(context, privacyUrl(widget.services.api)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.flag_outlined),
+            title: const Text('신고하기'),
+            subtitle: const Text('부적절한 내용이나 멤버를 운영자에게 알려요'),
+            onTap: () => showReportSheet(
+              context,
+              services: widget.services,
+              spaceId: widget.spaceId,
+              targetLabel: '${_detail!['name']} ${space.noun}',
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.mail_outline),
