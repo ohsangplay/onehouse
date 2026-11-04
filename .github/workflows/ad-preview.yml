@@ -87,7 +87,7 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
-            mkdir -p $GITHUB_WORKSPACE/store-assets/memo/ad-preview
+            rm -rf $GITHUB_WORKSPACE/store-assets/memo/ad-preview && mkdir -p $GITHUB_WORKSPACE/store-assets/memo/ad-preview
             echo "부팅 완료 $(date +%T)" > $GITHUB_WORKSPACE/store-assets/memo/ad-preview/boot.txt
             adb install -r apps/memo/build/app/outputs/flutter-apk/app-release.apk
             OUT=$GITHUB_WORKSPACE/store-assets/memo/ad-preview bash e2e/ad-preview-android.sh || echo "촬영 실패" > $GITHUB_WORKSPACE/store-assets/memo/ad-preview/FAILED
