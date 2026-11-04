@@ -29,6 +29,10 @@ on:
         description: "App Store Connect에 업로드 (끄면 빌드만 하고 ipa를 아티팩트로 저장)"
         type: boolean
         default: true
+      ad_debug:
+        description: "광고 확인용 빌드 (배너 자리에 광고 상태·오류 코드 표시). 심사에 내지 말 것"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -123,6 +127,10 @@ jobs:
           # 빌드 번호는 실행 번호로 (업로드할 때마다 달라야 함). 버전 이름은 pubspec.yaml의 version 앞부분.
           defines=()
           [ -n "$ADMOB_BANNER_IOS" ] && defines+=("--dart-define=ADMOB_BANNER_IOS=$ADMOB_BANNER_IOS")
+          if [ "${{ inputs.ad_debug }}" = true ]; then
+            defines+=("--dart-define=AD_DEBUG=true")
+            echo "::warning title=광고 확인용 빌드::빌드 번호 ${{ github.run_number }}는 광고 상태가 화면에 보이는 확인용이에요. 심사에는 다른 빌드를 고르세요."
+          fi
           flutter build ios --release --no-codesign --build-number=${{ github.run_number }} "${defines[@]}"
 
       - name: Archive

@@ -24,6 +24,9 @@ class Ads {
       !const bool.fromEnvironment('NO_ADS') &&
       (Platform.isAndroid || Platform.isIOS);
 
+  /// 확인용 빌드(--dart-define=AD_DEBUG=true): 광고를 못 받아와도 배너 자리에 상태·오류 코드를 보여 준다
+  static const debug = bool.fromEnvironment('AD_DEBUG');
+
   static String get bannerUnitId => Platform.isIOS ? _bannerIos : _bannerAndroid;
 
   static Future<void> init() async {
@@ -49,18 +52,27 @@ class _AdBannerState extends State<AdBanner> {
   BannerAd? _ad;
   bool _loaded = false;
   bool _requested = false;
+  String _status = '광고 준비 중';
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_requested || !Ads.enabled) return;
     _requested = true;
-    _load(MediaQuery.sizeOf(context).width.truncate());
+    _load(MediaQuery.sizeOf(context).width.truncate()).catchError((Object e) {
+      debugPrint('배너 광고 오류: $e');
+      if (mounted) setState(() => _status = '광고 오류: $e');
+    });
   }
 
   Future<void> _load(int width) async {
     final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
-    if (!mounted || size == null) return;
+    if (!mounted) return;
+    if (size == null) {
+      setState(() => _status = '광고 크기를 못 구함 (width $width)');
+      return;
+    }
+    setState(() => _status = '광고 요청 중… ${Ads.bannerUnitId}');
     final ad = BannerAd(
       adUnitId: Ads.bannerUnitId,
       size: size,
@@ -72,7 +84,12 @@ class _AdBannerState extends State<AdBanner> {
         onAdFailedToLoad: (ad, error) {
           debugPrint('배너 광고 실패: ${error.code} ${error.message}');
           ad.dispose();
-          if (mounted) setState(() => _ad = null);
+          if (mounted) {
+            setState(() {
+              _ad = null;
+              _status = '광고 실패 code ${error.code} (${error.domain})\n${error.message}';
+            });
+          }
         },
       ),
     );
@@ -89,7 +106,22 @@ class _AdBannerState extends State<AdBanner> {
   @override
   Widget build(BuildContext context) {
     final ad = _ad;
-    if (ad == null || !_loaded) return const SafeArea(top: false, child: SizedBox.shrink());
+    if (ad == null || !_loaded) {
+      if (!Ads.debug) return const SafeArea(top: false, child: SizedBox.shrink());
+      return ColoredBox(
+        color: const Color(0xFFFFF4E0),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text(
+              Ads.enabled ? _status : '광고 꺼짐 (웹·E2E·NO_ADS)',
+              style: const TextStyle(fontSize: 11, color: Color(0xFF7A4B00)),
+            ),
+          ),
+        ),
+      );
+    }
     return ColoredBox(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: SafeArea(
