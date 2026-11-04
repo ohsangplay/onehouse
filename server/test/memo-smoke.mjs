@@ -150,6 +150,33 @@ ok('휴지통 목록', r.json.memos.length === 1 && r.json.memos[0].deleted_by =
 r = await call(dad, 'POST', `${M}/restore`);
 ok('쓴 사람이 되살림', r.status === 200 && r.json.deleted_at === null && r.json.version === 5, r);
 
+// 휴지통에서 바로 완전히 지우기
+r = await call(kid, 'POST', `${N}/memos`, { kind: 'checklist', title: '버릴 메모', items: ['하나'] });
+const T = `${N}/memos/${r.json.id}`;
+r = await call(kid, 'DELETE', `${T}/permanent`);
+ok('휴지통에 없는 메모는 완전 삭제 409', r.status === 409 && r.json.error.code === 'not_in_trash', r);
+await call(kid, 'DELETE', T);
+r = await call(mom, 'DELETE', `${T}/permanent`);
+ok('부방장도 남의 메모 완전 삭제 가능', r.status === 200, r);
+r = await call(kid, 'GET', `${N}/memos/trash`);
+ok('완전 삭제 후 휴지통에서 사라짐', r.json.memos.length === 0, r);
+r = await call(kid, 'POST', `${T}/restore`);
+ok('완전 삭제한 메모는 되살릴 수 없음', r.status === 404, r);
+r = await call(kid, 'POST', `${N}/memos`, { kind: 'text', title: '버릴 메모 2', body: 'x' });
+const T2 = `${N}/memos/${r.json.id}`;
+await call(kid, 'DELETE', T2);
+r = await call(dad, 'POST', `${N}/memos`, { kind: 'text', title: '아빠 버릴 메모', body: 'y' });
+const T3 = `${N}/memos/${r.json.id}`;
+await call(dad, 'DELETE', T3);
+r = await call(kid, 'DELETE', `${T3}/permanent`);
+ok('일반 멤버는 남의 메모 완전 삭제 못 함', r.status === 403, r);
+r = await call(kid, 'DELETE', `${N}/memos/trash`);
+ok('휴지통 비우기: 일반 멤버는 자기 메모만', r.status === 200 && r.json.deleted === 1, r);
+r = await call(dad, 'DELETE', `${N}/memos/trash`);
+ok('휴지통 비우기: 방장은 전부', r.status === 200 && r.json.deleted === 1, r);
+r = await call(dad, 'GET', `${N}/memos/trash`);
+ok('비운 뒤 휴지통 비어 있음', r.json.memos.length === 0, r);
+
 // 멤버 상세 통계, 목록
 r = await call(dad, 'GET', `${N}/members/${momMemberId}`);
 ok('멤버 상세: 쓴 메모·고친 횟수', r.json.memo_count === 1 && r.json.edit_count >= 2 && r.json.month_expense === undefined, r);

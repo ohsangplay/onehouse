@@ -159,6 +159,20 @@ const touchMemo = (db: D1Database, memoId: string, memberId: string, ts: string)
 
 const canDelete = (memo: MemoRow, me: MemberRow) => memo.created_by_member_id === me.id || MANAGERS.includes(me.role);
 
+/** 메모를 기록까지 완전히 지운다 (되돌릴 수 없음) */
+function hardDelete(db: D1Database, ids: string[]) {
+  const stmts: D1PreparedStatement[] = [];
+  for (const id of ids) {
+    stmts.push(
+      db.prepare('DELETE FROM memo_items WHERE memo_id = ?').bind(id),
+      db.prepare('DELETE FROM memo_revisions WHERE memo_id = ?').bind(id),
+      db.prepare('DELETE FROM memo_presence WHERE memo_id = ?').bind(id),
+      db.prepare('DELETE FROM memos WHERE id = ?').bind(id),
+    );
+  }
+  return stmts.length ? db.batch(stmts) : Promise.resolve([]);
+}
+
 // /notebooks/:ledgerId/memos
 export const memos = new Hono<AppEnv>();
 
@@ -230,6 +244,21 @@ memos.get('/trash', async (c) => {
       can_restore: r.created_by_member_id === me.id || MANAGERS.includes(me.role),
     })),
   });
+});
+
+/** 휴지통 비우기: 내가 지울 수 있는 메모(쓴 사람, 방장·부방장은 전부)를 30일 기다리지 않고 완전히 지운다 */
+memos.delete('/trash', async (c) => {
+  const me = c.var.member;
+  const { results } = await c.env.DB.prepare(
+    'SELECT id, created_by_member_id FROM memos WHERE ledger_id = ? AND deleted_at IS NOT NULL',
+  )
+    .bind(c.var.ledger.id)
+    .all<{ id: string; created_by_member_id: string }>();
+  const ids = results
+    .filter((r) => r.created_by_member_id === me.id || MANAGERS.includes(me.role))
+    .map((r) => r.id);
+  await hardDelete(c.env.DB, ids);
+  return c.json({ ok: true, deleted: ids.length });
 });
 
 /** 새 메모. 체크리스트는 items(문자열 배열)로 첫 항목들을 함께 만들 수 있다 */
@@ -394,6 +423,17 @@ memos.post('/:memoId/restore', async (c) => {
     .bind(memo.id)
     .run();
   return c.json(await fullMemo(c.env.DB, await loadMemo(c)));
+});
+
+/** 휴지통에서 바로 완전히 지우기 (쓴 사람, 방장·부방장). 휴지통에 있는 메모만 */
+memos.delete('/:memoId/permanent', async (c) => {
+  const memo = await loadMemo(c, { allowDeleted: true });
+  if (!memo.deleted_at) throw conflict('not_in_trash', '휴지통에 있는 메모만 완전히 지울 수 있어요.');
+  if (!canDelete(memo, c.var.member)) {
+    throw forbidden('no_permission', '메모는 쓴 사람과 방장·부방장만 완전히 지울 수 있어요.');
+  }
+  await hardDelete(c.env.DB, [memo.id]);
+  return c.json({ ok: true });
 });
 
 /**
