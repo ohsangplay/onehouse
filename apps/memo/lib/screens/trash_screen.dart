@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
+import '../ads/banner_ad.dart';
 import '../services/memo_services.dart';
 import '../utils/time.dart';
 import '../widgets/offline_banner.dart';
@@ -60,6 +61,7 @@ class _TrashScreenState extends State<TrashScreen> {
     final items = _items;
     return Scaffold(
       appBar: AppBar(title: const Text('휴지통')),
+      bottomNavigationBar: const SafeArea(top: false, child: BottomBannerAd()),
       body: Column(
         children: [
           OfflineBanner(network: widget.services.network),

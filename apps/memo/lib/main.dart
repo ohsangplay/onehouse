@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
+import 'ads/banner_ad.dart';
 import 'config.dart';
 import 'screens/notebook_list_screen.dart';
 import 'services/memo_services.dart';
@@ -33,6 +34,8 @@ class _MemoAppState extends State<MemoApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // 첫 화면이 뜬 뒤 광고 준비 (iOS는 여기서 추적 허용을 묻는다)
+    WidgetsBinding.instance.addPostFrameCallback((_) => initAds());
   }
 
   @override

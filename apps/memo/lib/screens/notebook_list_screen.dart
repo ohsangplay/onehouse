@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
+import '../ads/banner_ad.dart';
 import '../services/memo_services.dart';
 import '../utils/time.dart';
 import '../widgets/offline_banner.dart';
@@ -130,7 +131,11 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
         ],
       ),
       bottomNavigationBar: SafeArea(
-        child: Padding(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: OnlineBuilder(
             network: _s.network,
@@ -152,6 +157,9 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
               ],
             ),
           ),
+            ),
+            const BottomBannerAd(),
+          ],
         ),
       ),
     );

@@ -35,9 +35,9 @@ if manifest.exists():
         s = s.replace('<application', '<uses-permission android:name="android.permission.INTERNET"/>\n    <application', 1)
     manifest.write_text(s, encoding='utf-8')
 
+import plistlib
 plist = pathlib.Path('ios/Runner/Info.plist')
 if plist.exists():
-    import plistlib
     data = plistlib.loads(plist.read_bytes())
     data['CFBundleDisplayName'] = label
     data['CFBundleName'] = label
@@ -70,6 +70,35 @@ if kts.exists():
         if 'getByName("release")' not in s:
             print('[주의] build.gradle.kts에 출시 서명 설정을 넣지 못했어요')
         kts.write_text(s, encoding='utf-8')
+
+# 광고 (AdMob): 앱에 config/ads.json이 있으면 앱 ID를 넣는다. 없으면 SDK가 앱 시작 때 멈춘다.
+# 값이 비어 있으면 Google 테스트 앱 ID (실제 ID는 AdMob에서 앱을 만든 뒤 config/ads.json에)
+ads_file = pathlib.Path('config/ads.json')
+if ads_file.exists():
+    import json
+    ads = json.loads(ads_file.read_text(encoding='utf-8'))
+    android_app_id = ads.get('ADMOB_ANDROID_APP_ID') or 'ca-app-pub-3940256099942544~3347511713'
+    ios_app_id = ads.get('ADMOB_IOS_APP_ID') or 'ca-app-pub-3940256099942544~1458002511'
+
+    if manifest.exists():
+        s = manifest.read_text(encoding='utf-8')
+        meta = ('<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" '
+                f'android:value="{android_app_id}"/>')
+        if 'com.google.android.gms.ads.APPLICATION_ID' in s:
+            s = re.sub(r'<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"[^>]*/>', meta, s)
+        else:
+            s = re.sub(r'(<application[^>]*>)', lambda m: m.group(1) + '\n        ' + meta, s, count=1)
+        manifest.write_text(s, encoding='utf-8')
+
+    if plist.exists():
+        data = plistlib.loads(plist.read_bytes())
+        data['GADApplicationIdentifier'] = ios_app_id
+        # 광고 성과 측정용 (Google 광고 네트워크)
+        data['SKAdNetworkItems'] = [{'SKAdNetworkIdentifier': 'cstr6suwn9.skadnetwork'}]
+        # 앱 추적 투명성(ATT) 창 문구 (lib/ads/banner_ad_mobile.dart가 첫 실행 때 묻는다)
+        data['NSUserTrackingUsageDescription'] = '나에게 더 맞는 광고를 보여주는 데 사용돼요. 허용하지 않아도 앱은 모두 그대로 이용할 수 있어요.'
+        plist.write_bytes(plistlib.dumps(data))
+    print(f'광고: Android 앱 ID {android_app_id}, iOS 앱 ID {ios_app_id}')
 
 index = pathlib.Path('web/index.html')
 if index.exists():

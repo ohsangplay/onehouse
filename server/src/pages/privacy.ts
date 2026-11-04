@@ -1,7 +1,9 @@
 // 한지붕 시리즈(가계부·메모) 개인정보처리방침. 스토어에 등록하는 주소: <서버>/privacy
 // 서버·앱이 실제로 저장하는 내용과 맞춰야 한다 (migrations/, src/lib/purge.ts, apps/*/lib/services).
 
-export const PRIVACY_EFFECTIVE_DATE = '2026년 11월 1일';
+export const PRIVACY_EFFECTIVE_DATE = '2026년 11월 4일';
+/** 바로 전 시행일과 바뀐 내용 (변경 안내용) */
+export const PRIVACY_PREVIOUS = '2026년 11월 1일, 한지붕 메모 앱 광고(Google AdMob) 안내 추가';
 export const CONTACT_EMAIL = 'dkwkehd2@gmail.com';
 
 /** base: 서버가 붙어 있는 경로 (예: /onehouse/budget). 안내 페이지 링크에 쓴다. 정해진 값만 들어온다 */
@@ -37,14 +39,15 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
 <body>
 <main class="wrap">
 <h1>개인정보처리방침</h1>
-<p class="meta">한지붕 가계부 · 한지붕 메모 (이하 "서비스") · 시행일 ${PRIVACY_EFFECTIVE_DATE}</p>
+<p class="meta">한지붕 가계부 · 한지붕 메모 (이하 "서비스") · 시행일 ${PRIVACY_EFFECTIVE_DATE} (이전: ${PRIVACY_PREVIOUS})</p>
 
 <div class="summary">
 <b>요약</b>
 <ul>
-<li>회원가입·로그인이 없고 이름, 전화번호, 이메일, 위치, 광고 ID를 수집하지 않습니다.</li>
+<li>회원가입·로그인이 없고 운영자는 이름, 전화번호, 이메일, 위치, 광고 ID를 수집하지 않습니다.</li>
 <li>함께 쓰기 위해 이용자가 직접 입력한 <b>닉네임과 가계부 내역·메모</b>를 서버에 저장합니다.</li>
-<li>광고, 분석 도구, 추적을 사용하지 않고, 개인정보를 판매하거나 제3자에게 제공하지 않습니다.</li>
+<li><b>한지붕 메모</b> 앱에는 화면 아래에 Google AdMob 배너 광고가 나옵니다. 광고를 위해 Google이 광고 ID 등 기기 정보를 처리합니다(4-1번). 한지붕 가계부에는 광고가 없습니다.</li>
+<li>분석 도구는 쓰지 않고, 개인정보를 판매하지 않습니다.</li>
 <li>삭제한 가계부·메모집·메모는 30일 뒤 서버에서 완전히 지워집니다.</li>
 </ul>
 </div>
@@ -75,7 +78,18 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
 <h2>4. 처리 위탁과 국외 이전</h2>
 <p>운영자는 서버와 데이터베이스를 Cloudflare, Inc.(미국)의 Cloudflare Workers·D1에 두고 운영합니다. 위 1번의 정보가 서비스 이용 시점에 암호화된 통신(HTTPS)으로 Cloudflare의 데이터센터(국외 포함)에 저장·처리되며, 보관 기간은 아래 5번과 같습니다. Cloudflare는 서비스 운영을 위해 접속 IP 등을 자체 정책에 따라 처리할 수 있습니다
 (<a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare 개인정보 처리방침</a>).
+한지붕 메모 앱의 광고는 아래 4-1번과 같이 Google LLC(미국)가 처리합니다.
 이 밖에 제3자에게 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
+
+<h2>4-1. 한지붕 메모 앱 광고 (Google AdMob)</h2>
+<p>한지붕 메모 Android·iOS 앱의 메모집 목록, 메모 목록, 휴지통 화면 맨 아래에 Google AdMob 배너 광고가 나옵니다. 메모를 쓰는 화면에는 광고를 띄우지 않습니다. 한지붕 가계부 앱과 웹 안내 페이지에는 광고가 없습니다.</p>
+<table>
+<tr><th>처리하는 정보</th><td>광고 ID(Android 광고 ID, iOS IDFA), IP 주소, 기기 종류·운영체제, 광고를 보거나 누른 기록 등. 메모 내용, 닉네임, 메모집 정보는 광고에 쓰지 않으며 Google에 보내지 않습니다.</td></tr>
+<tr><th>처리하는 곳</th><td>Google LLC (미국). 운영자는 이 정보를 받거나 저장하지 않습니다.</td></tr>
+<tr><th>목적</th><td>광고 표시, 광고 성과 측정, 부정 클릭 방지, (허용한 경우) 맞춤형 광고</td></tr>
+<tr><th>설정</th><td>Android는 <b>설정 › Google › 광고</b>(또는 개인정보 보호 › 광고)에서 광고 ID를 삭제하거나 재설정할 수 있습니다. iOS 앱은 처음 실행할 때 '앱이 추적하도록 허용' 여부를 묻고, 허용한 경우에만 광고 식별자(IDFA)를 씁니다. 나중에 <b>설정 › 개인정보 보호 및 보안 › 추적</b>에서 바꿀 수 있습니다. 거부해도 맞춤형이 아닌 광고가 나올 수 있습니다.</td></tr>
+</table>
+<p>자세한 내용: <a href="https://policies.google.com/technologies/partner-sites?hl=ko" rel="noopener">Google이 파트너 앱의 정보를 사용하는 방식</a>, <a href="https://policies.google.com/privacy?hl=ko" rel="noopener">Google 개인정보처리방침</a></p>
 
 <h2>5. 보유 기간과 파기</h2>
 <ul>

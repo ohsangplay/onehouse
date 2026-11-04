@@ -12,6 +12,9 @@ dependencies:
     sdk: flutter
   http: ^1.2.2
   shared_preferences: ^2.3.2
+  # 하단 배너 광고 (4S 챌린지와 같은 버전 범위)
+  google_mobile_ads: '>=5.3.0 <9.0.0'
+  app_tracking_transparency: '>=2.0.6 <3.0.0'
   onehouse_core:
     path: ../../packages/onehouse_core
 

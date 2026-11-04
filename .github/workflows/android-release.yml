@@ -111,7 +111,7 @@ jobs:
       - name: AAB 빌드
         run: |
           set -o pipefail
-          if ! flutter build appbundle --release --build-number=${{ github.run_number }} 2>&1 | tee "$RUNNER_TEMP/build.log"; then
+          if ! flutter build appbundle --release $( [ -f config/ads.json ] && echo --dart-define-from-file=config/ads.json ) --build-number=${{ github.run_number }} 2>&1 | tee "$RUNNER_TEMP/build.log"; then
             msg=$(grep -iE "error|failed|exception" "$RUNNER_TEMP/build.log" | tail -15 | sed ':a;N;$!ba;s/\n/%0A/g')
             echo "::error title=AAB 빌드 실패::$msg"
             exit 1
@@ -161,7 +161,7 @@ jobs:
       # 휴대폰에 바로 설치해서 확인하는 용도 (Play에는 위 AAB를 올린다)
       - name: 설치용 APK 빌드
         run: |
-          flutter build apk --release --build-number=${{ github.run_number }}
+          flutter build apk --release $( [ -f config/ads.json ] && echo --dart-define-from-file=config/ads.json ) --build-number=${{ github.run_number }}
           cp build/app/outputs/flutter-apk/app-release.apk "build/onehouse-${{ inputs.app }}-${{ github.run_number }}.apk"
           echo "::notice title=설치용 APK::Artifacts의 ${{ inputs.app }}-apk를 내려받아 압축을 풀고 휴대폰에서 설치하세요"
 

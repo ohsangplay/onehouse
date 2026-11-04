@@ -103,7 +103,7 @@ jobs:
       - name: Flutter 빌드 (서명 없이)
         run: |
           # 빌드 번호는 실행 번호로 (업로드할 때마다 달라야 함). 버전 이름은 pubspec.yaml의 version 앞부분.
-          flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+          flutter build ios --release $( [ -f config/ads.json ] && echo --dart-define-from-file=config/ads.json ) --no-codesign --build-number=${{ github.run_number }}
 
       - name: Archive
         run: |

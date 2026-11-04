@@ -58,6 +58,10 @@ lib/
   utils/                       상대 시간, 충돌 화면 줄 비교
 ```
 
+## 광고
+
+메모집 목록·메모 목록·휴지통 하단에 AdMob 배너 (`lib/ads/`). 광고 ID는 `config/ads.json` (비어 있으면 테스트 ID). 설정 방법은 `store-assets/memo/playstore-guide.md`의 "광고".
+
 ## 출시 후
 
 - 실시간 반영(WebSocket), 이미지 첨부(R2), 푸시 알림
