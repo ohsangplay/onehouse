@@ -180,8 +180,13 @@ jobs:
         if: ${{ inputs.upload }}
         run: |
           IPA=$(ls build/ios/ipa/*.ipa | head -1)
+          set -o pipefail
           xcrun altool --upload-app --type ios -f "$IPA" \
-            --apiKey "${ASC_KEY_ID}" --apiIssuer "${ASC_ISSUER_ID}"
+            --apiKey "${ASC_KEY_ID}" --apiIssuer "${ASC_ISSUER_ID}" 2>&1 | tee upload.log || {
+              msg=$(grep -iE "error|fail|bundle|apple id|already|version|invalid|missing|not found" upload.log | tail -n 30 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+              echo "::error title=App Store Connect 업로드 실패::$msg"
+              exit 1
+            }
           echo "업로드 완료. App Store Connect → TestFlight에서 처리(10~30분) 후 확인하세요."
 
       - name: API 키 삭제
