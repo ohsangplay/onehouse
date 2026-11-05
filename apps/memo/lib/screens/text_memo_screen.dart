@@ -446,16 +446,30 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
     if (_leaving) return;
     _leaving = true;
     _debounce?.cancel();
+    // 자동 저장이 보내는 중이면 끝날 때까지 기다린다 (먼저 나가면 목록에 새 메모가 빠진 채로 보임)
+    await _waitSaving();
     if (_isEmptyNew) {
       await _s.store.clearDraft(_nb, null);
     } else if (_dirty) {
       _writeDraft();
-      if (_network.online) await _save();
+      if (_network.online) {
+        await _save();
+        await _waitSaving();
+      }
       if (mounted && _dirty) {
         showMessage(context, _network.online ? '저장하지 못한 내용은 기기에 남겨 뒀어요.' : '오프라인이라 기기에 남겨 뒀어요. 연결되면 이어서 저장돼요.');
       }
     }
-    if (mounted) Navigator.of(context).pop();
+    // 저장된 메모를 돌려줘서 목록이 서버 응답을 기다리지 않고 바로 보여 준다
+    if (mounted) Navigator.of(context).pop(_memo);
+  }
+
+  Future<void> _waitSaving() async {
+    for (var i = 0; (_saving || _resolving) && i < 300 && mounted; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+    _debounce?.cancel();
+    _saveAgain = false;
   }
 
   Future<void> _delete() async {
