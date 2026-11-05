@@ -4,8 +4,11 @@ App Store Connect → 앱 → 1.0 → **앱 심사 정보 → 메모**에 아래
 화면 녹화는 같은 화면의 **첨부 파일**에 올린다(mp4/mov). 용량 때문에 안 되면 Google Drive 등 "링크가 있는 사람 보기" 링크를 메모 1번에 넣는다.
 
 ```
-1. Screen recording
-The screen recording is attached to this submission (App Review Information > Attachment). It was captured on a physical iPhone running the latest iOS and starts from launching the app. It shows: creating a budget (no sign-up/login), adding/editing/deleting records, list and calendar views, the category filter, category management, the invite code, a join request from a second device and its approval, the content reporting flows (Settings > 신고하기 "Report", reporting a member, and reporting another member's record with the flag icon), blocking a member, leaving, and deleting the budget.
+1. Screen recordings
+Two screen recordings are attached (App Review Information > Attachment). Both were captured on physical iPhones running the latest iOS.
+- Video 1 starts from launching the app and shows creating a budget without any sign-up or login, the main budget screen, and opening Settings to show the invite code.
+- Video 2 shows a second iPhone joining the budget with the invite code, the owner approving the join request in Settings > 멤버 관리 (Members), and the content reporting flow (신고 / Report): choosing a reason and sending the report to the developer.
+Blocking a member is in the same member menu (멤버 관리 > member > 차단 / Block), and deleting the budget is in Settings > 가계부 삭제 (Delete budget), as described in section 3.
 
 2. Purpose and target audience
 Onehouse Budget (한지붕 가계부) is a shared household budget book for families, couples and roommates in Korea. Each budget has an invite code; people who receive the code request to join, and the budget owner (or a co-owner) approves them. Members record their own income and expenses on their own phones and everyone in the budget sees the same records, so a family can manage living expenses together without passing one phone around or using a spreadsheet. It does not connect to banks or cards and does not move money; users type their own records.
