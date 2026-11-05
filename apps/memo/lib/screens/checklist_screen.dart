@@ -9,6 +9,7 @@ import '../services/memo_services.dart';
 import '../services/memo_store.dart';
 import '../utils/time.dart';
 import '../widgets/offline_banner.dart';
+import '../widgets/report_memo.dart';
 import '../widgets/viewers_bar.dart';
 
 /// 체크리스트.
@@ -329,6 +330,17 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   Future<void> _menu(String action) async {
     if (!requireOnline(context, _network)) return;
+    final memo = _memo;
+    if (action == 'report' && memo != null) {
+      await reportMemo(context,
+          services: _s,
+          notebook: widget.notebook,
+          memoId: memo.id,
+          title: memo.displayTitle,
+          authorId: memo.createdBy.id,
+          authorNickname: memo.createdBy.nickname);
+      return;
+    }
     try {
       if (action == 'clear') {
         final ok = await confirmDialog(context, title: '체크한 항목을 지울까요?', action: '지우기', danger: true);
@@ -372,6 +384,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
             itemBuilder: (_) => [
               PopupMenuItem(value: 'clear', enabled: online && done > 0, child: const Text('체크한 항목 지우기')),
               if (_canDelete) PopupMenuItem(value: 'delete', enabled: online, child: const Text('휴지통으로')),
+              if (memo != null && canReportMemo(widget.notebook, memo.createdBy.id))
+                PopupMenuItem(value: 'report', enabled: online, child: const Text('신고하기')),
             ],
           ),
         ],

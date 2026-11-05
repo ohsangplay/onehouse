@@ -10,6 +10,7 @@ import '../services/memo_services.dart';
 import '../services/memo_store.dart';
 import '../utils/time.dart';
 import '../widgets/offline_banner.dart';
+import '../widgets/report_memo.dart';
 import '../widgets/viewers_bar.dart';
 import 'conflict_screen.dart';
 
@@ -487,6 +488,23 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
     return memo.createdBy.id == widget.notebook.memberId || isManager(widget.notebook.role);
   }
 
+  bool get _canReport {
+    final memo = _memo;
+    return memo != null && canReportMemo(widget.notebook, memo.createdBy.id);
+  }
+
+  Future<void> _report() async {
+    final memo = _memo;
+    if (memo == null) return;
+    await reportMemo(context,
+        services: _s,
+        notebook: widget.notebook,
+        memoId: memo.id,
+        title: memo.displayTitle,
+        authorId: memo.createdBy.id,
+        authorNickname: memo.createdBy.nickname);
+  }
+
   String get _status {
     if (_saving) return '저장 중…';
     if (!_dirty || _isEmptyNew) return _memoId == null ? '' : '저장됨';
@@ -521,15 +539,20 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
                   : null,
               child: const Text('저장', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             ),
-            if (_canDelete)
+            if (_canDelete || _canReport)
               PopupMenuButton<String>(
-                onSelected: (v) => v == 'delete' ? _delete() : null,
+                onSelected: (v) {
+                  if (v == 'delete') _delete();
+                  if (v == 'report') _report();
+                },
                 itemBuilder: (_) => [
-                  PopupMenuItem(
-                    value: 'delete',
-                    enabled: _network.online || _memoId == null,
-                    child: Text(_memoId == null ? '쓰던 내용 버리기' : '휴지통으로'),
-                  ),
+                  if (_canDelete)
+                    PopupMenuItem(
+                      value: 'delete',
+                      enabled: _network.online || _memoId == null,
+                      child: Text(_memoId == null ? '쓰던 내용 버리기' : '휴지통으로'),
+                    ),
+                  if (_canReport) PopupMenuItem(value: 'report', enabled: _network.online, child: const Text('신고하기')),
                 ],
               ),
           ],

@@ -7,6 +7,7 @@ import '../services/memo_services.dart';
 import '../theme.dart';
 import '../utils/time.dart';
 import '../widgets/offline_banner.dart';
+import '../widgets/report_memo.dart';
 import 'checklist_screen.dart';
 import 'text_memo_screen.dart';
 import 'trash_screen.dart';
@@ -150,12 +151,28 @@ class _NotebookScreenState extends State<NotebookScreen> {
                 title: const Text('휴지통으로', style: TextStyle(color: AppColors.danger)),
                 onTap: () => Navigator.of(context).pop('delete'),
               ),
+            if (canReportMemo(widget.notebook, m.createdBy.id))
+              ListTile(
+                leading: const Icon(Icons.flag_outlined),
+                title: const Text('신고하기'),
+                onTap: () => Navigator.of(context).pop('report'),
+              ),
             const SizedBox(height: 8),
           ],
         ),
       ),
     );
     if (action == null || !mounted) return;
+    if (action == 'report') {
+      await reportMemo(context,
+          services: _s,
+          notebook: widget.notebook,
+          memoId: m.id,
+          title: m.displayTitle,
+          authorId: m.createdBy.id,
+          authorNickname: m.createdBy.nickname);
+      return;
+    }
     try {
       if (action == 'pin') {
         await _s.api.patch('$_base/memos/${m.id}/pin', {'pinned': !m.pinned});
