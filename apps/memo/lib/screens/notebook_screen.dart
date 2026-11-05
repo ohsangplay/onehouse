@@ -83,8 +83,37 @@ class _NotebookScreenState extends State<NotebookScreen> {
     final screen = kind == MemoKind.checklist
         ? ChecklistScreen(services: _s, notebook: widget.notebook, memoId: memoId!)
         : TextMemoScreen(services: _s, notebook: widget.notebook, memoId: memoId);
-    await Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => screen));
+    final saved = await Navigator.of(context).push<Object?>(MaterialPageRoute(builder: (_) => screen));
+    if (saved is Memo && mounted) _upsert(saved);
     await _load();
+  }
+
+  /// 방금 저장한 메모를 목록에 먼저 반영 (서버 목록은 _load가 이어서 맞춘다)
+  void _upsert(Memo memo) {
+    final list = [...?_memos];
+    final summary = MemoSummary(
+      id: memo.id,
+      kind: memo.kind,
+      title: memo.title,
+      preview: memo.body.length > 200 ? memo.body.substring(0, 200) : memo.body,
+      pinned: memo.pinned,
+      itemCount: memo.items.length,
+      checkedCount: memo.items.where((i) => i.checked).length,
+      createdBy: memo.createdBy,
+      updatedBy: memo.updatedBy,
+      updatedAt: memo.updatedAt,
+    );
+    list.removeWhere((m) => m.id == memo.id);
+    list.add(summary);
+    // 서버와 같은 순서: 고정한 메모 먼저, 그다음 최근에 바뀐 순
+    list.sort((a, b) {
+      if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+    setState(() {
+      _memos = list;
+      _drafts = _s.store.draftMemoIds(_id);
+    });
   }
 
   Future<void> _newMemo() async {
