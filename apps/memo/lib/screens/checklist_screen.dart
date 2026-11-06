@@ -37,6 +37,11 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   String? _error;
   List<Viewer> _viewers = const [];
   bool _busy = false;
+
+  /// 서버에 보내는 중인 새 항목(임시 id). 바로 목록에 보여주고, 응답이 오면 진짜 항목으로 바꾼다
+  final Set<String> _adding = {};
+  Future<void> _addQueue = Future.value();
+  int _tempSeq = 0;
   bool _editing = false;
   Timer? _presence;
 
@@ -84,7 +89,9 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   int get _pendingHere => _s.store.pendingChecks().where((c) => c.memoId == widget.memoId).length;
 
-  Future<void> _store(Memo memo) => _s.store.saveMemo(memo.id, memo.toJson());
+  // 보내는 중인 임시 항목은 기기에 저장하지 않는다
+  Future<void> _store(Memo memo) => _s.store.saveMemo(
+      memo.id, memo.copyWith(items: memo.items.where((i) => !_adding.contains(i.id)).toList()).toJson());
 
   Future<void> _load() async {
     try {
@@ -120,7 +127,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
       });
       final updatedAt = DateTime.tryParse(res['updated_at'] as String? ?? '');
       final title = res['version'] != memo.version;
-      if (!_editing && !_busy && (title || (updatedAt != null && updatedAt.isAfter(memo.updatedAt)))) {
+      if (!_editing && !_busy && _adding.isEmpty && (title || (updatedAt != null && updatedAt.isAfter(memo.updatedAt)))) {
         await _load();
       }
     } catch (_) {}
@@ -176,25 +183,49 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   // ── 온라인에서만
 
-  Future<void> _addItem() async {
+  /// 항목 추가: 입력칸을 바로 비우고 목록에 먼저 보여준 뒤, 서버에는 넣은 순서대로 보낸다
+  void _addItem() {
     final text = _add.text.trim();
-    if (text.isEmpty || _busy) return;
+    final memo = _memo;
+    if (text.isEmpty || memo == null) return;
     if (!requireOnline(context, _network)) return;
-    setState(() => _busy = true);
+    final tempId = 'adding-${_tempSeq++}';
+    final temp = MemoItem(
+      id: tempId,
+      text: text,
+      checked: false,
+      sortOrder: memo.items.length,
+      version: 1,
+      updatedAt: DateTime.now(),
+      updatedBy: Person(widget.notebook.memberId, widget.notebook.nickname),
+    );
+    _adding.add(tempId);
+    setState(() => _memo = memo.copyWith(items: [...memo.items, temp]));
+    _add.clear();
+    _addFocus.requestFocus();
+    _addQueue = _addQueue.then((_) => _sendNewItem(tempId, text));
+  }
+
+  Future<void> _sendNewItem(String tempId, String text) async {
     try {
       final res = await _s.api.post('$_base/items', {'text': text});
+      _adding.remove(tempId);
       final memo = _memo;
-      if (memo != null && mounted) {
-        final next = memo.copyWith(items: [...memo.items, MemoItem.fromJson(res)]);
-        setState(() => _memo = next);
-        await _store(next);
-      }
-      _add.clear();
-      _addFocus.requestFocus();
+      if (memo == null || !mounted) return;
+      final real = MemoItem.fromJson(res);
+      final next = memo.copyWith(items: [for (final i in memo.items) i.id == tempId ? real : i]);
+      setState(() => _memo = next);
+      await _store(next);
     } catch (e) {
-      if (mounted) showFailure(context, e);
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      _adding.remove(tempId);
+      if (!mounted) return;
+      final memo = _memo;
+      if (memo != null) {
+        setState(() => _memo = memo.copyWith(items: memo.items.where((i) => i.id != tempId).toList()));
+      }
+      // 못 넣은 글자는 입력칸에 돌려준다 (다른 걸 쓰는 중이면 그대로 둠)
+      if (_add.text.trim().isEmpty) _add.text = text;
+      showFailure(context, e);
     }
   }
 
@@ -273,6 +304,10 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   Future<void> _reorder(int oldIndex, int newIndex) async {
     final memo = _memo;
     if (memo == null) return;
+    if (_adding.isNotEmpty) {
+      showMessage(context, '새 항목을 저장하는 중이에요. 잠시 뒤에 옮겨 주세요.');
+      return;
+    }
     if (!requireOnline(context, _network)) return;
     final items = [...memo.items];
     if (newIndex > oldIndex) newIndex -= 1;
@@ -447,9 +482,10 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             onReorder: _reorder,
                             itemBuilder: (context, i) {
                               final item = memo.items[i];
+                              final pending = _adding.contains(item.id);
                               return Dismissible(
                                 key: ValueKey(item.id),
-                                direction: online ? DismissDirection.endToStart : DismissDirection.none,
+                                direction: online && !pending ? DismissDirection.endToStart : DismissDirection.none,
                                 confirmDismiss: (_) => _deleteItem(item),
                                 background: Container(
                                   alignment: Alignment.centerRight,
@@ -460,7 +496,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                 child: _ItemTile(
                                   item: item,
                                   index: i,
-                                  online: online,
+                                  online: online && !pending,
+                                  pending: pending,
                                   onToggle: () => _toggle(item),
                                   onEdit: () => _editItem(item),
                                 ),
@@ -514,11 +551,15 @@ class _ItemTile extends StatelessWidget {
     required this.online,
     required this.onToggle,
     required this.onEdit,
+    this.pending = false,
   });
 
   final MemoItem item;
   final int index;
   final bool online;
+
+  /// 서버에 보내는 중 (흐리게, 체크·고치기 막음)
+  final bool pending;
   final VoidCallback onToggle;
   final VoidCallback onEdit;
 
@@ -528,9 +569,11 @@ class _ItemTile extends StatelessWidget {
     final links = findLinks(item.text);
     return Material(
       color: AppColors.background,
-      child: Row(
+      child: Opacity(
+       opacity: pending ? 0.55 : 1,
+       child: Row(
         children: [
-          Checkbox(value: item.checked, onChanged: (_) => onToggle()),
+          Checkbox(value: item.checked, onChanged: pending ? null : (_) => onToggle()),
           Expanded(
             child: InkWell(
               onTap: online ? onEdit : null,
@@ -569,6 +612,7 @@ class _ItemTile extends StatelessWidget {
               ),
             ),
         ],
+       ),
       ),
     );
   }

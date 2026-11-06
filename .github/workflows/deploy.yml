@@ -64,6 +64,8 @@ jobs:
           sed -i "s/00000000-0000-0000-0000-000000000000/$DB_ID/" wrangler.toml
 
           npx wrangler d1 migrations apply onehouse --remote
+          # DB가 어느 지역에 있는지 기록 (속도 확인용)
+          npx wrangler d1 info onehouse || true
           npx wrangler deploy | tee deploy-out.txt
           URL=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' deploy-out.txt | head -1)
           echo "url=$URL" >> "$GITHUB_OUTPUT"
