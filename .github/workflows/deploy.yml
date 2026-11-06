@@ -24,6 +24,9 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # 운영 DB. 2026-11 미국 서부(onehouse)에서 아시아(onehouse-apac)로 옮김 (db-move-apac.yml)
+      # 로컬·CI는 wrangler.toml의 onehouse 이름 그대로 쓴다
+      DB_NAME: onehouse-apac
     steps:
       - uses: actions/checkout@v4
 
@@ -49,23 +52,24 @@ jobs:
           find_db() {
             npx wrangler d1 list --json 2>/dev/null | node -e "
               let s=''; process.stdin.on('data', d => s += d).on('end', () => {
-                const db = JSON.parse(s).find(x => x.name === 'onehouse');
+                const db = JSON.parse(s).find(x => x.name === process.env.DB_NAME);
                 process.stdout.write(db ? db.uuid : '');
               });"
           }
           DB_ID=$(find_db)
           if [ -z "$DB_ID" ]; then
-            echo "onehouse D1 데이터베이스를 새로 만들어요."
-            npx wrangler d1 create onehouse
+            echo "$DB_NAME D1 데이터베이스를 아시아에 새로 만들어요."
+            npx wrangler d1 create "$DB_NAME" --location apac
             DB_ID=$(find_db)
           fi
           [ -n "$DB_ID" ] || { echo "D1 데이터베이스 ID를 찾지 못했어요."; exit 1; }
           echo "D1: $DB_ID"
           sed -i "s/00000000-0000-0000-0000-000000000000/$DB_ID/" wrangler.toml
+          sed -i "s/database_name = \"onehouse\"/database_name = \"$DB_NAME\"/" wrangler.toml
 
-          npx wrangler d1 migrations apply onehouse --remote
+          npx wrangler d1 migrations apply "$DB_NAME" --remote
           # DB가 어느 지역에 있는지 기록 (속도 확인용)
-          npx wrangler d1 info onehouse || true
+          npx wrangler d1 info "$DB_NAME" || true
           npx wrangler deploy | tee deploy-out.txt
           URL=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' deploy-out.txt | head -1)
           echo "url=$URL" >> "$GITHUB_OUTPUT"

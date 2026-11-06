@@ -34,6 +34,7 @@ MEMO_PLAY_STORE_URL = ""
 [[d1_databases]]
 binding = "DB"
 database_name = "onehouse"
-# 배포 워크플로(.github/workflows/deploy.yml)가 계정의 onehouse DB를 찾아 실제 ID로 바꿔서 배포해요.
+# 로컬·CI는 이 이름(onehouse) 그대로 쓰고, 배포 워크플로(deploy.yml)가 운영 DB onehouse-apac(아시아)의
+# 실제 이름·ID로 바꿔서 배포해요. 2026-11-06 미국 서부 onehouse에서 옮김 (db-move-apac.yml)
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
