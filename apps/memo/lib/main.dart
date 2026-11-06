@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
 import 'config.dart';
@@ -61,6 +62,10 @@ class _MemoAppState extends State<MemoApp> with WidgetsBindingObserver {
       title: '한지붕 메모',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(MemoColors.primary),
+      // 복사·붙여넣기 같은 기본 메뉴를 한국어로 (한지붕 가계부와 같음)
+      locale: const Locale('ko', 'KR'),
+      supportedLocales: const [Locale('ko', 'KR')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: BootstrapScreen(
         services: services.app,
         home: (_) {
