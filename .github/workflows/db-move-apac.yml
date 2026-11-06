@@ -61,6 +61,8 @@ jobs:
           OLD_ID=$(db_id "$OLD")
           [ -n "$OLD_ID" ] || { echo "예전 DB($OLD)를 찾지 못했어요."; exit 1; }
           echo "예전 DB: $OLD $OLD_ID"
+          # wrangler는 설정 파일에 있는 이름(onehouse)이면 설정의 ID를 쓴다 → 임시 ID를 진짜 ID로
+          sed -i "s/00000000-0000-0000-0000-000000000000/$OLD_ID/" wrangler.toml
           npx wrangler d1 info "$OLD" || true
 
           NEW_ID=$(db_id "$NEW")
@@ -110,7 +112,7 @@ jobs:
 
           echo "── 4) 새 DB로 서버 배포"
           sed -i "s/database_name = \"onehouse\"/database_name = \"$NEW\"/" wrangler.toml
-          sed -i "s/00000000-0000-0000-0000-000000000000/$NEW_ID/" wrangler.toml
+          sed -i "s/$OLD_ID/$NEW_ID/" wrangler.toml
           grep -n "database_" wrangler.toml
           npx wrangler deploy | tee ../deploy-out.txt
           npx wrangler d1 info "$NEW" || true
