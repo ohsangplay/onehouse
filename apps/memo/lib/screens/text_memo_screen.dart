@@ -37,7 +37,7 @@ class TextMemoScreen extends StatefulWidget {
 
 class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObserver {
   final _title = TextEditingController();
-  final _body = TextEditingController();
+  final _body = LinkTextEditingController();
   final _bodyFocus = FocusNode();
 
   String? _memoId;
@@ -587,6 +587,8 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
                   : _loadError != null
                       ? Center(child: Text(_loadError!, style: const TextStyle(color: AppColors.textSecondary)))
                       : ListView(
+                          // 아래로 끌면 키보드가 내려간다 (아이폰은 여러 줄 입력칸에 키보드 닫기 버튼이 없음)
+                          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
                           children: [
                             TextField(
@@ -637,8 +639,9 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
                           ],
                         ),
             ),
-            // 글 속 링크는 아래 줄에서 눌러 연다 (쓰는 중 키보드가 올라와 있으면 숨김)
-            if (_links.isNotEmpty && MediaQuery.viewInsetsOf(context).bottom == 0) MemoLinkBar(links: _links),
+            // 글 속 링크는 아래 줄에서 눌러 연다
+            // 쓰는 중(키보드가 올라와 있을 때)에도 키보드 바로 위에 보인다
+            if (_links.isNotEmpty) MemoLinkBar(links: _links),
           ],
         ),
       ),
