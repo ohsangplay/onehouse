@@ -491,7 +491,7 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
       await _s.store.clearDraft(_nb, id);
       _syncedTitle = _title.text;
       _syncedBody = _body.text;
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop(MemoDeleted(id));
     } catch (e) {
       if (mounted) showFailure(context, e);
     }
