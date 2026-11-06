@@ -109,19 +109,24 @@ jobs:
 
           echo "── 3) 표마다 행 개수 비교"
           TABLES=$(q "$OLD" "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).map(r=>r.name).join(' ')))")
+          # 한 줄에 표마다 개수 (UNION을 많이 쓰면 D1 제한에 걸림)
           SQL=""
           for t in $TABLES; do
-            [ -n "$SQL" ] && SQL="$SQL UNION ALL "
-            SQL="${SQL}SELECT '$t' AS t, COUNT(*) AS n FROM \"$t\""
+            [ -n "$SQL" ] && SQL="$SQL, "
+            SQL="${SQL}(SELECT COUNT(*) FROM \"$t\") AS \"$t\""
           done
-          q "$OLD" "$SQL" > ../old-counts.json
-          q "$NEW" "$SQL" > ../new-counts.json
+          SQL="SELECT $SQL"
+          to_rows() { node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const r=JSON.parse(s)[0];process.stdout.write(JSON.stringify(Object.entries(r).map(([t,n])=>({t,n}))))})"; }
+          q "$OLD" "$SQL" | to_rows > ../old-counts.json
+          q "$NEW" "$SQL" | to_rows > ../new-counts.json
           node -e "
             const a = JSON.parse(require('fs').readFileSync('../old-counts.json'));
             const b = Object.fromEntries(JSON.parse(require('fs').readFileSync('../new-counts.json')).map(r => [r.t, r.n]));
             let bad = 0;
+            // 요청 제한·보는 중 표시는 몇 초마다 바뀌는 임시 데이터라 개수가 달라도 괜찮다
+            const volatile = new Set(['rate_limits', 'memo_presence']);
             for (const r of a) {
-              const ok = b[r.t] === r.n;
+              const ok = b[r.t] === r.n || volatile.has(r.t);
               if (!ok) bad++;
               console.log((ok ? '✓' : '✗') + ' ' + r.t + ': 예전 ' + r.n + ' / 새 ' + b[r.t]);
             }
