@@ -114,10 +114,12 @@ jobs:
       - name: Upload APK
         if: steps.apk.outcome == 'success'
         uses: actions/upload-artifact@v4
+        # 아티팩트 저장 용량이 차도 빌드·업로드는 계속 (결과물은 release-files 브랜치·스토어에 있음)
+        continue-on-error: true
         with:
           name: onehouse-${{ inputs.app }}-debug-apk
           path: apps/${{ inputs.app }}/build/app/outputs/flutter-apk/app-debug.apk
-          retention-days: 14
+          retention-days: 3
 
       - name: Summary
         if: always()
@@ -139,10 +141,12 @@ jobs:
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
+        # 아티팩트 저장 용량이 차도 빌드·업로드는 계속 (결과물은 release-files 브랜치·스토어에 있음)
+        continue-on-error: true
         with:
           name: ci-${{ inputs.app }}
           path: ci-out/${{ inputs.app }}
-          retention-days: 14
+          retention-days: 3
 
       - name: Fail if any check failed
         if: always()

@@ -115,3 +115,35 @@ class MemoLinkBar extends StatelessWidget {
     );
   }
 }
+
+/// 글 속 링크를 파란 밑줄로 보여주는 입력칸 컨트롤러 (누르면 아래 링크 줄에서 연다)
+class LinkTextEditingController extends TextEditingController {
+  LinkTextEditingController({super.text});
+
+  @override
+  TextSpan buildTextSpan({required BuildContext context, TextStyle? style, required bool withComposing}) {
+    // 한글 조합 중에는 기본 표시를 그대로 쓴다 (밑줄 표시가 겹치지 않게)
+    if (withComposing && value.isComposingRangeValid) {
+      return super.buildTextSpan(context: context, style: style, withComposing: withComposing);
+    }
+    final matches = _linkPattern.allMatches(text).toList();
+    if (matches.isEmpty) return TextSpan(style: style, text: text);
+    final linkStyle = (style ?? const TextStyle()).copyWith(
+      color: Theme.of(context).colorScheme.primary,
+      decoration: TextDecoration.underline,
+    );
+    final children = <TextSpan>[];
+    var pos = 0;
+    for (final m in matches) {
+      var end = m.end;
+      while (end > m.start && _trailing.contains(text[end - 1])) {
+        end--;
+      }
+      if (m.start > pos) children.add(TextSpan(text: text.substring(pos, m.start)));
+      children.add(TextSpan(text: text.substring(m.start, end), style: linkStyle));
+      pos = end;
+    }
+    if (pos < text.length) children.add(TextSpan(text: text.substring(pos)));
+    return TextSpan(style: style, children: children);
+  }
+}
