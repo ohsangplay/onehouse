@@ -8,6 +8,7 @@ import '../models/memo.dart';
 import '../services/memo_services.dart';
 import '../services/memo_store.dart';
 import '../utils/time.dart';
+import '../widgets/memo_links.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/report_memo.dart';
 import '../widgets/viewers_bar.dart';
@@ -524,6 +525,7 @@ class _ItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final checkedBy = item.checkedBy;
+    final links = findLinks(item.text);
     return Material(
       color: AppColors.background,
       child: Row(
@@ -552,6 +554,12 @@ class _ItemTile extends StatelessWidget {
               ),
             ),
           ),
+          if (links.isNotEmpty)
+            IconButton(
+              tooltip: '링크 열기',
+              icon: Icon(Icons.open_in_new, size: 20, color: Theme.of(context).colorScheme.primary),
+              onPressed: () => openMemoLinks(context, links),
+            ),
           if (online)
             ReorderableDragStartListener(
               index: index,

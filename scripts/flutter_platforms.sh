@@ -43,6 +43,9 @@ if plist.exists():
     data['CFBundleName'] = label
     # 표준 HTTPS 외 암호화 없음 → App Store Connect 수출 규정 질문을 매번 안 물어봄
     data['ITSAppUsesNonExemptEncryption'] = False
+    # 기본 언어를 한국어로: iOS가 띄우는 메뉴·권한 창도 한국어로 나옴
+    data['CFBundleDevelopmentRegion'] = 'ko'
+    data['CFBundleLocalizations'] = ['ko']
     plist.write_bytes(plistlib.dumps(data))
 
 pbx = pathlib.Path('ios/Runner.xcodeproj/project.pbxproj')

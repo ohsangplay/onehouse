@@ -10,6 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # 복사·붙여넣기 메뉴, 날짜 선택 등 기본 화면 글자를 한국어로
+  flutter_localizations:
+    sdk: flutter
   http: ^1.2.2
   shared_preferences: ^2.3.2
   # 하단 배너 광고 (한지붕 가계부와 같은 방식, lib/widgets/ad_banner.dart)
