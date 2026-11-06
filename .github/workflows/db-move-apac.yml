@@ -1,0 +1,156 @@
+name: DB를 아시아로 옮기기 (한 번만)
+
+# 서버 DB(D1)가 미국 서부(WNAM)에 만들어져서 한국에서 느리다 → 아시아(APAC)에 새로 만들어 옮긴다.
+# db-move-apac 브랜치에 올리면 실행된다.
+#   1) 지금 DB(onehouse) 내보내기
+#   2) 아시아에 새 DB(onehouse-apac) 만들기
+#   3) 가져오기 → 표마다 행 개수를 두 DB에서 비교 (하나라도 다르면 여기서 멈춤, 서버는 그대로)
+#   4) 새 DB로 서버 배포 → /health 확인
+# 예전 DB(onehouse)는 지우지 않는다 (문제가 생기면 되돌리기용).
+on:
+  push:
+    branches: [db-move-apac]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+jobs:
+  move:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      OLD: onehouse
+      NEW: onehouse-apac
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 옮기기
+        id: move
+        continue-on-error: true
+        working-directory: server
+        run: |
+          set -eo pipefail
+          exec > >(tee ../move.log) 2>&1
+          npm ci
+          npx wrangler --version
+
+          db_id() {
+            npx wrangler d1 list --json 2>/dev/null | node -e "
+              let s=''; process.stdin.on('data', d => s += d).on('end', () => {
+                const db = JSON.parse(s).find(x => x.name === process.argv[1]);
+                process.stdout.write(db ? db.uuid : '');
+              });" "$1"
+          }
+          q() { # DB 이름, SQL → 결과 행(JSON 배열)
+            npx wrangler d1 execute "$1" --remote --json --command "$2" 2>/dev/null | node -e "
+              let s=''; process.stdin.on('data', d => s += d).on('end', () => {
+                process.stdout.write(JSON.stringify(JSON.parse(s)[0].results));
+              });"
+          }
+
+          OLD_ID=$(db_id "$OLD")
+          [ -n "$OLD_ID" ] || { echo "예전 DB($OLD)를 찾지 못했어요."; exit 1; }
+          echo "예전 DB: $OLD $OLD_ID"
+          npx wrangler d1 info "$OLD" || true
+
+          NEW_ID=$(db_id "$NEW")
+          if [ -n "$NEW_ID" ]; then
+            n=$(q "$NEW" "SELECT COUNT(*) AS n FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(String(JSON.parse(s)[0].n)))")
+            if [ "$n" != "0" ]; then
+              echo "새 DB($NEW)에 이미 표가 $n개 있어요. 두 번 옮기지 않도록 멈춰요."
+              exit 1
+            fi
+          else
+            echo "아시아에 새 DB를 만들어요."
+            npx wrangler d1 create "$NEW" --location apac
+            NEW_ID=$(db_id "$NEW")
+          fi
+          [ -n "$NEW_ID" ] || { echo "새 DB ID를 찾지 못했어요."; exit 1; }
+          echo "새 DB: $NEW $NEW_ID"
+
+          echo "── 1) 내보내기"
+          npx wrangler d1 export "$OLD" --remote --output=../dump.sql
+          ls -la ../dump.sql
+          grep -c "^INSERT" ../dump.sql || true
+
+          echo "── 2) 가져오기"
+          npx wrangler d1 execute "$NEW" --remote --file=../dump.sql --yes
+
+          echo "── 3) 표마다 행 개수 비교"
+          TABLES=$(q "$OLD" "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).map(r=>r.name).join(' ')))")
+          SQL=""
+          for t in $TABLES; do
+            [ -n "$SQL" ] && SQL="$SQL UNION ALL "
+            SQL="${SQL}SELECT '$t' AS t, COUNT(*) AS n FROM \"$t\""
+          done
+          q "$OLD" "$SQL" > ../old-counts.json
+          q "$NEW" "$SQL" > ../new-counts.json
+          node -e "
+            const a = JSON.parse(require('fs').readFileSync('../old-counts.json'));
+            const b = Object.fromEntries(JSON.parse(require('fs').readFileSync('../new-counts.json')).map(r => [r.t, r.n]));
+            let bad = 0;
+            for (const r of a) {
+              const ok = b[r.t] === r.n;
+              if (!ok) bad++;
+              console.log((ok ? '✓' : '✗') + ' ' + r.t + ': 예전 ' + r.n + ' / 새 ' + b[r.t]);
+            }
+            if (bad) { console.log('개수가 다른 표가 ' + bad + '개 있어요. 서버는 바꾸지 않아요.'); process.exit(1); }
+            console.log('모든 표 개수가 같아요 (' + a.length + '개 표).');
+          "
+
+          echo "── 4) 새 DB로 서버 배포"
+          sed -i "s/database_name = \"onehouse\"/database_name = \"$NEW\"/" wrangler.toml
+          sed -i "s/00000000-0000-0000-0000-000000000000/$NEW_ID/" wrangler.toml
+          grep -n "database_" wrangler.toml
+          npx wrangler deploy | tee ../deploy-out.txt
+          npx wrangler d1 info "$NEW" || true
+
+      - name: 배포 후 확인
+        id: verify
+        if: steps.move.outcome == 'success'
+        continue-on-error: true
+        run: |
+          exec > >(tee verify.log) 2>&1
+          URL=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' deploy-out.txt | head -1)
+          echo "주소: $URL"
+          sleep 5
+          code=$(curl -s -o health.json -w '%{http_code}' "$URL/health")
+          echo "/health → $code $(cat health.json)"
+          [ "$code" = "200" ]
+
+      - name: 결과 올리기 (db-move-results 브랜치)
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p out
+          cp move.log verify.log old-counts.json new-counts.json out/ 2>/dev/null || true
+          cat > out/summary.md <<EOF
+          # DB 옮기기 ${GITHUB_SHA}
+
+          | 항목 | 결과 |
+          | --- | --- |
+          | 옮기기·배포 | ${{ steps.move.outcome }} |
+          | 배포 후 확인 | ${{ steps.verify.outcome }} |
+          EOF
+          cd out
+          git init -q
+          git checkout -q -b db-move-results
+          git add -A
+          git -c user.name="ci" -c user.email="ci@users.noreply.github.com" commit -qm "DB move results for ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" db-move-results
+
+      - name: 실패하면 표시
+        if: always()
+        run: |
+          [ "${{ steps.move.outcome }}" = "success" ] && [ "${{ steps.verify.outcome }}" = "success" ]
