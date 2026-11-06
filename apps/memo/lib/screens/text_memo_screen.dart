@@ -9,6 +9,7 @@ import '../models/memo.dart';
 import '../services/memo_services.dart';
 import '../services/memo_store.dart';
 import '../utils/time.dart';
+import '../widgets/memo_links.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/report_memo.dart';
 import '../widgets/viewers_bar.dart';
@@ -519,6 +520,8 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
         authorNickname: memo.createdBy.nickname);
   }
 
+  List<Uri> get _links => findLinks('${_title.text}\n${_body.text}');
+
   String get _status {
     if (_saving) return '저장 중…';
     if (!_dirty || _isEmptyNew) return _memoId == null ? '' : '저장됨';
@@ -634,6 +637,8 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
                           ],
                         ),
             ),
+            // 글 속 링크는 아래 줄에서 눌러 연다 (쓰는 중 키보드가 올라와 있으면 숨김)
+            if (_links.isNotEmpty && MediaQuery.viewInsetsOf(context).bottom == 0) MemoLinkBar(links: _links),
           ],
         ),
       ),

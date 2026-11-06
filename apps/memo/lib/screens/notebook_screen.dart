@@ -6,6 +6,7 @@ import '../models/memo.dart';
 import '../services/memo_services.dart';
 import '../theme.dart';
 import '../utils/time.dart';
+import '../widgets/memo_links.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/report_memo.dart';
 import 'checklist_screen.dart';
@@ -374,6 +375,11 @@ class _MemoCard extends StatelessWidget {
                         style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                       ),
                     ),
+                    if (findLinks('${memo.title}\n${memo.preview}', max: 1).isNotEmpty) ...[
+                      const SizedBox(width: 6),
+                      const Icon(Icons.link, size: 18, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                    ],
                     if (checklist && memo.itemCount > 0)
                       Text(
                         '${memo.checkedCount}/${memo.itemCount}',
