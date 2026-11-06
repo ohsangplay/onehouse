@@ -1,0 +1,70 @@
+
+added 43 packages, and audited 44 packages in 4s
+
+9 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+4.154.0
+
+> onehouse-api@0.1.0 typecheck
+> tsc --noEmit
+
+D1: 83e551e3-9958-4e36-859a-62b01f757d48
+
+ ⛅️ wrangler 4.154.0
+────────────────────
+Resource location: remote 
+
+✅ No migrations to apply!
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+┌───────────────────────┬──────────────────────────────────────┐
+│ DB                    │ 83e551e3-9958-4e36-859a-62b01f757d48 │
+├───────────────────────┼──────────────────────────────────────┤
+│ name                  │ onehouse-apac                        │
+├───────────────────────┼──────────────────────────────────────┤
+│ created_at            │ 2026-11-06T08:54:01.926Z             │
+├───────────────────────┼──────────────────────────────────────┤
+│ num_tables            │ 14                                   │
+├───────────────────────┼──────────────────────────────────────┤
+│ running_in_region     │ APAC                                 │
+├───────────────────────┼──────────────────────────────────────┤
+│ jurisdiction          │ null                                 │
+├───────────────────────┼──────────────────────────────────────┤
+│ database_size         │ 217 kB                               │
+├───────────────────────┼──────────────────────────────────────┤
+│ read_queries_24h      │ 1                                    │
+├───────────────────────┼──────────────────────────────────────┤
+│ write_queries_24h     │ 1                                    │
+├───────────────────────┼──────────────────────────────────────┤
+│ rows_read_24h         │ 496                                  │
+├───────────────────────┼──────────────────────────────────────┤
+│ rows_written_24h      │ 539                                  │
+├───────────────────────┼──────────────────────────────────────┤
+│ read_replication.mode │ disabled                             │
+└───────────────────────┴──────────────────────────────────────┘
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+Total Upload: 181.64 KiB / gzip: 43.10 KiB
+Worker Startup Time: 2 ms
+Your Worker has access to the following bindings:
+Binding                                      Resource                  
+env.DB (onehouse-apac)                       D1 Database               
+env.APP_STORE_URL ("")                       Environment Variable      
+env.PLAY_STORE_URL ("")                      Environment Variable      
+env.MEMO_APP_STORE_URL ("")                  Environment Variable      
+env.MEMO_PLAY_STORE_URL ("")                 Environment Variable      
+
+Uploaded onehouse-api (1.94 sec)
+Deployed onehouse-api triggers (0.99 sec)
+  https://onehouse-api.shark-keeper.workers.dev
+  api.ohsangplay.com/onehouse (zone name: ohsangplay.com)
+  api.ohsangplay.com/onehouse/* (zone name: ohsangplay.com)
+  schedule: 0 19 * * *
+Current Version ID: cfc4be7c-640d-4b52-95ee-842f2e8e756b
+배포 주소: https://onehouse-api.shark-keeper.workers.dev
