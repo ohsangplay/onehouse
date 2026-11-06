@@ -1,0 +1,170 @@
+
+added 43 packages, and audited 44 packages in 4s
+
+9 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+> onehouse-api@0.1.0 typecheck
+> tsc --noEmit
+
+
+> onehouse-api@0.1.0 build
+> wrangler deploy --dry-run --outdir dist
+
+
+ ⛅️ wrangler 4.154.0
+────────────────────
+Total Upload: 181.64 KiB / gzip: 43.10 KiB
+Your Worker has access to the following bindings:
+Binding                                 Resource                  
+env.DB (onehouse)                       D1 Database               
+env.APP_STORE_URL ("")                  Environment Variable      
+env.PLAY_STORE_URL ("")                 Environment Variable      
+env.MEMO_APP_STORE_URL ("")             Environment Variable      
+env.MEMO_PLAY_STORE_URL ("")            Environment Variable      
+
+--dry-run: exiting now.
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+
+> onehouse-api@0.1.0 test:unit
+> node --experimental-strip-types --no-warnings --test test/merge.test.ts
+
+TAP version 13
+# Subtest: 한쪽만 바뀌면 그쪽
+ok 1 - 한쪽만 바뀌면 그쪽
+  ---
+  duration_ms: 1.168773
+  type: 'test'
+  ...
+# Subtest: 서로 다른 줄을 고치면 둘 다 반영
+ok 2 - 서로 다른 줄을 고치면 둘 다 반영
+  ---
+  duration_ms: 0.216653
+  type: 'test'
+  ...
+# Subtest: 바로 옆 줄을 각자 고쳐도 둘 다 반영
+ok 3 - 바로 옆 줄을 각자 고쳐도 둘 다 반영
+  ---
+  duration_ms: 0.150134
+  type: 'test'
+  ...
+# Subtest: 한 사람은 위에 추가, 한 사람은 아래에 추가
+ok 4 - 한 사람은 위에 추가, 한 사람은 아래에 추가
+  ---
+  duration_ms: 0.125808
+  type: 'test'
+  ...
+# Subtest: 같은 줄을 서로 다르게 고치면 충돌
+ok 5 - 같은 줄을 서로 다르게 고치면 충돌
+  ---
+  duration_ms: 0.091386
+  type: 'test'
+  ...
+# Subtest: 같은 줄을 똑같이 고치면 충돌 아님
+ok 6 - 같은 줄을 똑같이 고치면 충돌 아님
+  ---
+  duration_ms: 0.086829
+  type: 'test'
+  ...
+# Subtest: 한 사람은 줄을 지우고 다른 사람은 다른 줄을 고침
+ok 7 - 한 사람은 줄을 지우고 다른 사람은 다른 줄을 고침
+  ---
+  duration_ms: 0.095433
+  type: 'test'
+  ...
+# Subtest: 지운 줄을 다른 사람이 고쳤으면 충돌
+ok 8 - 지운 줄을 다른 사람이 고쳤으면 충돌
+  ---
+  duration_ms: 0.142102
+  type: 'test'
+  ...
+# Subtest: 같은 자리에 서로 다른 줄을 끼워 넣으면 충돌
+ok 9 - 같은 자리에 서로 다른 줄을 끼워 넣으면 충돌
+  ---
+  duration_ms: 0.2276
+  type: 'test'
+  ...
+# Subtest: 빈 메모에서 시작
+ok 10 - 빈 메모에서 시작
+  ---
+  duration_ms: 0.280629
+  type: 'test'
+  ...
+# Subtest: 제목은 통째로 비교
+ok 11 - 제목은 통째로 비교
+  ---
+  duration_ms: 0.148422
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 151.823834
+
+> onehouse-api@0.1.0 db:migrate:local
+> wrangler d1 migrations apply onehouse --local
+
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+Migrations to be applied:
+┌──────────────────┐
+│ name             │
+├──────────────────┤
+│ 0001_init.sql    │
+├──────────────────┤
+│ 0002_memo.sql    │
+├──────────────────┤
+│ 0003_reports.sql │
+└──────────────────┘
+? About to apply 3 migration(s)
+Your database may not be available to serve requests during the migration, continue?
+🤖 Using fallback value in non-interactive context: yes
+🌀 Executing on local database onehouse (00000000-0000-0000-0000-000000000000) from .wrangler/state/v3/d1:
+🌀 To execute on your remote database, add a --remote flag to your wrangler command.
+🚣 15 commands executed successfully.
+┌──────────────────┬────────┐
+│ name             │ status │
+├──────────────────┼────────┤
+│ 0001_init.sql    │ ✅     │
+├──────────────────┼────────┤
+│ 0002_memo.sql    │ 🕒️    │
+├──────────────────┼────────┤
+│ 0003_reports.sql │ 🕒️    │
+└──────────────────┴────────┘
+🌀 Executing on local database onehouse (00000000-0000-0000-0000-000000000000) from .wrangler/state/v3/d1:
+🌀 To execute on your remote database, add a --remote flag to your wrangler command.
+🚣 8 commands executed successfully.
+┌──────────────────┬────────┐
+│ name             │ status │
+├──────────────────┼────────┤
+│ 0001_init.sql    │ ✅     │
+├──────────────────┼────────┤
+│ 0002_memo.sql    │ ✅     │
+├──────────────────┼────────┤
+│ 0003_reports.sql │ 🕒️    │
+└──────────────────┴────────┘
+🌀 Executing on local database onehouse (00000000-0000-0000-0000-000000000000) from .wrangler/state/v3/d1:
+🌀 To execute on your remote database, add a --remote flag to your wrangler command.
+🚣 4 commands executed successfully.
+┌──────────────────┬────────┐
+│ name             │ status │
+├──────────────────┼────────┤
+│ 0001_init.sql    │ ✅     │
+├──────────────────┼────────┤
+│ 0002_memo.sql    │ ✅     │
+├──────────────────┼────────┤
+│ 0003_reports.sql │ ✅     │
+└──────────────────┴────────┘
