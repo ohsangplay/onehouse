@@ -1,0 +1,201 @@
+
+added 43 packages, and audited 44 packages in 4s
+
+9 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+4.154.0
+예전 DB: onehouse 00dc9b86-bb08-43c0-9e33-0ba750028884
+
+ ⛅️ wrangler 4.154.0
+────────────────────
+┌───────────────────────┬──────────────────────────────────────┐
+│ DB                    │ 00dc9b86-bb08-43c0-9e33-0ba750028884 │
+├───────────────────────┼──────────────────────────────────────┤
+│ name                  │ onehouse                             │
+├───────────────────────┼──────────────────────────────────────┤
+│ created_at            │ 2026-10-30T02:22:33.214Z             │
+├───────────────────────┼──────────────────────────────────────┤
+│ num_tables            │ 14                                   │
+├───────────────────────┼──────────────────────────────────────┤
+│ running_in_region     │ WNAM                                 │
+├───────────────────────┼──────────────────────────────────────┤
+│ jurisdiction          │ null                                 │
+├───────────────────────┼──────────────────────────────────────┤
+│ database_size         │ 213 kB                               │
+├───────────────────────┼──────────────────────────────────────┤
+│ read_queries_24h      │ 671                                  │
+├───────────────────────┼──────────────────────────────────────┤
+│ write_queries_24h     │ 227                                  │
+├───────────────────────┼──────────────────────────────────────┤
+│ rows_read_24h         │ 2,124                                │
+├───────────────────────┼──────────────────────────────────────┤
+│ rows_written_24h      │ 287                                  │
+├───────────────────────┼──────────────────────────────────────┤
+│ read_replication.mode │ disabled                             │
+└───────────────────────┴──────────────────────────────────────┘
+새 DB(onehouse-apac)에 표가 14개 있어요. 처음부터 다시 하려고 새 DB만 지우고 다시 만들어요.
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: remote 
+
+About to delete remote database DB 'onehouse-apac' (cfe64a9c-055d-4f1a-8f22-a67ebc3783b2).
+This action is irreversible and will permanently delete all data in the database.
+
+Deleting...
+Deleted 'onehouse-apac' successfully.
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+✅ Successfully created DB 'onehouse-apac' in region APAC
+Created your new D1 database.
+
+To access your new D1 Database in your Worker, add the following snippet to your configuration file:
+[[d1_databases]]
+binding = "onehouse_apac"
+database_name = "onehouse-apac"
+database_id = "83e551e3-9958-4e36-859a-62b01f757d48"
+
+새 DB: onehouse-apac 83e551e3-9958-4e36-859a-62b01f757d48
+── 1) 내보내기
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: remote 
+
+? ⚠️ This process may take some time, during which your D1 database will be unavailable to serve queries.
+  Ok to proceed?
+🤖 Using fallback value in non-interactive context: yes
+🌀 Executing on remote database onehouse (00dc9b86-bb08-43c0-9e33-0ba750028884):
+├ Creating export
+│
+You can also download your export from the following URL manually. This link will be valid for one hour: https://1ad59b064bfa3690063414a9906129e4.r2.cloudflarestorage.com/d1-sqlio-outgoing-prod/00dc9b86-bb08-43c0-9e33-0ba750028884-00000033-00000000-0000511b-c8e15d7980d25c129a1257f792c37142.sql?X-Amz-Expires=3600&X-Amz-Date=20261106T085404Z&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=f591b8dcd0794c54409cf0613171d42b%2F20261106%2Fauto%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Signature=7946f6c1b12631c32707803a6b704c833790a13b9a1c50fa3dda4391bdaf177e
+├ Downloading SQL to ../dump.sql
+│
+🌀 Downloaded to ../dump.sql successfully!
+-rw-r--r-- 1 runner runner 52407 Nov  6 08:54 ../dump.sql
+145
+── 2) 가져오기
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: remote 
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m⚠️ This process may take some time, during which your D1 database will be unavailable to serve queries.[0m
+
+
+🌀 Executing on remote database onehouse-apac (83e551e3-9958-4e36-859a-62b01f757d48):
+🌀 To execute on your local development database, remove the --remote flag from your wrangler command.
+Note: if the execution fails to complete, your DB will return to its original state and you can safely retry.
+├ Checking if file needs uploading
+│
+├ 🌀 Uploading 83e551e3-9958-4e36-859a-62b01f757d48.99f4e4b46440d404.sql
+│ 🌀 Uploading complete.
+│
+🌀 Starting import...
+🌀 Processed 171 queries.
+🚣 Executed 171 queries in 57.53ms (352 rows read, 539 rows written)
+   Database is currently at bookmark 00000000-0000001f-0000511b-bcb1d7d8c83a6e39f76a319b32d14deb.
+[
+  {
+    "results": [
+      {
+        "Total queries executed": 171,
+        "Rows read": 352,
+        "Rows written": 539,
+        "Database size (MB)": "0.22"
+      }
+    ],
+    "success": true,
+    "finalBookmark": "00000000-0000001f-0000511b-bcb1d7d8c83a6e39f76a319b32d14deb",
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "NRT",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 57.5269
+      },
+      "duration": 57.5269,
+      "changes": 147,
+      "last_row_id": 1,
+      "changed_db": true,
+      "size_after": 217088,
+      "rows_read": 352,
+      "rows_written": 539,
+      "num_tables": 14,
+      "total_attempts": 1
+    }
+  }
+]
+── 3) 표마다 행 개수 비교
+✓ categories: 예전 56 / 새 56
+✓ d1_migrations: 예전 3 / 새 3
+✓ device_transfer_codes: 예전 2 / 새 2
+✓ devices: 예전 18 / 새 18
+✓ ledger_events: 예전 3 / 새 3
+✓ ledger_members: 예전 12 / 새 12
+✓ ledgers: 예전 10 / 새 10
+✓ memo_items: 예전 6 / 새 6
+✓ memo_presence: 예전 0 / 새 0
+✓ memo_revisions: 예전 15 / 새 15
+✓ memos: 예전 9 / 새 9
+✓ rate_limits: 예전 1 / 새 1
+✓ reports: 예전 1 / 새 1
+✓ transactions: 예전 8 / 새 8
+모든 표 개수가 같아요 (14개 표).
+── 4) 새 DB로 서버 배포
+36:database_name = "onehouse-apac"
+38:database_id = "83e551e3-9958-4e36-859a-62b01f757d48"
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+Total Upload: 181.64 KiB / gzip: 43.10 KiB
+Worker Startup Time: 2 ms
+Your Worker has access to the following bindings:
+Binding                                      Resource                  
+env.DB (onehouse-apac)                       D1 Database               
+env.APP_STORE_URL ("")                       Environment Variable      
+env.PLAY_STORE_URL ("")                      Environment Variable      
+env.MEMO_APP_STORE_URL ("")                  Environment Variable      
+env.MEMO_PLAY_STORE_URL ("")                 Environment Variable      
+
+Uploaded onehouse-api (1.74 sec)
+Deployed onehouse-api triggers (0.82 sec)
+  https://onehouse-api.shark-keeper.workers.dev
+  api.ohsangplay.com/onehouse (zone name: ohsangplay.com)
+  api.ohsangplay.com/onehouse/* (zone name: ohsangplay.com)
+  schedule: 0 19 * * *
+Current Version ID: 823a091c-93ec-4aeb-80c5-189a2d7b8d90
+
+ ⛅️ wrangler 4.154.0 (update available 4.158.0)
+───────────────────────────────────────────────
+┌───────────────────────┬──────────────────────────────────────┐
+│ DB                    │ 83e551e3-9958-4e36-859a-62b01f757d48 │
+├───────────────────────┼──────────────────────────────────────┤
+│ name                  │ onehouse-apac                        │
+├───────────────────────┼──────────────────────────────────────┤
+│ created_at            │ 2026-11-06T08:54:01.926Z             │
+├───────────────────────┼──────────────────────────────────────┤
+│ num_tables            │ 14                                   │
+├───────────────────────┼──────────────────────────────────────┤
+│ running_in_region     │ APAC                                 │
+├───────────────────────┼──────────────────────────────────────┤
+│ jurisdiction          │ null                                 │
+├───────────────────────┼──────────────────────────────────────┤
+│ database_size         │ 217 kB                               │
+├───────────────────────┼──────────────────────────────────────┤
+│ read_queries_24h      │ 0                                    │
+├───────────────────────┼──────────────────────────────────────┤
+│ write_queries_24h     │ 0                                    │
+├───────────────────────┼──────────────────────────────────────┤
+│ rows_read_24h         │ 0                                    │
+├───────────────────────┼──────────────────────────────────────┤
+│ rows_written_24h      │ 0                                    │
+├───────────────────────┼──────────────────────────────────────┤
+│ read_replication.mode │ disabled                             │
+└───────────────────────┴──────────────────────────────────────┘
