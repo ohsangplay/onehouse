@@ -203,6 +203,7 @@ jobs:
           name: ${{ inputs.app }}-apk
           path: apps/${{ inputs.app }}/build/onehouse-${{ inputs.app }}-${{ github.run_number }}.apk
           if-no-files-found: error
+          retention-days: 7
 
       - name: release-files 브랜치에 올리기
         if: ${{ inputs.share_files }}
