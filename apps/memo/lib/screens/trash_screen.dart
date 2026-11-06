@@ -44,15 +44,24 @@ class _TrashScreenState extends State<TrashScreen> {
     }
   }
 
+  /// 서버 응답을 기다리지 않고 목록에서 먼저 뺀다 (실패하면 서버 목록으로 되돌림)
+  void _removeLocal(bool Function(Map<String, dynamic>) test) {
+    final items = _items;
+    if (items != null) setState(() => _items = items.where((m) => !test(m)).toList());
+  }
+
   Future<void> _restore(Map<String, dynamic> m) async {
     if (!requireOnline(context, widget.services.network)) return;
+    _removeLocal((x) => x['id'] == m['id']);
     try {
       await widget.services.api.post('$_base/${m['id']}/restore');
       if (!mounted) return;
       showMessage(context, '메모를 되살렸어요.');
       await _load();
     } catch (e) {
-      if (mounted) showFailure(context, e);
+      if (!mounted) return;
+      showFailure(context, e);
+      await _load();
     }
   }
 
@@ -73,13 +82,16 @@ class _TrashScreenState extends State<TrashScreen> {
       danger: true,
     );
     if (!ok || !mounted) return;
+    _removeLocal((x) => x['id'] == m['id']);
     try {
       await widget.services.api.delete('$_base/${m['id']}/permanent');
       if (!mounted) return;
       showMessage(context, '메모를 완전히 지웠어요.');
       await _load();
     } catch (e) {
-      if (mounted) showFailure(context, e);
+      if (!mounted) return;
+      showFailure(context, e);
+      await _load();
     }
   }
 
@@ -97,13 +109,16 @@ class _TrashScreenState extends State<TrashScreen> {
       danger: true,
     );
     if (!ok || !mounted) return;
+    _removeLocal((x) => x['can_restore'] == true);
     try {
       final res = await widget.services.api.delete('$_base/trash');
       if (!mounted) return;
       showMessage(context, '메모 ${res['deleted'] ?? mine}개를 완전히 지웠어요.');
       await _load();
     } catch (e) {
-      if (mounted) showFailure(context, e);
+      if (!mounted) return;
+      showFailure(context, e);
+      await _load();
     }
   }
 

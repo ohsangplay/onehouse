@@ -352,7 +352,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         final ok = await confirmDialog(context, title: '이 체크리스트를 휴지통으로 옮길까요?', message: '30일 안에 휴지통에서 되살릴 수 있어요.', action: '옮기기', danger: true);
         if (!ok) return;
         await _s.api.delete(_base);
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) Navigator.of(context).pop(MemoDeleted(widget.memoId));
       }
     } catch (e) {
       if (mounted) showFailure(context, e);

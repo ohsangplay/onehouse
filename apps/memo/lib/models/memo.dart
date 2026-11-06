@@ -216,10 +216,29 @@ class MemoSummary {
   final Person updatedBy;
   final DateTime updatedAt;
 
+  MemoSummary copyWith({bool? pinned}) => MemoSummary(
+        id: id,
+        kind: kind,
+        title: title,
+        preview: preview,
+        pinned: pinned ?? this.pinned,
+        itemCount: itemCount,
+        checkedCount: checkedCount,
+        createdBy: createdBy,
+        updatedBy: updatedBy,
+        updatedAt: updatedAt,
+      );
+
   String get displayTitle {
     if (title.trim().isNotEmpty) return title.trim();
     if (kind == MemoKind.checklist) return '체크리스트';
     final first = preview.split('\n').firstWhere((l) => l.trim().isNotEmpty, orElse: () => '');
     return first.trim().isEmpty ? '제목 없음' : first.trim();
   }
+}
+
+/// 메모 화면에서 휴지통으로 보내고 나올 때 목록에 돌려주는 값 (목록에서 바로 뺀다)
+class MemoDeleted {
+  const MemoDeleted(this.id);
+  final String id;
 }

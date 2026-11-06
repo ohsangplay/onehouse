@@ -9,6 +9,7 @@ import '../utils/time.dart';
 import '../widgets/memo_links.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/report_memo.dart';
+import '../widgets/swipe_actions.dart';
 import 'checklist_screen.dart';
 import 'text_memo_screen.dart';
 import 'trash_screen.dart';
@@ -30,6 +31,9 @@ class _NotebookScreenState extends State<NotebookScreen> {
   String? _error;
   late String _name = widget.notebook.name;
 
+  /// 밀어서 버튼이 열린 카드 (한 번에 하나만)
+  final _swipeOpen = ValueNotifier<Object?>(null);
+
   MemoServices get _s => widget.services;
   String get _id => widget.notebook.id;
   String get _base => '/notebooks/$_id';
@@ -47,6 +51,7 @@ class _NotebookScreenState extends State<NotebookScreen> {
   @override
   void dispose() {
     _s.syncTick.removeListener(_load);
+    _swipeOpen.dispose();
     super.dispose();
   }
 
@@ -86,6 +91,10 @@ class _NotebookScreenState extends State<NotebookScreen> {
         : TextMemoScreen(services: _s, notebook: widget.notebook, memoId: memoId);
     final saved = await Navigator.of(context).push<Object?>(MaterialPageRoute(builder: (_) => screen));
     if (saved is Memo && mounted) _upsert(saved);
+    if (saved is MemoDeleted && mounted) {
+      _applyLocal([for (final x in _memos ?? const <MemoSummary>[]) if (x.id != saved.id) x]);
+      showMessage(context, '휴지통으로 옮겼어요. 30일 안에 되살릴 수 있어요.');
+    }
     await _load();
   }
 
@@ -193,6 +202,12 @@ class _NotebookScreenState extends State<NotebookScreen> {
       ),
     );
     if (action == null || !mounted) return;
+    await _run(m, action);
+  }
+
+  /// 길게 누르기 메뉴와 밀어서 나오는 버튼이 같이 쓴다
+  Future<void> _run(MemoSummary m, String action) async {
+    if (!requireOnline(context, _s.network)) return;
     if (action == 'report') {
       await reportMemo(context,
           services: _s,
@@ -203,6 +218,13 @@ class _NotebookScreenState extends State<NotebookScreen> {
           authorNickname: m.createdBy.nickname);
       return;
     }
+    // 서버 응답을 기다리지 않고 목록에 먼저 반영한다 (실패하면 서버 목록으로 되돌림)
+    final before = _memos;
+    if (action == 'pin') {
+      _applyLocal([for (final x in before ?? const <MemoSummary>[]) x.id == m.id ? x.copyWith(pinned: !m.pinned) : x]);
+    } else if (action == 'delete') {
+      _applyLocal([for (final x in before ?? const <MemoSummary>[]) if (x.id != m.id) x]);
+    }
     try {
       if (action == 'pin') {
         await _s.api.patch('$_base/memos/${m.id}/pin', {'pinned': !m.pinned});
@@ -212,8 +234,20 @@ class _NotebookScreenState extends State<NotebookScreen> {
       }
       await _load();
     } catch (e) {
-      if (mounted) showFailure(context, e);
+      if (!mounted) return;
+      setState(() => _memos = before);
+      showFailure(context, e);
+      await _load();
     }
+  }
+
+  /// 고정한 메모 먼저, 그다음 최근에 바뀐 순 (서버와 같은 순서)
+  void _applyLocal(List<MemoSummary> list) {
+    list.sort((a, b) {
+      if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+    setState(() => _memos = list);
   }
 
   Future<void> _settings() async {
@@ -298,6 +332,22 @@ class _NotebookScreenState extends State<NotebookScreen> {
                             unsaved: _drafts.contains(m.id),
                             onTap: () => _openMemo(m.id, m.kind),
                             onLongPress: () => _actions(m),
+                            openId: _swipeOpen,
+                            // 왼쪽 → 오른쪽: 고정, 오른쪽 → 왼쪽: 휴지통
+                            start: SwipeAction(
+                              label: m.pinned ? '고정 해제' : '맨 위에\n고정',
+                              icon: m.pinned ? Icons.push_pin_outlined : Icons.push_pin,
+                              color: MemoColors.primary,
+                              onTap: () => _run(m, 'pin'),
+                            ),
+                            end: _canDelete(m)
+                                ? SwipeAction(
+                                    label: '휴지통',
+                                    icon: Icons.delete_outline,
+                                    color: AppColors.danger,
+                                    onTap: () => _run(m, 'delete'),
+                                  )
+                                : null,
                           ),
                       ],
                     ),
@@ -332,12 +382,23 @@ class _DraftCard extends StatelessWidget {
 }
 
 class _MemoCard extends StatelessWidget {
-  const _MemoCard({required this.memo, required this.unsaved, required this.onTap, required this.onLongPress});
+  const _MemoCard({
+    required this.memo,
+    required this.unsaved,
+    required this.onTap,
+    required this.onLongPress,
+    required this.openId,
+    this.start,
+    this.end,
+  });
 
   final MemoSummary memo;
   final bool unsaved;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final ValueNotifier<Object?> openId;
+  final SwipeAction? start;
+  final SwipeAction? end;
 
   @override
   Widget build(BuildContext context) {
@@ -345,7 +406,12 @@ class _MemoCard extends StatelessWidget {
     final preview = memo.preview.trim();
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      child: Material(
+      child: SwipeActions(
+       id: memo.id,
+       openId: openId,
+       start: start,
+       end: end,
+       child: Material(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
@@ -412,6 +478,7 @@ class _MemoCard extends StatelessWidget {
             ),
           ),
         ),
+       ),
       ),
     );
   }
