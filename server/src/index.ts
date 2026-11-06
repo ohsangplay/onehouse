@@ -5,6 +5,7 @@ import type { AppEnv, Env } from './types';
 import { ApiError } from './lib/http';
 import { LANDING_HEADERS, renderLanding } from './pages/landing';
 import { renderPrivacy } from './pages/privacy';
+import { renderTerms } from './pages/terms';
 import { purge } from './lib/purge';
 import { devices } from './routes/devices';
 import { spaceRoutes } from './routes/spaces';
@@ -55,7 +56,7 @@ function stripBasePath(request: Request): Request {
 // 브라우저 주소창으로 API 주소에 들어와도 안내 페이지로 보낸다 (앱 요청은 Accept: text/html 을 보내지 않음)
 app.use('*', async (c, next) => {
   const path = c.req.path;
-  const pages = ['/', '/robots.txt', '/privacy'];
+  const pages = ['/', '/robots.txt', '/privacy', '/terms'];
   if (c.req.method === 'GET' && wantsHtml(c) && !c.req.header('Authorization') && !pages.includes(path)) {
     return c.redirect(`${basePath(c)}/`, 302);
   }
@@ -78,11 +79,16 @@ const landing = (c: Context<AppEnv>) => {
 // 브라우저로 들어오면 앱 설치 안내, 그 외(앱·헬스체크)는 JSON
 app.get('/', (c) => (wantsHtml(c) ? landing(c) : c.json({ name: 'onehouse-api', ok: true })));
 app.get('/health', (c) => c.json({ ok: true }));
-app.get('/robots.txt', (c) => c.text('User-agent: *\nAllow: /$\nAllow: /privacy\nDisallow: /\n'));
+app.get('/robots.txt', (c) => c.text('User-agent: *\nAllow: /$\nAllow: /privacy\nAllow: /terms\nDisallow: /\n'));
 // 개인정보처리방침 (한지붕 시리즈 공통, 스토어에 등록하는 주소)
 app.get('/privacy', (c) => {
   for (const [key, value] of Object.entries(LANDING_HEADERS)) c.header(key, value);
   return c.html(renderPrivacy(basePath(c)));
+});
+// 이용약관 (한지붕 시리즈 공통)
+app.get('/terms', (c) => {
+  for (const [key, value] of Object.entries(LANDING_HEADERS)) c.header(key, value);
+  return c.html(renderTerms(basePath(c)));
 });
 
 app.route('/devices', devices);

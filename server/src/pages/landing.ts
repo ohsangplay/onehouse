@@ -145,7 +145,7 @@ footer{margin-top:40px;font-size:12px;color:var(--muted);text-align:center}
     </div>
   </section>
 
-  <footer><a href="${escapeHtml(opts.base ?? '')}/privacy" style="color:inherit">개인정보처리방침</a> · © ${year} 오상플레이</footer>
+  <footer><a href="${escapeHtml(opts.base ?? '')}/privacy" style="color:inherit">개인정보처리방침</a> · <a href="${escapeHtml(opts.base ?? '')}/terms" style="color:inherit">이용약관</a> · © ${year} 오상플레이</footer>
 </main>
 </body>
 </html>`;
