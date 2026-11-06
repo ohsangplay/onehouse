@@ -1,15 +1,13 @@
 name: DB를 아시아로 옮기기 (한 번만)
 
 # 서버 DB(D1)가 미국 서부(WNAM)에 만들어져서 한국에서 느리다 → 아시아(APAC)에 새로 만들어 옮긴다.
-# db-move-apac 브랜치에 올리면 실행된다.
 #   1) 지금 DB(onehouse) 내보내기
 #   2) 아시아에 새 DB(onehouse-apac) 만들기
 #   3) 가져오기 → 표마다 행 개수를 두 DB에서 비교 (하나라도 다르면 여기서 멈춤, 서버는 그대로)
 #   4) 새 DB로 서버 배포 → /health 확인
 # 예전 DB(onehouse)는 지우지 않는다 (문제가 생기면 되돌리기용).
+# 2026-11-06 완료. 다시 실행되지 않게 수동 실행만 남겨 둠 (새 DB에 표가 있으면 알아서 멈춤)
 on:
-  push:
-    branches: [db-move-apac]
   workflow_dispatch:
 
 permissions:
@@ -28,8 +26,9 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       OLD: onehouse
       NEW: onehouse-apac
-      # 새 DB에 이미 데이터가 있으면 지우고 다시 옮긴다 (아직 서버가 새 DB로 바뀌기 전에만 1)
-      RESET_NEW: '1'
+      # 새 DB에 이미 데이터가 있으면 지우고 다시 옮긴다.
+      # 2026-11-06 옮기기 끝 → 서버가 새 DB를 쓰므로 절대 1로 바꾸지 말 것 (운영 데이터가 지워짐)
+      RESET_NEW: '0'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
