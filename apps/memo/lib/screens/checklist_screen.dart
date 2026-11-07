@@ -582,7 +582,8 @@ class _ItemTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    // 링크 글자를 누르면 이동 확인, 나머지를 누르면 항목 고치기
+                    LinkText(
                       item.text,
                       style: TextStyle(
                         fontSize: 16,
