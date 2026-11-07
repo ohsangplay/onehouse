@@ -26,4 +26,20 @@ void main() {
     expect(linkLabel(Uri.parse('https://www.naver.com/')), 'naver.com');
     expect(linkLabel(Uri.parse('https://a.com/very/long/path/that/goes/on/and/on')).length, lessThanOrEqualTo(32));
   });
+
+  test('누른 위치의 링크 찾기', () {
+    const text = '방 https://yahchoo.ohsangplay.com?room=ve6c 들어와';
+    final start = text.indexOf('https');
+    final end = text.indexOf(' 들어와');
+    expect(linkAt(text, start).toString(), 'https://yahchoo.ohsangplay.com?room=ve6c');
+    expect(linkAt(text, start + 10), isNotNull);
+    expect(linkAt(text, end), isNotNull); // 링크 바로 뒤 (아이폰은 단어 끝으로 커서가 감)
+    expect(linkAt(text, 0), isNull);
+    expect(linkAt(text, text.length), isNull);
+  });
+
+  test('링크 위치는 끝 문장부호 제외', () {
+    final r = linkRanges('여기(https://a.com/b).').single;
+    expect('여기(https://a.com/b).'.substring(r.start, r.end), 'https://a.com/b');
+  });
 }

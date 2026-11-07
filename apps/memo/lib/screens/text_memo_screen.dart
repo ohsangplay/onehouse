@@ -520,6 +520,27 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
         authorNickname: memo.createdBy.nickname);
   }
 
+  /// 본문에서 링크 글자를 누르면 "해당 페이지로 이동하시겠습니까?" (취소하면 그 자리에서 계속 쓰기)
+  Future<void> _tapBody() async {
+    final sel = _body.selection;
+    if (!sel.isValid || !sel.isCollapsed) return;
+    final uri = linkAt(_body.text, sel.baseOffset);
+    if (uri == null) return;
+    _bodyFocus.unfocus();
+    final ok = await confirmDialog(
+      context,
+      title: '해당 페이지로 이동하시겠습니까?',
+      message: uri.toString(),
+      action: '이동',
+    );
+    if (!mounted) return;
+    if (ok) {
+      await openExternal(context, uri.toString());
+    } else if (_editable) {
+      _bodyFocus.requestFocus();
+    }
+  }
+
   List<Uri> get _links => findLinks('${_title.text}\n${_body.text}');
 
   String get _status {
@@ -626,6 +647,7 @@ class _TextMemoScreenState extends State<TextMemoScreen> with WidgetsBindingObse
                               minLines: 12,
                               keyboardType: TextInputType.multiline,
                               onChanged: (_) => _onChanged(),
+                              onTap: _tapBody,
                               style: const TextStyle(fontSize: 17, height: 1.6),
                               decoration: InputDecoration(
                                 hintText: editable ? '메모를 입력하세요' : '',

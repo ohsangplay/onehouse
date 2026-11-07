@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
@@ -8,18 +9,44 @@ final _linkPattern = RegExp(
 );
 const _trailing = '.,;:!?)]}\'"';
 
-List<Uri> findLinks(String text, {int max = 10}) {
-  final found = <Uri>[];
-  final seen = <String>{};
+/// 글 속 링크 하나: 글자 위치(start~end)와 열 주소
+class LinkRange {
+  const LinkRange(this.start, this.end, this.uri);
+  final int start;
+  final int end;
+  final Uri uri;
+}
+
+/// 글 속 링크의 위치와 주소 (끝의 문장부호는 뺀다)
+List<LinkRange> linkRanges(String text) {
+  final out = <LinkRange>[];
   for (final m in _linkPattern.allMatches(text)) {
-    var raw = m.group(0)!;
-    while (raw.isNotEmpty && _trailing.contains(raw[raw.length - 1])) {
-      raw = raw.substring(0, raw.length - 1);
+    var end = m.end;
+    while (end > m.start && _trailing.contains(text[end - 1])) {
+      end--;
     }
+    var raw = text.substring(m.start, end);
     if (raw.toLowerCase().startsWith('www.')) raw = 'https://$raw';
     final uri = Uri.tryParse(raw);
     if (uri == null || !uri.host.contains('.') || uri.host.startsWith('.') || uri.host.endsWith('.')) continue;
-    if (seen.add(uri.toString())) found.add(uri);
+    out.add(LinkRange(m.start, end, uri));
+  }
+  return out;
+}
+
+/// 글자 위치 [offset]에 있는 링크 (링크 앞뒤 끝도 포함)
+Uri? linkAt(String text, int offset) {
+  for (final r in linkRanges(text)) {
+    if (offset >= r.start && offset <= r.end) return r.uri;
+  }
+  return null;
+}
+
+List<Uri> findLinks(String text, {int max = 10}) {
+  final found = <Uri>[];
+  final seen = <String>{};
+  for (final r in linkRanges(text)) {
+    if (seen.add(r.uri.toString())) found.add(r.uri);
     if (found.length >= max) break;
   }
   return found;
@@ -37,9 +64,9 @@ String linkLabel(Uri uri) {
 Future<void> openMemoLink(BuildContext context, Uri uri) async {
   final ok = await confirmDialog(
     context,
-    title: '이 링크를 열까요?',
+    title: '해당 페이지로 이동하시겠습니까?',
     message: uri.toString(),
-    action: '열기',
+    action: '이동',
   );
   if (!ok || !context.mounted) return;
   await openExternal(context, uri.toString());
@@ -145,5 +172,55 @@ class LinkTextEditingController extends TextEditingController {
     }
     if (pos < text.length) children.add(TextSpan(text: text.substring(pos)));
     return TextSpan(style: style, children: children);
+  }
+}
+
+/// 링크 부분만 파란 밑줄로 보여주고, 링크를 누르면 이동 확인 창을 띄우는 글 (체크리스트 항목 등)
+/// 링크가 아닌 부분을 누르면 바깥(InkWell 등)의 탭이 그대로 동작한다.
+class LinkText extends StatefulWidget {
+  const LinkText(this.text, {super.key, this.style});
+
+  final String text;
+  final TextStyle? style;
+
+  @override
+  State<LinkText> createState() => _LinkTextState();
+}
+
+class _LinkTextState extends State<LinkText> {
+  final _recognizers = <TapGestureRecognizer>[];
+
+  @override
+  void dispose() {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+    final text = widget.text;
+    final ranges = linkRanges(text);
+    if (ranges.isEmpty) return Text(text, style: widget.style);
+    final linkStyle = TextStyle(
+      color: Theme.of(context).colorScheme.primary,
+      decoration: TextDecoration.underline,
+    );
+    final spans = <InlineSpan>[];
+    var pos = 0;
+    for (final r in ranges) {
+      if (r.start > pos) spans.add(TextSpan(text: text.substring(pos, r.start)));
+      final tap = TapGestureRecognizer()..onTap = () => openMemoLink(context, r.uri);
+      _recognizers.add(tap);
+      spans.add(TextSpan(text: text.substring(r.start, r.end), style: linkStyle, recognizer: tap));
+      pos = r.end;
+    }
+    if (pos < text.length) spans.add(TextSpan(text: text.substring(pos)));
+    return Text.rich(TextSpan(style: widget.style, children: spans));
   }
 }
