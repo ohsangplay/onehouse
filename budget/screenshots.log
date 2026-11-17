@@ -1,0 +1,39 @@
+[owner console:debug] Injecting <script> tag. Using callback.
+[owner console:warning] [.WebGL-0x2a0c003c9c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[owner console:warning] [.WebGL-0x2a0c003c9c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[owner console:warning] [.WebGL-0x2a0c003c9c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[owner console:warning] [.WebGL-0x2a0c003c9c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+📸 ../ci-out/budget/screenshots/01-start.png
+✓ start
+📸 ../ci-out/budget/screenshots/02-create-ledger.png
+✓ create
+📸 ../ci-out/budget/screenshots/03-recovery-code.png
+📸 ../ci-out/budget/screenshots/04-recovery-code-checked.png
+📸 ../ci-out/budget/screenshots/05-ledger-list-new.png
+✓ recovery-code
+✓ seed
+[uncle console:debug] Injecting <script> tag. Using callback.
+📸 ../ci-out/budget/screenshots/06-join-filled.png
+📸 ../ci-out/budget/screenshots/07-pending-card.png
+✓ join
+[owner console:debug] Injecting <script> tag. Using callback.
+📸 ../ci-out/budget/screenshots/08-ledger-list.png
+✓ list-with-data
+📸 ../ci-out/budget/screenshots/09-ledger-home.png
+✓ ledger-home
+📸 ../ci-out/budget/screenshots/10-transaction-new.png
+✗ add-transaction - locator.waitFor: Timeout 15000ms exceeded.
+📸 ../ci-out/budget/screenshots/11-error-add-transaction.png
+📸 ../ci-out/budget/screenshots/12-calendar.png
+✓ calendar
+📸 ../ci-out/budget/screenshots/13-filter-screen.png
+📸 ../ci-out/budget/screenshots/14-calendar-filtered.png
+✓ filter
+📸 ../ci-out/budget/screenshots/15-list-filtered-overflow.png
+✓ filter-overflow
+📸 ../ci-out/budget/screenshots/16-settings.png
+📸 ../ci-out/budget/screenshots/17-categories.png
+✗ categories - locator.click: Timeout 30000ms exceeded.
+📸 ../ci-out/budget/screenshots/18-error-categories.png
+
+스크린샷 18장, 실패 2단계

@@ -1,0 +1,81 @@
+
+ ⛅️ wrangler 4.154.0 (update available 4.163.0)
+───────────────────────────────────────────────
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+Your Worker has access to the following bindings:
+Binding                                   Resource                  Mode
+env.DB (onehouse)                         D1 Database               local
+env.APP_STORE_URL ("")                    Environment Variable      local
+env.PLAY_STORE_URL ("")                   Environment Variable      local
+env.MEMO_APP_STORE_URL ("")               Environment Variable      local
+env.MEMO_PLAY_STORE_URL ("")              Environment Variable      local
+env.ALLOW_WEB_ORIGINS ("(hidden)")        Environment Variable      local
+
+⎔ Starting local server...
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mScheduled Workers are not automatically triggered during local development.[0m
+
+  To manually trigger a scheduled event, run:
+    curl "http://127.0.0.1:8787/cdn-cgi/local/scheduled"
+  For more details, see [4mhttps://developers.cloudflare.com/workers/configuration/cron-triggers/#test-cron-triggers-locally[0m
+
+
+[wrangler:info] Ready on http://127.0.0.1:8787
+[wrangler:info] GET /health 200 OK (145ms)
+[wrangler:info] OPTIONS /devices 204 No Content (6ms)
+[wrangler:info] POST /devices 201 Created (13ms)
+[wrangler:info] OPTIONS /notebooks 204 No Content (5ms)
+[wrangler:info] GET /notebooks 200 OK (10ms)
+[wrangler:info] POST /notebooks 201 Created (11ms)
+[wrangler:info] GET /notebooks 200 OK (8ms)
+[wrangler:info] POST /devices 201 Created (5ms)
+[wrangler:info] POST /notebooks/join 200 OK (8ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 201 Created (11ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 201 Created (13ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da/items/ef154a24-9319-4ef4-a818-3f42ee29a683/check 200 OK (12ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 201 Created (12ms)
+[wrangler:info] PATCH /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240/pin 200 OK (8ms)
+[wrangler:info] POST /devices 201 Created (4ms)
+[wrangler:info] POST /notebooks/join 200 OK (9ms)
+[wrangler:info] OPTIONS /notebooks 204 No Content (5ms)
+[wrangler:info] GET /notebooks 200 OK (7ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 204 No Content (6ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 200 OK (8ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240/presence 200 OK (11ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 204 No Content (4ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 200 OK (14ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240/presence 204 No Content (5ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240/presence 200 OK (13ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 200 OK (8ms)
+[wrangler:info] PATCH /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 200 OK (10ms)
+[wrangler:info] PATCH /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 200 OK (15ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 200 OK (10ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 200 OK (7ms)
+[wrangler:info] PATCH /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 200 OK (8ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 204 No Content (5ms)
+[wrangler:info] PATCH /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240 409 Conflict (13ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 204 No Content (4ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 201 Created (11ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 200 OK (8ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240/presence 204 No Content (12ms)
+[wrangler:info] DELETE /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/d6d6db51-d2c3-4fda-b73e-0e9f67fd8240/presence 200 OK (9ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da 204 No Content (4ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da 200 OK (10ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da/items/f3a35c78-ed32-436e-b4e2-e9f64d99e471/check 204 No Content (4ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da/items/f3a35c78-ed32-436e-b4e2-e9f64d99e471/check 200 OK (22ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da/items/ff5fee7a-449f-4937-b5ba-ff9406581e94/check 204 No Content (4ms)
+[wrangler:info] GET /health 200 OK (3ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da/items/ff5fee7a-449f-4937-b5ba-ff9406581e94/check 204 No Content (4ms)
+[wrangler:info] POST /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da/items/ff5fee7a-449f-4937-b5ba-ff9406581e94/check 200 OK (13ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 204 No Content (6ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da 204 No Content (7ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 200 OK (12ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da 200 OK (19ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 200 OK (8ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos 200 OK (6ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da/presence 204 No Content (4ms)
+[wrangler:info] DELETE /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/memos/fad0c734-55f8-482a-a71d-68d08951f6da/presence 200 OK (10ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d 204 No Content (5ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d 200 OK (6ms)
+[wrangler:info] OPTIONS /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/members 204 No Content (5ms)
+[wrangler:info] GET /notebooks/ca774a82-bad2-4935-bbe6-1fc5462b793d/members 200 OK (9ms)

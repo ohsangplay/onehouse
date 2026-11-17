@@ -1,0 +1,17 @@
+
+::group::✅ Passing tests
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_test.dart: 메모 JSON → 모델 → JSON
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_test.dart: 제목이 없으면 본문 첫 줄
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_test.dart: 충돌 화면 강조 줄
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_test.dart: 상대 시간
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_test.dart: 초안 저장·복원·삭제
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_test.dart: 오프라인 체크는 같은 항목이면 마지막 것만
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_links_test.dart: http/https/www 링크를 찾는다
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_links_test.dart: 문장부호·한글 앞에서 끊는다
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_links_test.dart: 중복은 한 번만, 링크 아닌 건 무시
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_links_test.dart: 보여줄 이름
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_links_test.dart: 누른 위치의 링크 찾기
+✅ /home/runner/work/onehouse/onehouse/apps/memo/test/memo_links_test.dart: 링크 위치는 끝 문장부호 제외
+::endgroup::
+
+🎉 12 tests passed.

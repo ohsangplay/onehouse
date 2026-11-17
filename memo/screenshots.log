@@ -1,0 +1,28 @@
+📸 ../ci-out/memo/screenshots/01-start.png
+✓ start
+📸 ../ci-out/memo/screenshots/02-recovery-code.png
+📸 ../ci-out/memo/screenshots/03-notebook-list.png
+✓ create
+✓ seed
+📸 ../ci-out/memo/screenshots/04-notebook-list-with-data.png
+📸 ../ci-out/memo/screenshots/05-memo-list.png
+✓ memo-list
+📸 ../ci-out/memo/screenshots/06-text-memo-viewers.png
+✓ presence
+📸 ../ci-out/memo/screenshots/07-auto-merged.png
+✓ auto-merge
+📸 ../ci-out/memo/screenshots/08-conflict-saved.png
+📸 ../ci-out/memo/screenshots/09-conflict-mine.png
+📸 ../ci-out/memo/screenshots/10-conflict-kept-both.png
+📸 ../ci-out/memo/screenshots/11-memo-list-after-conflict.png
+✓ conflict
+📸 ../ci-out/memo/screenshots/12-checklist.png
+✓ checklist
+📸 ../ci-out/memo/screenshots/13-checklist-offline.png
+📸 ../ci-out/memo/screenshots/14-checklist-back-online.png
+✓ offline-check
+📸 ../ci-out/memo/screenshots/15-settings.png
+📸 ../ci-out/memo/screenshots/16-members.png
+✓ settings
+
+스크린샷 16장, 실패 0단계

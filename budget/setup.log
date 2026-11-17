@@ -1,0 +1,154 @@
+Flutter 3.50.0 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision ab2912035e (8 days ago) • 2026-11-09 08:50:21 -0800
+Engine • hash bf601093ad255aaf5c6d0fc5c4f9acfa60943b2a (revision 371f77202a) (7 days ago) • 2026-11-09 15:57:36.000Z
+Tools • Dart 3.14.0 • DevTools 2.61.0
+Recreating project ....
+  .idea/runConfigurations/main_dart.xml (created)
+  .idea/workspace.xml (created)
+  .idea/modules.xml (created)
+  .idea/libraries/Dart_SDK.xml (created)
+  .idea/libraries/KotlinJavaRuntime.xml (created)
+  android/settings.gradle.kts (created)
+  android/gradle/wrapper/gradle-wrapper.properties (created)
+  android/gradle.properties (created)
+  android/.gitignore (created)
+  android/app/src/debug/AndroidManifest.xml (created)
+  android/app/src/main/AndroidManifest.xml (created)
+  android/app/src/main/res/mipmap-mdpi/ic_launcher.png (created)
+  android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png (created)
+  android/app/src/main/res/drawable/launch_background.xml (created)
+  android/app/src/main/res/mipmap-xhdpi/ic_launcher.png (created)
+  android/app/src/main/res/mipmap-hdpi/ic_launcher.png (created)
+  android/app/src/main/res/drawable-v21/launch_background.xml (created)
+  android/app/src/main/res/values/styles.xml (created)
+  android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png (created)
+  android/app/src/main/res/values-night/styles.xml (created)
+  android/app/src/profile/AndroidManifest.xml (created)
+  android/budget_android.iml (created)
+  android/app/src/main/kotlin/com/ohsang/util/onehouse/budget/MainActivity.kt (created)
+  android/app/build.gradle.kts (created)
+  android/build.gradle.kts (created)
+  .gitignore (created)
+  budget.iml (created)
+  web/manifest.json (created)
+  web/icons/Icon-512.png (created)
+  web/icons/Icon-maskable-512.png (created)
+  web/icons/Icon-192.png (created)
+  web/icons/Icon-maskable-192.png (created)
+  web/favicon.png (created)
+  web/index.html (created)
+  ios/RunnerTests/RunnerTests.swift (created)
+  ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist (created)
+  ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings (created)
+  ios/Runner.xcworkspace/contents.xcworkspacedata (created)
+  ios/Flutter/Release.xcconfig (created)
+  ios/Flutter/Debug.xcconfig (created)
+  ios/Flutter/AppFrameworkInfo.plist (created)
+  ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme (created)
+  ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist (created)
+  ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings (created)
+  ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata (created)
+  ios/Runner.xcodeproj/project.pbxproj (created)
+  ios/.gitignore (created)
+  ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png (created)
+  ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md (created)
+  ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png (created)
+  ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png (created)
+  ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json (created)
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png (created)
+  ios/Runner/Runner-Bridging-Header.h (created)
+  ios/Runner/Info.plist (created)
+  ios/Runner/SceneDelegate.swift (created)
+  ios/Runner/AppDelegate.swift (created)
+  ios/Runner/Base.lproj/Main.storyboard (created)
+  ios/Runner/Base.lproj/LaunchScreen.storyboard (created)
+  test/widget_test.dart (created)
+Got dependencies.
+Upgrading analysis_options.yaml to exclude build and platform directories.
+Wrote 78 files.
+
+All done!
+You can find general documentation for Flutter at: https://docs.flutter.dev/
+Detailed API documentation is available at: https://api.flutter.dev/
+If you prefer video documentation, consider: https://www.youtube.com/c/flutterdev
+
+In order to run your application, type:
+
+  $ flutter run
+
+Your application code is in ./lib/main.dart.
+
+AdMob 앱 ID (Android): 테스트 ID
+AdMob 앱 ID (iOS): 테스트 ID
+앱 이름: 한지붕 가계부
+Resolving dependencies...
+Downloading packages...
+  cli_util 0.4.2 (0.6.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  flutter_secure_storage 9.2.4 (11.2.0 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.3 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.1.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  google_mobile_ads 8.0.0 (9.2.0 available)
+  js 0.6.7 (0.7.2 available)
+  lints 5.1.1 (6.1.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.14 (0.7.15 available)
+  vector_math 2.4.3 (2.4.4 available)
+  win32 5.15.0 (6.4.0 available)
+Got dependencies!
+15 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+  ════════════════════════════════════════════
+     FLUTTER LAUNCHER ICONS (v0.14.4)                               
+  ════════════════════════════════════════════
+  
+• Creating default icons Android
+• Creating adaptive icons Android
+• Overwriting the default Android launcher icon with a new icon
+• Creating mipmap xml file Android
+• Overwriting default iOS launcher icon with new icon
+No platform provided
+
+✓ Successfully generated launcher icons
+Resolving dependencies...
+Downloading packages...
+  cli_util 0.4.2 (0.6.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  flutter_secure_storage 9.2.4 (11.2.0 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.3 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.1.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  google_mobile_ads 8.0.0 (9.2.0 available)
+  js 0.6.7 (0.7.2 available)
+  lints 5.1.1 (6.1.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.14 (0.7.15 available)
+  vector_math 2.4.3 (2.4.4 available)
+  win32 5.15.0 (6.4.0 available)
+Got dependencies!
+15 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+8:    namespace = "com.ohsang.util.onehouse.budget"
+19:        applicationId = "com.ohsang.util.onehouse.budget"
+2:    <uses-permission android:name="android.permission.INTERNET"/>
+4:        android:label="한지붕 가계부"
