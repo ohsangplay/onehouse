@@ -2,7 +2,7 @@ name: memo
 description: "한지붕 메모 - 함께 쓰는 공유 메모장"
 publish_to: "none"
 # 빌드 번호(+뒤)는 출시 워크플로가 실행 번호로 바꾼다
-version: 1.0.0+1
+version: 1.0.1+1
 
 environment:
   sdk: ^3.5.0
