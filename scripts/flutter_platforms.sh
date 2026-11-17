@@ -73,6 +73,18 @@ if kts.exists():
         if 'getByName("release")' not in s:
             print('[주의] build.gradle.kts에 출시 서명 설정을 넣지 못했어요')
         kts.write_text(s, encoding='utf-8')
+    # 출시 빌드 때 도는 Android lint(lintVital)가 빌드 도구 버전에 따라 내부 오류(NoSuchMethodError)로
+    # 빌드를 멈추는 일이 있어서 끈다. 앱 코드 검사는 CI의 flutter analyze가 한다.
+    s = kts.read_text(encoding='utf-8')
+    if 'checkReleaseBuilds' not in s:
+        s = re.sub(r'\n([ \t]*)buildTypes \{', lambda m: (
+            f'\n{m.group(1)}lint {{\n'
+            f'{m.group(1)}    checkReleaseBuilds = false\n'
+            f'{m.group(1)}    abortOnError = false\n'
+            f'{m.group(1)}}}\n\n{m.group(1)}buildTypes {{'), s, count=1)
+        if 'checkReleaseBuilds' not in s:
+            print('[주의] build.gradle.kts에 lint 설정을 넣지 못했어요')
+        kts.write_text(s, encoding='utf-8')
 
 # AdMob 앱 ID (google_mobile_ads를 쓰는 앱만). 환경변수가 없으면 Google 테스트 앱 ID.
 #   ADMOB_APP_ID_ANDROID=ca-app-pub-xxxx~yyyy  ADMOB_APP_ID_IOS=ca-app-pub-xxxx~zzzz
