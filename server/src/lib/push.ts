@@ -1,6 +1,16 @@
 // 푸시 알림: Firebase Cloud Messaging(HTTP v1). Android·iOS 모두 FCM 토큰으로 보낸다 (iOS는 Firebase가 APNs로 전달).
-// 서버 비밀값 FCM_SERVICE_ACCOUNT(서비스 계정 JSON)가 없으면 아무것도 보내지 않는다.
-import type { Env } from '../types';
+// 앱마다 Firebase 프로젝트가 따로라서 서비스 계정도 따로 둔다 (서버 비밀값, 서비스 계정 JSON):
+//   한지붕 가계부 BUDGET_FCM_SERVICE_ACCOUNT, 한지붕 메모 MEMO_FCM_SERVICE_ACCOUNT. 없으면 그 앱은 알림을 보내지 않는다.
+import type { Env, SpaceKind } from '../types';
+
+/** 공간 종류 → 그 앱의 Firebase 서비스 계정 JSON */
+function accountJson(env: Env, kind: SpaceKind): string | undefined {
+  return kind === 'memo' ? env.MEMO_FCM_SERVICE_ACCOUNT : env.BUDGET_FCM_SERVICE_ACCOUNT;
+}
+
+function anyAccount(env: Env): boolean {
+  return Boolean(env.BUDGET_FCM_SERVICE_ACCOUNT || env.MEMO_FCM_SERVICE_ACCOUNT);
+}
 
 type ServiceAccount = { project_id: string; client_email: string; private_key: string };
 
@@ -11,7 +21,7 @@ export type PushMessage = {
   data?: Record<string, string>;
 };
 
-let cached: { key: string; token: string; expires: number } | null = null;
+const cached = new Map<string, { token: string; expires: number }>();
 
 function b64url(data: ArrayBuffer | Uint8Array | string): string {
   const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : new Uint8Array(data);
@@ -20,13 +30,14 @@ function b64url(data: ArrayBuffer | Uint8Array | string): string {
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function parseAccount(env: Env): ServiceAccount | null {
-  if (!env.FCM_SERVICE_ACCOUNT) return null;
+function parseAccount(env: Env, kind: SpaceKind): ServiceAccount | null {
+  const raw = accountJson(env, kind);
+  if (!raw) return null;
   try {
-    const sa = JSON.parse(env.FCM_SERVICE_ACCOUNT) as ServiceAccount;
+    const sa = JSON.parse(raw) as ServiceAccount;
     return sa.project_id && sa.client_email && sa.private_key ? sa : null;
   } catch {
-    console.error('FCM_SERVICE_ACCOUNT JSON을 읽을 수 없어요');
+    console.error(`${kind} FCM 서비스 계정 JSON을 읽을 수 없어요`);
     return null;
   }
 }
@@ -34,7 +45,8 @@ function parseAccount(env: Env): ServiceAccount | null {
 /** 서비스 계정으로 OAuth 액세스 토큰 (1시간, 캐시) */
 async function accessToken(sa: ServiceAccount): Promise<string> {
   const nowSec = Math.floor(Date.now() / 1000);
-  if (cached && cached.key === sa.client_email && cached.expires > nowSec + 60) return cached.token;
+  const hit = cached.get(sa.client_email);
+  if (hit && hit.expires > nowSec + 60) return hit.token;
 
   const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const claims = b64url(
@@ -59,13 +71,13 @@ async function accessToken(sa: ServiceAccount): Promise<string> {
   });
   if (!res.ok) throw new Error(`FCM 토큰 발급 실패 ${res.status} ${await res.text()}`);
   const json = (await res.json()) as { access_token: string; expires_in: number };
-  cached = { key: sa.client_email, token: json.access_token, expires: nowSec + json.expires_in };
+  cached.set(sa.client_email, { token: json.access_token, expires: nowSec + json.expires_in });
   return json.access_token;
 }
 
 /** 토큰 목록에 보낸다. 더 이상 쓸 수 없는 토큰은 지운다 */
-export async function sendPush(env: Env, tokens: string[], msg: PushMessage): Promise<void> {
-  const sa = parseAccount(env);
+export async function sendPush(env: Env, kind: SpaceKind, tokens: string[], msg: PushMessage): Promise<void> {
+  const sa = parseAccount(env, kind);
   if (!sa || tokens.length === 0) return;
   let auth: string;
   try {
@@ -116,7 +128,8 @@ export async function notifySpace(
   who: 'managers' | { exceptMemberId: string } | { memberId: string },
   msg: PushMessage,
 ): Promise<void> {
-  if (!env.FCM_SERVICE_ACCOUNT) return;
+  const space = await env.DB.prepare('SELECT kind FROM ledgers WHERE id = ?').bind(ledgerId).first<{ kind: SpaceKind }>();
+  if (!space || !accountJson(env, space.kind)) return;
   let where = "m.ledger_id = ? AND m.status = 'approved'";
   const binds: unknown[] = [ledgerId];
   if (who === 'managers') {
@@ -136,6 +149,7 @@ export async function notifySpace(
     .all<{ token: string }>();
   await sendPush(
     env,
+    space.kind,
     results.map((r) => r.token),
     { ...msg, data: { space_id: ledgerId, ...(msg.data ?? {}) } },
   );
@@ -146,6 +160,6 @@ export function pushLater(
   c: { executionCtx: { waitUntil(p: Promise<unknown>): void }; env: Env },
   task: (env: Env) => Promise<void>,
 ): void {
-  if (!c.env.FCM_SERVICE_ACCOUNT) return;
+  if (!anyAccount(c.env)) return;
   c.executionCtx.waitUntil(task(c.env).catch((e) => console.error('push', String(e))));
 }

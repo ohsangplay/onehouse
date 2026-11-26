@@ -27,8 +27,9 @@ jobs:
       # 운영 DB. 2026-11 미국 서부(onehouse)에서 아시아(onehouse-apac)로 옮김 (db-move-apac.yml)
       # 로컬·CI는 wrangler.toml의 onehouse 이름 그대로 쓴다
       DB_NAME: onehouse-apac
-      # 푸시 알림: Firebase 서비스 계정 JSON (저장소 Secrets FCM_SERVICE_ACCOUNT). 없으면 알림 없이 배포
-      FCM_SERVICE_ACCOUNT: ${{ secrets.FCM_SERVICE_ACCOUNT }}
+      # 푸시 알림: 앱별 Firebase 서비스 계정 JSON (저장소 Secrets). 없으면 그 앱은 알림 없이 배포
+      BUDGET_FCM_SERVICE_ACCOUNT: ${{ secrets.BUDGET_FCM_SERVICE_ACCOUNT }}
+      MEMO_FCM_SERVICE_ACCOUNT: ${{ secrets.MEMO_FCM_SERVICE_ACCOUNT }}
     steps:
       - uses: actions/checkout@v4
 
@@ -73,12 +74,14 @@ jobs:
           # DB가 어느 지역에 있는지 기록 (속도 확인용)
           npx wrangler d1 info "$DB_NAME" || true
           npx wrangler deploy | tee deploy-out.txt
-          if [ -n "$FCM_SERVICE_ACCOUNT" ]; then
-            printf '%s' "$FCM_SERVICE_ACCOUNT" | npx wrangler secret put FCM_SERVICE_ACCOUNT
-            echo "푸시 알림: FCM_SERVICE_ACCOUNT 설정함"
-          else
-            echo "푸시 알림: 저장소 Secrets에 FCM_SERVICE_ACCOUNT가 없어 알림 없이 배포해요."
-          fi
+          for name in BUDGET_FCM_SERVICE_ACCOUNT MEMO_FCM_SERVICE_ACCOUNT; do
+            if [ -n "${!name}" ]; then
+              printf '%s' "${!name}" | npx wrangler secret put "$name"
+              echo "푸시 알림: $name 설정함"
+            else
+              echo "푸시 알림: 저장소 Secrets에 $name 이 없어 그 앱은 알림 없이 배포해요."
+            fi
+          done
           URL=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' deploy-out.txt | head -1)
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "배포 주소: $URL"
