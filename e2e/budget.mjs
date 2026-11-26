@@ -65,13 +65,18 @@ async function step(page, name, fn) {
     failures += 1;
     console.log('✗', name, '-', e.message.split('\n')[0]);
     await shot(page, `error-${name}`).catch(() => {});
+    // 접근성 트리를 남겨 두면 어떤 버튼·입력칸이 보였는지 알 수 있다
+    const tree = await page.locator('body').ariaSnapshot().catch((err) => String(err));
+    console.log(`── ${name} 접근성 트리 ──\n${tree.split('\n').slice(0, 80).join('\n')}`);
   }
 }
 
 const button = (page, name) => page.getByRole('button', { name });
 
 async function typeInto(page, index, text) {
-  const box = page.getByRole('textbox').nth(index);
+  // index -1: 마지막 입력칸
+  const boxes = page.getByRole('textbox');
+  const box = index < 0 ? boxes.last() : boxes.nth(index);
   await box.click();
   await page.waitForTimeout(300);
   await page.keyboard.insertText(text);
@@ -174,7 +179,7 @@ await step(owner, 'add-transaction', async () => {
   await owner.getByText('카테고리').first().waitFor({ timeout: 15_000 });
   await typeInto(owner, 0, '23000');
   await button(owner, '식비').first().click();
-  await typeInto(owner, 1, '저녁 장보기');
+  await typeInto(owner, -1, '저녁 장보기');
   await shot(owner, 'transaction-new');
   await owner.getByRole('button', { name: '저장', exact: true }).click();
   await owner.getByText('저녁 장보기').waitFor({ timeout: 15_000 });
@@ -186,9 +191,9 @@ await step(owner, 'installment', async () => {
   await button(owner, '내역 추가').click();
   await owner.getByText('카테고리').first().waitFor({ timeout: 15_000 });
   await typeInto(owner, 0, '900001');
-  await owner.getByText('할부', { exact: true }).click();
+  await owner.getByRole('button', { name: '할부', exact: true }).click();
   await owner.getByText('300,000원씩 3번').waitFor({ timeout: 15_000 });
-  await typeInto(owner, 1, '세탁기');
+  await typeInto(owner, -1, '세탁기');
   await shot(owner, 'installment-new');
   await owner.getByRole('button', { name: '저장', exact: true }).click();
   await owner.getByText('세탁기').waitFor({ timeout: 15_000 });
