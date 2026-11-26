@@ -25,7 +25,7 @@ class AmountFormatter extends TextInputFormatter {
 }
 
 /// 반복: 한 번 / 매월 고정 / 할부(지출만)
-enum RepeatMode { once, monthly, installment }
+enum EntryRepeat { once, monthly, installment }
 
 const installmentMonths = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 24, 36];
 
@@ -40,7 +40,7 @@ class TransactionEditScreen extends StatefulWidget {
     this.existing,
     this.initialDate,
     this.onReport,
-    this.initialRepeat = RepeatMode.once,
+    this.initialRepeat = EntryRepeat.once,
   });
 
   final BudgetApi api;
@@ -54,7 +54,7 @@ class TransactionEditScreen extends StatefulWidget {
   final void Function(Txn txn)? onReport;
 
   /// 새 내역의 처음 반복 선택 (고정·할부 관리에서 열 때는 매월)
-  final RepeatMode initialRepeat;
+  final EntryRepeat initialRepeat;
 
   @override
   State<TransactionEditScreen> createState() => _TransactionEditScreenState();
@@ -70,7 +70,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
   );
   late final _memo = TextEditingController(text: widget.existing?.memo ?? '');
   bool _busy = false;
-  late RepeatMode _repeat = widget.initialRepeat;
+  late EntryRepeat _repeat = widget.initialRepeat;
   int _months = 3;
 
   bool get _editing => widget.existing != null;
@@ -87,7 +87,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
       _income = income;
       final current = _categories.where((c) => c.id == _categoryId).firstOrNull;
       if (current != null && !current.usableFor(income)) _categoryId = null;
-      if (income && _repeat == RepeatMode.installment) _repeat = RepeatMode.once;
+      if (income && _repeat == EntryRepeat.installment) _repeat = EntryRepeat.once;
     });
   }
 
@@ -130,15 +130,15 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
     try {
       if (_editing) {
         await widget.api.updateTxn(widget.existing!.id, body);
-      } else if (_repeat == RepeatMode.once) {
+      } else if (_repeat == EntryRepeat.once) {
         await widget.api.createTxn(body);
       } else {
         // 고정·할부: 규칙을 만들면 서버가 오늘까지의 회차를 바로 기록하고, 이후 매월 그 날짜에 기록한다
         body.remove('spent_at');
         await widget.api.createRecurring({
           ...body,
-          'kind': _repeat == RepeatMode.installment ? 'installment' : 'fixed',
-          if (_repeat == RepeatMode.installment) 'months': _months,
+          'kind': _repeat == EntryRepeat.installment ? 'installment' : 'fixed',
+          if (_repeat == EntryRepeat.installment) 'months': _months,
           'start_date': dateKey(_date),
         });
       }
@@ -208,7 +208,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
           _TypeToggle(income: _income, onChanged: _setIncome),
           const SizedBox(height: 28),
           Text(
-            _repeat == RepeatMode.installment ? '총 결제 금액' : (_repeat == RepeatMode.monthly ? '매월 금액' : '금액'),
+            _repeat == EntryRepeat.installment ? '총 결제 금액' : (_repeat == EntryRepeat.monthly ? '매월 금액' : '금액'),
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
           ),
           TextField(
@@ -267,7 +267,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
           const SizedBox(height: 24),
           const Divider(height: 1, color: AppColors.divider),
           _Row(
-            label: _repeat == RepeatMode.once ? '날짜' : '첫 날짜',
+            label: _repeat == EntryRepeat.once ? '날짜' : '첫 날짜',
             child: TextButton(
               onPressed: _pickDate,
               style: TextButton.styleFrom(foregroundColor: AppColors.text, padding: EdgeInsets.zero),
@@ -282,9 +282,9 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                 spacing: 6,
                 children: [
                   for (final (mode, label) in [
-                    (RepeatMode.once, '한 번'),
-                    (RepeatMode.monthly, '매월'),
-                    if (!_income) (RepeatMode.installment, '할부'),
+                    (EntryRepeat.once, '한 번'),
+                    (EntryRepeat.monthly, '매월'),
+                    if (!_income) (EntryRepeat.installment, '할부'),
                   ])
                     ChoiceChip(
                       label: Text(label),
@@ -295,7 +295,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                 ],
               ),
             ),
-            if (_repeat == RepeatMode.installment)
+            if (_repeat == EntryRepeat.installment)
               _Row(
                 label: '개월',
                 child: DropdownButton<int>(
@@ -307,7 +307,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                   onChanged: (m) => setState(() => _months = m ?? _months),
                 ),
               ),
-            if (_repeat != RepeatMode.once) _RepeatInfo(mode: _repeat, amount: parseAmount(_amount.text), months: _months, date: _date),
+            if (_repeat != EntryRepeat.once) _RepeatInfo(mode: _repeat, amount: parseAmount(_amount.text), months: _months, date: _date),
             const Divider(height: 1, color: AppColors.divider),
           ],
           if (_editing && widget.existing!.ruleId != null) ...[
@@ -428,7 +428,7 @@ class _Row extends StatelessWidget {
 class _RepeatInfo extends StatelessWidget {
   const _RepeatInfo({required this.mode, required this.amount, required this.months, required this.date});
 
-  final RepeatMode mode;
+  final EntryRepeat mode;
   final int amount;
   final int months;
   final DateTime date;
@@ -437,7 +437,7 @@ class _RepeatInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final day = date.day;
     final String text;
-    if (mode == RepeatMode.installment) {
+    if (mode == EntryRepeat.installment) {
       if (amount < months) {
         text = '총 결제 금액을 넣으면 매월 금액을 계산해 드려요.\n매월 $day일에 $months번 기록돼요.';
       } else {

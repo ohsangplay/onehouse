@@ -65,7 +65,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
           categories: widget.categories,
           canManageCategories: widget.canManageCategories,
           myNickname: widget.myNickname,
-          initialRepeat: RepeatMode.monthly,
+          initialRepeat: EntryRepeat.monthly,
         ),
       ),
     );
@@ -169,9 +169,9 @@ class _RecurringScreenState extends State<RecurringScreen> {
     final rules = _rules;
     final fixed = rules?.where((r) => !r.installment).toList() ?? const <RecurringRule>[];
     final installments = rules?.where((r) => r.installment).toList() ?? const <RecurringRule>[];
-    final monthlyIncome = fixed.where((r) => r.isIncome).fold(0, (s, r) => s + r.amount);
-    final monthlyExpense = fixed.where((r) => !r.isIncome).fold(0, (s, r) => s + r.amount) +
-        installments.where((r) => !r.finished).fold(0, (s, r) => s + r.perMonth);
+    final monthlyIncome = fixed.where((r) => r.isIncome).fold<int>(0, (s, r) => s + r.amount);
+    final monthlyExpense = fixed.where((r) => !r.isIncome).fold<int>(0, (s, r) => s + r.amount) +
+        installments.where((r) => !r.finished).fold<int>(0, (s, r) => s + r.perMonth);
 
     return PopScope(
       canPop: false,

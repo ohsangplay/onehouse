@@ -181,6 +181,31 @@ await step(owner, 'add-transaction', async () => {
   await shot(owner, 'ledger-home-added');
 });
 
+// ── 할부 (3개월) → 오늘 1회차가 바로 기록되고 '할부 1/3' 표시
+await step(owner, 'installment', async () => {
+  await button(owner, '내역 추가').click();
+  await owner.getByText('카테고리').first().waitFor({ timeout: 15_000 });
+  await typeInto(owner, 0, '900001');
+  await owner.getByText('할부', { exact: true }).click();
+  await owner.getByText('300,000원씩 3번').waitFor({ timeout: 15_000 });
+  await typeInto(owner, 1, '세탁기');
+  await shot(owner, 'installment-new');
+  await owner.getByRole('button', { name: '저장', exact: true }).click();
+  await owner.getByText('세탁기').waitFor({ timeout: 15_000 });
+  await owner.getByText('할부 1/3').waitFor({ timeout: 15_000 });
+  await shot(owner, 'installment-added');
+});
+
+// ── 고정·할부 관리
+await step(owner, 'recurring', async () => {
+  await button(owner, '고정·할부').click();
+  await owner.getByText('매월 고정 지출·할부').waitFor({ timeout: 15_000 });
+  await owner.getByText('1/3회 기록').waitFor({ timeout: 15_000 });
+  await shot(owner, 'recurring');
+  await button(owner, '뒤로').or(owner.getByRole('button', { name: 'Back' })).first().click();
+  await owner.getByText('이번 달 남은 돈').waitFor({ timeout: 15_000 });
+});
+
 // ── 달력 보기
 await step(owner, 'calendar', async () => {
   await button(owner, '달력 보기').click();
