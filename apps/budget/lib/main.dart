@@ -4,6 +4,7 @@ import 'package:onehouse_core/onehouse_core.dart';
 
 import 'config.dart';
 import 'screens/ledger_list_screen.dart';
+import 'services/push.dart';
 import 'theme.dart';
 import 'widgets/ad_banner.dart';
 
@@ -15,6 +16,8 @@ void main() {
   if (_e2e) WidgetsBinding.instance.ensureSemantics();
   // 광고 SDK는 기다리지 않고 뒤에서 초기화 (첫 화면을 늦추지 않게)
   Ads.init();
+  // 푸시 알림 (Firebase 설정이 들어간 빌드에서만)
+  Push.init();
   final api = ApiClient(baseUrl: AppConfig.apiBaseUrl);
   final services = AppServices(api: api, session: DeviceSession(api), space: budgetSpace);
   runApp(BudgetApp(services: services));
@@ -30,6 +33,7 @@ class BudgetApp extends StatelessWidget {
     return MaterialApp(
       title: '한지붕 가계부',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: Push.messengerKey,
       theme: buildTheme(BudgetColors.primary),
       // 날짜 고르기 등 기본 위젯을 한국어로
       locale: const Locale('ko', 'KR'),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
@@ -8,9 +10,11 @@ import '../models/transaction.dart';
 import '../utils/format.dart';
 import '../widgets/ad_banner.dart';
 import '../widgets/category_widgets.dart';
+import '../services/push.dart';
 import '../widgets/filter_bar.dart';
 import 'categories_screen.dart';
 import 'filter_screen.dart';
+import 'recurring_screen.dart';
 import 'transaction_edit_screen.dart';
 
 /// 월별 내역: 목록·달력 보기, 카테고리 필터, 내역 추가·고치기
@@ -43,12 +47,26 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
   int _loadSeq = 0;
   bool _changed = false;
 
+  /// 가족이 쓴 내역 알림 받기
+  bool _notify = true;
+  StreamSubscription<Map<String, dynamic>>? _pushSub;
+
   bool get _manager => isManager(_role);
 
   @override
   void initState() {
     super.initState();
     _loadAll();
+    // 이 가계부 알림이 오면 (가족이 내역을 썼거나 참여 요청) 바로 새로 고친다
+    _pushSub = Push.events.listen((data) {
+      if (data['space_id'] == widget.ledger.id && mounted) _loadAll();
+    });
+  }
+
+  @override
+  void dispose() {
+    _pushSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadAll() async {
@@ -61,6 +79,7 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
         _name = detail['name'] as String;
         _nickname = member['nickname'] as String;
         _memberId = member['id'] as String?;
+        _notify = member['notify_records'] != false;
         _role = parseRole(member['role'] as String?);
         _categories = results[1] as List<Category>;
         _filter = _filter.prune(_categories);
@@ -167,6 +186,28 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
     }
   }
 
+  /// 고정·할부 관리. 바뀐 게 있으면 true
+  Future<bool> _openRecurring(BuildContext context) async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => RecurringScreen(
+          api: _api,
+          categories: _categories,
+          canManageCategories: _manager,
+          myNickname: _nickname,
+          myMemberId: _memberId,
+          isManager: _manager,
+        ),
+      ),
+    );
+    if (changed == true) {
+      _changed = true;
+      await _loadAll();
+      return true;
+    }
+    return false;
+  }
+
   Future<void> _openSettings() async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
@@ -174,6 +215,32 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
           services: widget.services,
           spaceId: widget.ledger.id,
           extraTiles: (context, role, markChanged) => [
+            ListTile(
+              leading: const Icon(Icons.event_repeat),
+              title: const Text('고정·할부 관리'),
+              subtitle: const Text('월급·관리비·할부를 매월 자동으로 기록'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                if (await _openRecurring(context)) markChanged();
+              },
+            ),
+            StatefulBuilder(
+              builder: (context, setTile) => SwitchListTile(
+                secondary: const Icon(Icons.notifications_outlined),
+                title: const Text('가족이 쓴 내역 알림'),
+                subtitle: const Text('참여 요청·승인 알림은 항상 와요'),
+                value: _notify,
+                onChanged: (on) async {
+                  setTile(() => _notify = on);
+                  try {
+                    await _api.setNotifyRecords(on);
+                  } catch (e) {
+                    setTile(() => _notify = !on);
+                    if (context.mounted) showError(context, e);
+                  }
+                },
+              ),
+            ),
             if (isManager(role))
               ListTile(
                 leading: const Icon(Icons.sell_outlined),
@@ -211,6 +278,11 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
         appBar: AppBar(
           title: Text(_name),
           actions: [
+            IconButton(
+              tooltip: '고정·할부',
+              icon: const Icon(Icons.event_repeat),
+              onPressed: () => _openRecurring(context),
+            ),
             IconButton(tooltip: '가계부 설정', icon: const Icon(Icons.menu), onPressed: _openSettings),
           ],
         ),
@@ -481,7 +553,22 @@ class _TxnTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 2),
-                  Text(txn.memberNickname, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          txn.memberNickname,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                        ),
+                      ),
+                      if (txn.ruleBadge != null) ...[
+                        const SizedBox(width: 6),
+                        _RuleBadge(label: txn.ruleBadge!),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -499,6 +586,26 @@ class _TxnTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 고정·할부로 자동 기록된 내역 표시
+class _RuleBadge extends StatelessWidget {
+  const _RuleBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE8F1EE),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.primary),
+        ),
+      );
 }
 
 class _CalendarGrid extends StatelessWidget {

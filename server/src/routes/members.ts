@@ -3,6 +3,7 @@ import type { AppEnv, MemberRow } from '../types';
 import { eventStmt } from '../lib/events';
 import { badRequest, conflict, forbidden, notFound, now, oneOf, readJson, str } from '../lib/http';
 import { MANAGERS, OWNER, requireDevice, requireMember } from '../middleware/auth';
+import { notifySpace, pushLater } from '../lib/push';
 import type { KindConfig } from '../kinds';
 
 const MAX_CO_OWNERS = 3;
@@ -84,6 +85,13 @@ export function memberRoutes(kind: KindConfig) {
           .bind(ts, actor.id, target.id),
         eventStmt(db, ledger.id, 'approve', actor.id, target.id),
       ]);
+      pushLater(c, (env) =>
+        notifySpace(env, ledger.id, { memberId: target.id }, {
+          title: ledger.name,
+          body: `참여가 승인됐어요. 지금 ${kind.noun}를 열어 보세요`,
+          data: { type: 'approved' },
+        }),
+      );
       return c.json({ member_id: target.id, linked: false });
     }
 

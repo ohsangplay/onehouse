@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:onehouse_core/onehouse_core.dart';
 
 import '../models/ledger_summary.dart';
 import '../utils/format.dart';
+import '../services/push.dart';
 import '../widgets/ad_banner.dart';
 import 'ledger_home_screen.dart';
 
@@ -19,11 +22,23 @@ class LedgerListScreen extends StatefulWidget {
 class _LedgerListScreenState extends State<LedgerListScreen> {
   List<LedgerSummary>? _ledgers;
   String? _error;
+  bool _pushRegistered = false;
+  StreamSubscription<Map<String, dynamic>>? _pushSub;
 
   @override
   void initState() {
     super.initState();
     _load();
+    // 참여 요청·승인 알림이 오면 목록(대기 수·새 가계부)을 새로 고친다
+    _pushSub = Push.events.listen((_) {
+      if (mounted) _load();
+    });
+  }
+
+  @override
+  void dispose() {
+    _pushSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _load({bool retried = false}) async {
@@ -37,6 +52,11 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
         _ledgers = items;
         _error = null;
       });
+      // 가계부가 생긴 뒤에 알림 권한을 묻는다 (처음 켜자마자 묻지 않게)
+      if (items.isNotEmpty && !_pushRegistered) {
+        _pushRegistered = true;
+        Push.register(widget.services.api);
+      }
     } on ApiException catch (e) {
       // 다른 기기로 이전된 토큰이면 새 기기 계정으로 다시 시작
       if (e.isUnauthorized && !retried) {

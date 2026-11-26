@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import type { AppEnv, DeviceRow } from '../types';
 import { newId, normalizeCode, randomCode, randomToken, sha256 } from '../lib/crypto';
-import { conflict, notFound, now, readJson, reqStr } from '../lib/http';
+import { badRequest, conflict, notFound, now, readJson, reqStr } from '../lib/http';
 import { rateLimit } from '../lib/rateLimit';
 import { requireDevice } from '../middleware/auth';
 
@@ -112,4 +112,34 @@ devices.post('/transfer', async (c) => {
   await c.env.DB.batch(stmts);
 
   return c.json({ device_id: row.device_id, token });
+});
+
+/** 푸시 알림 토큰 등록·갱신 (앱이 FCM 토큰을 받을 때마다) */
+devices.put('/push-token', requireDevice, async (c) => {
+  const body = await readJson(c);
+  const token = reqStr(body, 'token', { min: 20, max: 4096 });
+  const platform = body.platform === 'ios' ? 'ios' : body.platform === 'android' ? 'android' : null;
+  if (!platform) throw badRequest('invalid_field', 'platform 값은 android 또는 ios여야 해요.');
+  const db = c.env.DB;
+  const deviceId = c.var.device.id;
+  await db.batch([
+    db.prepare(
+      `INSERT INTO push_tokens (token, device_id, platform, updated_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT(token) DO UPDATE SET device_id = excluded.device_id, platform = excluded.platform, updated_at = excluded.updated_at`,
+    ).bind(token, deviceId, platform, now()),
+    // 한 기기에 오래된 토큰이 쌓이지 않게 최근 3개만 남긴다
+    db.prepare(
+      `DELETE FROM push_tokens WHERE device_id = ? AND token NOT IN
+         (SELECT token FROM push_tokens WHERE device_id = ? ORDER BY updated_at DESC LIMIT 3)`,
+    ).bind(deviceId, deviceId),
+  ]);
+  return c.json({ ok: true });
+});
+
+/** 알림 끄기·로그아웃 등: 토큰 지우기 */
+devices.delete('/push-token', requireDevice, async (c) => {
+  const body = await readJson(c);
+  const token = reqStr(body, 'token', { max: 4096 });
+  await c.env.DB.prepare('DELETE FROM push_tokens WHERE token = ? AND device_id = ?').bind(token, c.var.device.id).run();
+  return c.json({ ok: true });
 });

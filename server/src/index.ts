@@ -6,6 +6,8 @@ import { ApiError } from './lib/http';
 import { LANDING_HEADERS, renderLanding } from './pages/landing';
 import { renderPrivacy } from './pages/privacy';
 import { renderTerms } from './pages/terms';
+import { recurring } from './routes/recurring';
+import { generateDue } from './lib/recurring';
 import { purge } from './lib/purge';
 import { devices } from './routes/devices';
 import { spaceRoutes } from './routes/spaces';
@@ -97,6 +99,7 @@ app.route('/devices', devices);
 app.route('/ledgers/:ledgerId/members', memberRoutes(BUDGET));
 app.route('/ledgers/:ledgerId/categories', categories);
 app.route('/ledgers/:ledgerId/transactions', transactions);
+app.route('/ledgers/:ledgerId/recurring', recurring);
 app.route('/ledgers', spaceRoutes(BUDGET));
 // 한지붕 메모
 app.route('/notebooks/:ledgerId/members', memberRoutes(MEMO));
@@ -117,10 +120,20 @@ app.onError((err, c) => {
   return c.json({ error: { code: 'internal', message: '서버 오류가 발생했어요.' } }, 500);
 });
 
+/** wrangler.toml [triggers] crons와 같은 값 */
+const RECURRING_CRON = '5 15 * * *';
+
 export default {
   fetch: (request: Request, env: Env, ctx: ExecutionContext) => app.fetch(stripBasePath(request), env, ctx),
-  /** 하루 한 번: 지운 지 30일 지난 데이터 완전 삭제 */
-  async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
+  /**
+   * 매일 한국 시간 0시 5분: 고정 지출·수입·할부 내역 만들기 (src/lib/recurring.ts)
+   * 매일 한국 시간 새벽 4시: 지운 지 30일 지난 데이터 완전 삭제
+   */
+  async scheduled(event: ScheduledController, env: Env, ctx: ExecutionContext) {
+    if (event.cron === RECURRING_CRON) {
+      ctx.waitUntil(generateDue(env.DB).then((n) => console.log('recurring', n)));
+      return;
+    }
     ctx.waitUntil(purge(env.DB).then((r) => console.log('purge', JSON.stringify(r))));
   },
 } satisfies ExportedHandler<Env>;
