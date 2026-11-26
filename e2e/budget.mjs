@@ -83,6 +83,16 @@ async function typeInto(page, index, text) {
   await page.waitForTimeout(300);
 }
 
+// 지금 화면(group) 안의 입력칸 — 이전 화면의 입력칸이 DOM에 남아 있을 수 있어서 nth로 세지 않는다
+async function typeInForm(page, which, text) {
+  const boxes = page.getByRole('group').getByRole('textbox');
+  const box = which === 'last' ? boxes.last() : boxes.first();
+  await box.click();
+  await page.waitForTimeout(300);
+  await page.keyboard.insertText(text);
+  await page.waitForTimeout(300);
+}
+
 async function waitForApp(page, text) {
   await page.goto(APP);
   await page.getByText(text).first().waitFor({ timeout: 60_000 });
@@ -190,10 +200,10 @@ await step(owner, 'add-transaction', async () => {
 await step(owner, 'installment', async () => {
   await button(owner, '내역 추가').click();
   await owner.getByText('카테고리').first().waitFor({ timeout: 15_000 });
-  await typeInto(owner, 0, '900001');
-  await owner.getByRole('button', { name: '할부', exact: true }).click();
+  await typeInForm(owner, 'first', '900001');
+  await owner.getByRole('checkbox', { name: '할부', exact: true }).click();
   await owner.getByText('300,000원씩 3번').waitFor({ timeout: 15_000 });
-  await typeInto(owner, -1, '세탁기');
+  await typeInForm(owner, 'last', '세탁기');
   await shot(owner, 'installment-new');
   await owner.getByRole('button', { name: '저장', exact: true }).click();
   await owner.getByText('세탁기').waitFor({ timeout: 15_000 });
