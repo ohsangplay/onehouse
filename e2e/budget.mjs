@@ -273,7 +273,7 @@ await step(owner, 'categories', async () => {
   await owner.getByRole('button', { name: '카테고리 추가', exact: true }).click();
   await owner.getByText('라벨 미리보기').waitFor({ timeout: 15_000 });
   await button(owner, '수입').last().click();
-  await typeInto(owner, 0, '이자');
+  await typeInto(owner, -1, '이자');
   await shot(owner, 'category-add');
   await owner.getByRole('button', { name: '추가', exact: true }).click();
   await owner.getByText('이자').first().waitFor({ timeout: 15_000 });
