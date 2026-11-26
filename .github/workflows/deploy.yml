@@ -76,6 +76,9 @@ jobs:
           npx wrangler deploy | tee deploy-out.txt
           for name in BUDGET_FCM_SERVICE_ACCOUNT MEMO_FCM_SERVICE_ACCOUNT; do
             if [ -n "${!name}" ]; then
+              # 서비스 계정 JSON 모양 확인 (project_id·client_email·private_key)
+              printf '%s' "${!name}" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);if(!j.project_id||!j.client_email||!j.private_key)throw new Error('필드 없음');console.log('$name 프로젝트:',j.project_id)})" \
+                || { echo "::error title=$name::서비스 계정 JSON 형식이 아니에요. Firebase → 서비스 계정 → 새 비공개 키 생성으로 받은 파일 내용 전체를 넣어 주세요."; exit 1; }
               printf '%s' "${!name}" | npx wrangler secret put "$name"
               echo "푸시 알림: $name 설정함"
             else
