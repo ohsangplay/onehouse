@@ -59,6 +59,11 @@ jobs:
       ADMOB_APP_ID_ANDROID: ${{ inputs.app == 'budget' && vars.BUDGET_ADMOB_APP_ID_ANDROID || inputs.app == 'memo' && vars.MEMO_ADMOB_APP_ID_ANDROID || '' }}
       ADMOB_BANNER_ANDROID: ${{ inputs.app == 'budget' && vars.BUDGET_ADMOB_BANNER_ANDROID || inputs.app == 'memo' && vars.MEMO_ADMOB_BANNER_ANDROID || '' }}
       ADMOB_VAR_PREFIX: ${{ inputs.app == 'memo' && 'MEMO' || 'BUDGET' }}
+      # 푸시 알림 (가계부만): Firebase 프로젝트 설정의 android 앱 값. 없으면 알림 없이 빌드
+      FIREBASE_PROJECT_ID: ${{ inputs.app == 'budget' && vars.BUDGET_FIREBASE_PROJECT_ID || '' }}
+      FIREBASE_SENDER_ID: ${{ inputs.app == 'budget' && vars.BUDGET_FIREBASE_SENDER_ID || '' }}
+      FIREBASE_API_KEY: ${{ inputs.app == 'budget' && vars.BUDGET_FIREBASE_ANDROID_API_KEY || '' }}
+      FIREBASE_APP_ID: ${{ inputs.app == 'budget' && vars.BUDGET_FIREBASE_ANDROID_APP_ID || '' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -137,6 +142,15 @@ jobs:
           set -o pipefail
           defines=()
           [ -n "$ADMOB_BANNER_ANDROID" ] && defines+=("--dart-define=ADMOB_BANNER_ANDROID=$ADMOB_BANNER_ANDROID")
+          if [ -n "$FIREBASE_APP_ID" ]; then
+            for k in FIREBASE_PROJECT_ID FIREBASE_SENDER_ID FIREBASE_API_KEY FIREBASE_APP_ID; do defines+=("--dart-define=$k=${!k}"); done
+            # 값 모양 확인 (다른 플랫폼 값을 넣는 실수 방지)
+            [[ "$FIREBASE_APP_ID" =~ ^1:[0-9]+:android:[0-9a-f]+$ ]] || echo "::warning title=Firebase 앱 ID::android 앱 ID 모양이 아니에요 (1:숫자:android:…)"
+            [[ "$FIREBASE_API_KEY" =~ ^AIza ]] || echo "::warning title=Firebase API 키::AIza로 시작해야 해요"
+            [[ "$FIREBASE_SENDER_ID" =~ ^[0-9]+$ ]] || echo "::warning title=Firebase 발신자 ID::숫자여야 해요"
+            [[ "$FIREBASE_APP_ID" == 1:"$FIREBASE_SENDER_ID":* ]] || echo "::warning title=Firebase 값 불일치::앱 ID의 가운데 숫자와 SENDER_ID가 달라요"
+            echo "푸시 알림: Firebase 설정 넣음 (프로젝트 $FIREBASE_PROJECT_ID)"
+          fi
           if ! flutter build appbundle --release --build-number=${{ github.run_number }} "${defines[@]}" 2>&1 | tee "$RUNNER_TEMP/build.log"; then
             msg=$(grep -iE "error|failed|exception" "$RUNNER_TEMP/build.log" | tail -15 | sed ':a;N;$!ba;s/\n/%0A/g')
             echo "::error title=AAB 빌드 실패::$msg"
@@ -192,6 +206,15 @@ jobs:
         run: |
           defines=()
           [ -n "$ADMOB_BANNER_ANDROID" ] && defines+=("--dart-define=ADMOB_BANNER_ANDROID=$ADMOB_BANNER_ANDROID")
+          if [ -n "$FIREBASE_APP_ID" ]; then
+            for k in FIREBASE_PROJECT_ID FIREBASE_SENDER_ID FIREBASE_API_KEY FIREBASE_APP_ID; do defines+=("--dart-define=$k=${!k}"); done
+            # 값 모양 확인 (다른 플랫폼 값을 넣는 실수 방지)
+            [[ "$FIREBASE_APP_ID" =~ ^1:[0-9]+:android:[0-9a-f]+$ ]] || echo "::warning title=Firebase 앱 ID::android 앱 ID 모양이 아니에요 (1:숫자:android:…)"
+            [[ "$FIREBASE_API_KEY" =~ ^AIza ]] || echo "::warning title=Firebase API 키::AIza로 시작해야 해요"
+            [[ "$FIREBASE_SENDER_ID" =~ ^[0-9]+$ ]] || echo "::warning title=Firebase 발신자 ID::숫자여야 해요"
+            [[ "$FIREBASE_APP_ID" == 1:"$FIREBASE_SENDER_ID":* ]] || echo "::warning title=Firebase 값 불일치::앱 ID의 가운데 숫자와 SENDER_ID가 달라요"
+            echo "푸시 알림: Firebase 설정 넣음 (프로젝트 $FIREBASE_PROJECT_ID)"
+          fi
           flutter build apk --release --build-number=${{ github.run_number }} "${defines[@]}"
           cp build/app/outputs/flutter-apk/app-release.apk "build/onehouse-${{ inputs.app }}-${{ github.run_number }}.apk"
           echo "::notice title=설치용 APK::Artifacts의 ${{ inputs.app }}-apk를 내려받아 압축을 풀고 휴대폰에서 설치하세요"

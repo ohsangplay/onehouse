@@ -14,6 +14,10 @@ class Txn {
     this.categoryName,
     this.categoryType,
     this.memo,
+    this.ruleId,
+    this.ruleSeq,
+    this.ruleKind,
+    this.ruleMonths,
   });
 
   factory Txn.fromJson(Map<String, dynamic> json) => Txn(
@@ -27,6 +31,10 @@ class Txn {
         categoryName: json['category_name'] as String?,
         categoryType: json['category_name'] == null ? null : parseCategoryType(json['category_type'] as String?),
         memo: json['memo'] as String?,
+        ruleId: json['rule_id'] as String?,
+        ruleSeq: (json['rule_seq'] as num?)?.toInt(),
+        ruleKind: json['rule_kind'] as String?,
+        ruleMonths: (json['rule_months'] as num?)?.toInt(),
       );
 
   final String id;
@@ -39,6 +47,21 @@ class Txn {
   final String? categoryName;
   final CategoryType? categoryType;
   final String? memo;
+
+  /// 고정·할부로 자동 기록된 내역이면 그 규칙과 회차
+  final String? ruleId;
+  final int? ruleSeq;
+
+  /// fixed(고정) · installment(할부)
+  final String? ruleKind;
+  final int? ruleMonths;
+
+  /// 목록에 붙는 작은 표시: "할부 3/12", "고정"
+  String? get ruleBadge {
+    if (ruleId == null) return null;
+    if (ruleKind == 'installment') return '할부 $ruleSeq/${ruleMonths ?? '?'}';
+    return '고정';
+  }
 
   /// 목록에 크게 보이는 제목: 메모, 없으면 카테고리 이름
   String get title {

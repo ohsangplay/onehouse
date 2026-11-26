@@ -1,6 +1,7 @@
 import 'package:onehouse_core/onehouse_core.dart';
 
 import '../models/category.dart';
+import '../models/recurring.dart';
 import '../models/transaction.dart';
 
 /// 가계부 전용 API (카테고리·내역). 가계부 만들기·참여·멤버는 onehouse_core가 맡는다.
@@ -44,4 +45,23 @@ class BudgetApi {
   Future<void> updateTxn(String id, Map<String, dynamic> body) => _api.patch('$_base/transactions/$id', body);
 
   Future<void> deleteTxn(String id) => _api.delete('$_base/transactions/$id');
+
+  /// 고정 지출·수입, 할부 목록
+  Future<List<RecurringRule>> recurring() async {
+    final res = await _api.get('$_base/recurring');
+    return (res['rules'] as List<dynamic>).map((e) => RecurringRule.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// 만들기. 반환: (규칙, 바로 기록된 내역 수)
+  Future<(RecurringRule, int)> createRecurring(Map<String, dynamic> body) async {
+    final res = await _api.post('$_base/recurring', body);
+    return (RecurringRule.fromJson(res['rule'] as Map<String, dynamic>), (res['created'] as num?)?.toInt() ?? 0);
+  }
+
+  Future<void> updateRecurring(String id, Map<String, dynamic> body) => _api.patch('$_base/recurring/$id', body);
+
+  Future<void> deleteRecurring(String id) => _api.delete('$_base/recurring/$id');
+
+  /// 가족이 쓴 내역 알림 켜기·끄기
+  Future<void> setNotifyRecords(bool on) => _api.patch('$_base/me', {'notify_records': on});
 }

@@ -4,8 +4,10 @@ import { newId } from '../lib/crypto';
 import { badRequest, notFound, now, oneOf, readJson, str } from '../lib/http';
 import { requireDevice, requireMember } from '../middleware/auth';
 import { BUDGET } from '../kinds';
+import { generateDue } from '../lib/recurring';
+import { notifySpace, pushLater } from '../lib/push';
 
-const TX_TYPES = ['income', 'expense'] as const;
+export const TX_TYPES = ['income', 'expense'] as const;
 const MAX_AMOUNT = 1_000_000_000_000;
 
 type TxRow = {
@@ -22,19 +24,21 @@ type TxRow = {
 const SELECT_TX = `
   SELECT t.id, t.type, t.amount, t.category_id, c.name AS category_name, c.type AS category_type,
     t.memo, t.spent_at, t.member_id, m.nickname AS member_nickname,
-    t.created_at, t.updated_at, t.deleted_at
+    t.created_at, t.updated_at, t.deleted_at,
+    t.rule_id, t.rule_seq, r.kind AS rule_kind, r.months AS rule_months
   FROM transactions t
   JOIN ledger_members m ON m.id = t.member_id
-  LEFT JOIN categories c ON c.id = t.category_id AND c.deleted_at IS NULL`;
+  LEFT JOIN categories c ON c.id = t.category_id AND c.deleted_at IS NULL
+  LEFT JOIN recurring_rules r ON r.id = t.rule_id`;
 
-function parseAmount(value: unknown): number {
+export function parseAmount(value: unknown): number {
   if (typeof value !== 'number' || !Number.isInteger(value) || value <= 0 || value > MAX_AMOUNT) {
     throw badRequest('invalid_field', 'amount 값은 1 이상의 원 단위 정수여야 해요.');
   }
   return value;
 }
 
-function parseDate(value: unknown): string {
+export function parseDate(value: unknown): string {
   if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
     const d = new Date(`${value}T00:00:00Z`);
     if (!Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value) return value;
@@ -43,7 +47,7 @@ function parseDate(value: unknown): string {
 }
 
 /** 카테고리가 이 가계부에 있고 내역 종류와 맞는지 (공통은 둘 다 가능) */
-async function checkCategory(db: D1Database, ledgerId: string, categoryId: string, type: TxType) {
+export async function checkCategory(db: D1Database, ledgerId: string, categoryId: string, type: TxType) {
   const cat = await db.prepare('SELECT type FROM categories WHERE id = ? AND ledger_id = ? AND deleted_at IS NULL')
     .bind(categoryId, ledgerId)
     .first<{ type: CategoryType }>();
@@ -77,6 +81,8 @@ transactions.get('/', async (c) => {
 
   const month = c.req.query('month') ?? '';
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw badRequest('invalid_query', 'month 값은 YYYY-MM 형식이어야 해요.');
+  // 고정·할부: 새벽 cron이 늦거나 실패해도 볼 때 밀린 회차를 채운다
+  await generateDue(db, ledgerId);
   const [y, m] = month.split('-').map(Number);
   const end = m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, '0')}-01`;
 
@@ -130,7 +136,15 @@ transactions.post('/', async (c) => {
     .bind(id, ledger.id, member.id, type, amount, categoryId, memo, spentAt, ts, ts)
     .run();
 
-  const created = await c.env.DB.prepare(`${SELECT_TX} WHERE t.id = ?`).bind(id).first();
+  const created = await c.env.DB.prepare(`${SELECT_TX} WHERE t.id = ?`).bind(id).first<{ category_name: string | null }>();
+  const label = memo ?? created?.category_name ?? null;
+  pushLater(c, (env) =>
+    notifySpace(env, ledger.id, { exceptMemberId: member.id }, {
+      title: ledger.name,
+      body: `${member.nickname}님이 ${type === 'income' ? '수입' : '지출'} ${amount.toLocaleString('ko-KR')}원을 적었어요${label ? ` · ${label}` : ''}`,
+      data: { type: 'record', transaction_id: id, spent_at: spentAt },
+    }),
+  );
   return c.json(created, 201);
 });
 

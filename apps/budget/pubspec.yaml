@@ -1,7 +1,7 @@
 name: budget
 description: "한지붕 가계부 - 함께 쓰는 공유 가계부"
 publish_to: "none"
-version: 1.0.0+1
+version: 1.1.0+1
 
 environment:
   sdk: ^3.5.0
@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  firebase_core: ^4.0.0
+  firebase_messaging: ^16.0.0
   google_mobile_ads: ^8.0.0
   http: ^1.2.2
   onehouse_core:

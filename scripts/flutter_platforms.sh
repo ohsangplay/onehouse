@@ -133,6 +133,52 @@ if 'google_mobile_ads' in pathlib.Path('pubspec.yaml').read_text(encoding='utf-8
     if plist.exists():
         print('AdMob 앱 ID (iOS): ' + kind(ios_id))
 
+# 푸시 알림 (firebase_messaging을 쓰는 앱만): Android 알림 아이콘, iOS 알림 권한(entitlements)·최소 버전
+if 'firebase_messaging' in pathlib.Path('pubspec.yaml').read_text(encoding='utf-8'):
+    res = pathlib.Path('android/app/src/main/res')
+    if res.exists():
+        (res / 'drawable').mkdir(exist_ok=True)
+        # 상태 표시줄 알림 아이콘: 흰색 실루엣이어야 한다 (앱 아이콘을 그대로 쓰면 흰 네모로 보임)
+        (res / 'drawable' / 'ic_notification.xml').write_text(
+            '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n'
+            '    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">\n'
+            '  <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M12,3 L2,11.5 L4.6,11.5 L4.6,20 L19.4,20 L19.4,11.5 L22,11.5 Z'
+            ' M12,8.6 A3.2,3.2 0 1,1 11.99,8.6 Z"/>\n'
+            '</vector>\n', encoding='utf-8')
+        (res / 'values').mkdir(exist_ok=True)
+        (res / 'values' / 'notification_colors.xml').write_text(
+            '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n'
+            '    <color name="notification_color">#1F6F5C</color>\n</resources>\n', encoding='utf-8')
+    if manifest.exists():
+        s = manifest.read_text(encoding='utf-8')
+        if 'default_notification_icon' not in s:
+            meta = ('\n        <meta-data android:name="com.google.firebase.messaging.default_notification_icon"'
+                    ' android:resource="@drawable/ic_notification"/>'
+                    '\n        <meta-data android:name="com.google.firebase.messaging.default_notification_color"'
+                    ' android:resource="@color/notification_color"/>')
+            s = re.sub(r'(<application[^>]*>)', lambda m: m.group(1) + meta, s, count=1)
+            manifest.write_text(s, encoding='utf-8')
+    if plist.exists():
+        import plistlib
+        data = plistlib.loads(plist.read_bytes())
+        modes = data.get('UIBackgroundModes', [])
+        if 'remote-notification' not in modes:
+            data['UIBackgroundModes'] = modes + ['remote-notification']
+        plist.write_bytes(plistlib.dumps(data))
+        ent = pathlib.Path('ios/Runner/Runner.entitlements')
+        ent.write_bytes(plistlib.dumps({'aps-environment': 'development'}))
+    if pbx.exists():
+        s = pbx.read_text(encoding='utf-8')
+        if 'CODE_SIGN_ENTITLEMENTS' not in s:
+            # Runner 타깃 설정에만 (RunnerTests는 번들 ID 끝이 .RunnerTests)
+            s, n = re.subn(r'(\n(\s*)PRODUCT_BUNDLE_IDENTIFIER = [\w.]+(?<!RunnerTests);)',
+                           lambda m: f'\n{m.group(2)}CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;' + m.group(1), s)
+            print(f'iOS 알림 권한(entitlements) 연결: {n}곳')
+        # Firebase iOS SDK는 iOS 15 이상
+        s = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = [\d.]+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', s)
+        pbx.write_text(s, encoding='utf-8')
+    print('푸시 알림 설정: Android 알림 아이콘, iOS entitlements·iOS 15')
+
 index = pathlib.Path('web/index.html')
 if index.exists():
     s = index.read_text(encoding='utf-8')
@@ -141,6 +187,16 @@ if index.exists():
 
 print(f'앱 이름: {label}')
 PY
+
+# Firebase(푸시)는 iOS 15 이상: Podfile이 없으면 Flutter 기본 Podfile을 만들고 최소 버전을 정한다
+if grep -q 'firebase_messaging' pubspec.yaml && [ -d ios ]; then
+  if [ ! -f ios/Podfile ]; then
+    FLUTTER_ROOT=$(cd "$(dirname "$(command -v flutter)")/.." && pwd)
+    cp "$FLUTTER_ROOT/packages/flutter_tools/templates/cocoapods/Podfile-ios" ios/Podfile
+  fi
+  sed -i.bak -E "s/^#? *platform :ios, '[0-9.]+'/platform :ios, '15.0'/" ios/Podfile && rm -f ios/Podfile.bak
+  grep -n "platform :ios" ios/Podfile || echo "[주의] Podfile에 iOS 최소 버전을 넣지 못했어요"
+fi
 
 # 아이콘: pubspec.yaml에 flutter_launcher_icons 설정이 있고 android·ios 폴더가 있으면 만든다 (웹만 만들 때는 건너뜀)
 if grep -q '^flutter_launcher_icons:' pubspec.yaml && [ -d android ] && [ -d ios ]; then

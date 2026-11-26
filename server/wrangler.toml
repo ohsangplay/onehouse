@@ -18,8 +18,9 @@ routes = [
 mode = "smart"
 
 # 하루 한 번 (한국 시간 새벽 4시): 지운 지 30일 지난 데이터 완전 삭제 (src/lib/purge.ts)
+# 매일 한국 시간 0시 5분: 고정 지출·수입·할부 내역 만들기 (src/lib/recurring.ts, src/index.ts RECURRING_CRON)
 [triggers]
-crons = ["0 19 * * *"]
+crons = ["0 19 * * *", "5 15 * * *"]
 
 [vars]
 # 스토어에 올라가면 주소를 넣고 다시 배포하세요. 비어 있으면 안내 페이지에 "출시 준비 중"으로 보여요.

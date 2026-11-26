@@ -97,6 +97,62 @@ ok('카테고리 필터', r.json.transactions.length === 1 && r.json.summary.exp
 r = await call(owner.token, 'PATCH', `${L}/transactions/${txId}`, { amount: 90000 });
 ok('다른 사람 내역 수정', r.status === 200 && r.json.amount === 90000 && r.json.member_nickname === '엄마', r);
 
+// 고정·할부 (매월 자동 기록)
+{
+  const kst = new Date(Date.now() + 9 * 3600_000);
+  const monthAgo = (n) => {
+    const d = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth() - n, 1));
+    return d.toISOString().slice(0, 7);
+  };
+  // 두 달 전 1일에 120,001원 3개월 할부 → 오늘까지 3회차 (40,001 / 40,000 / 40,000)
+  r = await call(owner.token, 'POST', `${L}/recurring`, { kind: 'installment', type: 'expense', amount: 120001, months: 3, category_id: food.id, memo: '냉장고', start_date: `${monthAgo(2)}-01` });
+  ok('할부 만들기 + 밀린 회차 생성', r.status === 201 && r.json.created === 3 && r.json.rule.done === 3 && r.json.rule.finished === true && r.json.rule.monthly_amount === 40000, r);
+  const instId = r.json.rule.id;
+  r = await call(b.token, 'GET', `${L}/transactions?month=${monthAgo(2)}`);
+  const first = r.json.transactions.find((t) => t.rule_id === instId);
+  ok('할부 1회차: 나머지 원 단위 포함', first && first.amount === 40001 && first.rule_seq === 1 && first.rule_kind === 'installment' && first.rule_months === 3, r);
+  r = await call(owner.token, 'POST', `${L}/recurring`, { kind: 'installment', type: 'income', amount: 1000, months: 2, start_date: `${monthAgo(0)}-01` });
+  ok('수입 할부는 안 됨', r.status === 400, r);
+  // 지난달 1일부터 매월 월급 → 2회차
+  r = await call(b.token, 'POST', `${L}/recurring`, { kind: 'fixed', type: 'income', amount: 3000000, memo: '월급', start_date: `${monthAgo(1)}-01` });
+  ok('고정 수입 만들기', r.status === 201 && r.json.created === 2 && r.json.rule.next_date > `${monthAgo(0)}-01`, r);
+  const fixedId = r.json.rule.id;
+  r = await call(b.token, 'GET', `${L}/recurring`);
+  ok('고정·할부 목록', r.status === 200 && r.json.rules.length === 2, r);
+  r = await call(b.token, 'GET', `${L}/recurring`);
+  r = await call(b.token, 'GET', `${L}/transactions?month=${monthAgo(1)}`);
+  ok('다시 조회해도 중복 생성 없음', r.json.transactions.filter((t) => t.rule_id === fixedId).length === 1, r);
+  r = await call(b.token, 'PATCH', `${L}/recurring/${instId}`, { amount: 5000 });
+  ok('할부 금액은 못 바꿈 (만든 사람 아님 → 403 또는 잠금 400)', r.status === 403 || r.status === 400, r);
+  r = await call(b.token, 'PATCH', `${L}/recurring/${fixedId}`, { amount: 3100000, day: 25 });
+  ok('고정 금액·날짜 수정', r.status === 200 && r.json.rule.amount === 3100000 && r.json.rule.day === 25, r);
+  r = await call(b.token, 'DELETE', `${L}/recurring/${fixedId}`);
+  ok('고정 그만하기', r.status === 200, r);
+  r = await call(b.token, 'GET', `${L}/recurring`);
+  ok('그만한 항목은 목록에서 빠짐', r.json.rules.length === 1, r);
+  r = await call(b.token, 'GET', `${L}/transactions?month=${monthAgo(1)}`);
+  ok('그만해도 지난 내역은 남음', r.json.transactions.some((t) => t.rule_id === fixedId), r);
+  // 아래 테스트가 이번 달 내역 수를 세므로 자동으로 만든 내역은 지운다
+  for (const m of [monthAgo(2), monthAgo(1), monthAgo(0)]) {
+    r = await call(b.token, 'GET', `${L}/transactions?month=${m}`);
+    for (const t of r.json.transactions.filter((t) => t.rule_id)) await call(b.token, 'DELETE', `${L}/transactions/${t.id}`);
+  }
+  r = await call(owner.token, 'DELETE', `${L}/recurring/${instId}`);
+  ok('할부 지우기 (만든 사람)', r.status === 200, r);
+}
+
+// 푸시 토큰·알림 설정
+r = await call(b.token, 'PUT', '/devices/push-token', { token: 'x'.repeat(40), platform: 'android' });
+ok('푸시 토큰 등록', r.status === 200, r);
+r = await call(b.token, 'PUT', '/devices/push-token', { token: 'y'.repeat(40), platform: 'web' });
+ok('플랫폼 확인', r.status === 400, r);
+r = await call(b.token, 'PATCH', `${L}/me`, { notify_records: false });
+ok('내역 알림 끄기', r.status === 200 && r.json.notify_records === false, r);
+r = await call(b.token, 'GET', L);
+ok('상세에 알림 설정', r.json.member.notify_records === false, r);
+r = await call(b.token, 'DELETE', '/devices/push-token', { token: 'x'.repeat(40) });
+ok('푸시 토큰 지우기', r.status === 200, r);
+
 // 신고 (멤버 누구나)
 r = await call(owner.token, 'POST', `${L}/reports`, { target_type: 'transaction', target_id: txId, target_member_id: r.json.member_id, reason: '부적절한 내용', detail: '테스트' });
 ok('내역 신고', r.status === 200 && r.json.ok === true, r);

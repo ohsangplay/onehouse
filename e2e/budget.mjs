@@ -65,13 +65,28 @@ async function step(page, name, fn) {
     failures += 1;
     console.log('✗', name, '-', e.message.split('\n')[0]);
     await shot(page, `error-${name}`).catch(() => {});
+    // 접근성 트리를 남겨 두면 어떤 버튼·입력칸이 보였는지 알 수 있다
+    const tree = await page.locator('body').ariaSnapshot().catch((err) => String(err));
+    console.log(`── ${name} 접근성 트리 ──\n${tree.split('\n').slice(0, 80).join('\n')}`);
   }
 }
 
 const button = (page, name) => page.getByRole('button', { name });
 
 async function typeInto(page, index, text) {
-  const box = page.getByRole('textbox').nth(index);
+  // index -1: 마지막 입력칸
+  const boxes = page.getByRole('textbox');
+  const box = index < 0 ? boxes.last() : boxes.nth(index);
+  await box.click();
+  await page.waitForTimeout(300);
+  await page.keyboard.insertText(text);
+  await page.waitForTimeout(300);
+}
+
+// 지금 화면(group) 안의 입력칸 — 이전 화면의 입력칸이 DOM에 남아 있을 수 있어서 nth로 세지 않는다
+async function typeInForm(page, which, text) {
+  const boxes = page.getByRole('group').getByRole('textbox');
+  const box = which === 'last' ? boxes.last() : boxes.first();
   await box.click();
   await page.waitForTimeout(300);
   await page.keyboard.insertText(text);
@@ -174,11 +189,41 @@ await step(owner, 'add-transaction', async () => {
   await owner.getByText('카테고리').first().waitFor({ timeout: 15_000 });
   await typeInto(owner, 0, '23000');
   await button(owner, '식비').first().click();
-  await typeInto(owner, 1, '저녁 장보기');
+  await typeInto(owner, -1, '저녁 장보기');
   await shot(owner, 'transaction-new');
   await owner.getByRole('button', { name: '저장', exact: true }).click();
   await owner.getByText('저녁 장보기').waitFor({ timeout: 15_000 });
   await shot(owner, 'ledger-home-added');
+});
+
+// ── 할부 (3개월) → 오늘 1회차가 바로 기록되고 '할부 1/3' 표시
+await step(owner, 'installment', async () => {
+  // 웹 빌드는 앞 화면의 입력칸(form)이 DOM에 남아 클릭을 가로챌 수 있어서 새로 연다
+  await owner.reload();
+  await owner.getByText('우리집 생활비').first().waitFor({ timeout: 60_000 });
+  await owner.getByText('우리집 생활비').first().click();
+  await owner.getByText('이번 달 남은 돈').waitFor({ timeout: 15_000 });
+  await button(owner, '내역 추가').click();
+  await owner.getByText('카테고리').first().waitFor({ timeout: 15_000 });
+  await typeInForm(owner, 'first', '900001');
+  await owner.getByRole('checkbox', { name: '할부', exact: true }).click();
+  await owner.getByText('300,000원씩 3번').waitFor({ timeout: 15_000 });
+  await typeInForm(owner, 'last', '세탁기');
+  await shot(owner, 'installment-new');
+  await owner.getByRole('button', { name: '저장', exact: true }).click();
+  await owner.getByText('세탁기').waitFor({ timeout: 15_000 });
+  await owner.getByText('할부 1/3').waitFor({ timeout: 15_000 });
+  await shot(owner, 'installment-added');
+});
+
+// ── 고정·할부 관리
+await step(owner, 'recurring', async () => {
+  await button(owner, '고정·할부').click();
+  await owner.getByText('매월 고정 지출·할부').waitFor({ timeout: 15_000 });
+  await owner.getByText('1/3회 기록').waitFor({ timeout: 15_000 });
+  await shot(owner, 'recurring');
+  await button(owner, '뒤로').or(owner.getByRole('button', { name: 'Back' })).first().click();
+  await owner.getByText('이번 달 남은 돈').waitFor({ timeout: 15_000 });
 });
 
 // ── 달력 보기
@@ -228,7 +273,7 @@ await step(owner, 'categories', async () => {
   await owner.getByRole('button', { name: '카테고리 추가', exact: true }).click();
   await owner.getByText('라벨 미리보기').waitFor({ timeout: 15_000 });
   await button(owner, '수입').last().click();
-  await typeInto(owner, 0, '이자');
+  await typeInto(owner, -1, '이자');
   await shot(owner, 'category-add');
   await owner.getByRole('button', { name: '추가', exact: true }).click();
   await owner.getByText('이자').first().waitFor({ timeout: 15_000 });

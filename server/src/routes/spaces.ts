@@ -3,6 +3,7 @@ import type { AppEnv, LedgerRow, MemberRow } from '../types';
 import { newId, normalizeCode, randomCode, sha256 } from '../lib/crypto';
 import { eventStmt } from '../lib/events';
 import { badRequest, conflict, forbidden, notFound, now, readJson, reqStr } from '../lib/http';
+import { notifySpace, pushLater } from '../lib/push';
 import { rateLimit } from '../lib/rateLimit';
 import { MANAGERS, OWNER, requireDevice, requireMember } from '../middleware/auth';
 import { type KindConfig, at, obj } from '../kinds';
@@ -155,6 +156,13 @@ export function spaceRoutes(kind: KindConfig) {
         .bind(newId(), ledger.id, c.var.device.id, nickname, ts)
         .run();
     }
+    pushLater(c, (env) =>
+      notifySpace(env, ledger.id, 'managers', {
+        title: ledger.name,
+        body: `${nickname}님이 참여를 요청했어요${existing?.was_revoked ? ' (이전에 차단한 멤버)' : ''}`,
+        data: { type: 'join_request' },
+      }),
+    );
     return result('pending');
   });
 
@@ -226,7 +234,7 @@ export function spaceRoutes(kind: KindConfig) {
     return c.json({
       id: ledger.id,
       name: ledger.name,
-      member: { id: member.id, nickname: member.nickname, role: member.role },
+      member: { id: member.id, nickname: member.nickname, role: member.role, notify_records: member.notify_records !== 0 },
       invite_code: manager ? ledger.invite_code : null,
       // 방장 양도 직후에는 복구코드가 없다 → 앱에서 새 방장에게 발급을 안내
       needs_recovery_code: member.role === 'owner' ? ledger.recovery_code_hash === null : null,
@@ -372,9 +380,18 @@ export function spaceRoutes(kind: KindConfig) {
   /** 내 닉네임 수정 */
   ledgers.patch('/:ledgerId/me', requireMember(kind), async (c) => {
     const body = await readJson(c);
-    const nickname = reqStr(body, 'nickname', { min: 1, max: 20 });
-    await c.env.DB.prepare('UPDATE ledger_members SET nickname = ? WHERE id = ?').bind(nickname, c.var.member.id).run();
-    return c.json({ nickname });
+    const { member } = c.var;
+    // 닉네임, 가족이 쓴 내역 알림(notify_records) 중 보낸 것만 바꾼다
+    const nickname = body.nickname !== undefined ? reqStr(body, 'nickname', { min: 1, max: 20 }) : member.nickname;
+    let notify = member.notify_records !== 0;
+    if (body.notify_records !== undefined) {
+      if (typeof body.notify_records !== 'boolean') throw badRequest('invalid_field', 'notify_records 값은 true/false여야 해요.');
+      notify = body.notify_records;
+    }
+    await c.env.DB.prepare('UPDATE ledger_members SET nickname = ?, notify_records = ? WHERE id = ?')
+      .bind(nickname, notify ? 1 : 0, member.id)
+      .run();
+    return c.json({ nickname, notify_records: notify });
   });
 
   /** 관리 이력 (방장만) */

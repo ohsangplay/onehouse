@@ -4,6 +4,7 @@ import 'package:onehouse_core/onehouse_core.dart';
 
 import '../api/budget_api.dart';
 import '../models/category.dart';
+import '../models/recurring.dart';
 import '../models/transaction.dart';
 import '../utils/format.dart';
 import '../widgets/category_widgets.dart';
@@ -23,6 +24,11 @@ class AmountFormatter extends TextInputFormatter {
   }
 }
 
+/// 반복: 한 번 / 매월 고정 / 할부(지출만)
+enum EntryRepeat { once, monthly, installment }
+
+const installmentMonths = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 24, 36];
+
 /// 내역 쓰기·고치기. 저장하거나 지우면 true를 돌려준다.
 class TransactionEditScreen extends StatefulWidget {
   const TransactionEditScreen({
@@ -34,6 +40,7 @@ class TransactionEditScreen extends StatefulWidget {
     this.existing,
     this.initialDate,
     this.onReport,
+    this.initialRepeat = EntryRepeat.once,
   });
 
   final BudgetApi api;
@@ -45,6 +52,9 @@ class TransactionEditScreen extends StatefulWidget {
 
   /// 다른 사람이 쓴 내역을 열었을 때만 준다 (신고하기)
   final void Function(Txn txn)? onReport;
+
+  /// 새 내역의 처음 반복 선택 (고정·할부 관리에서 열 때는 매월)
+  final EntryRepeat initialRepeat;
 
   @override
   State<TransactionEditScreen> createState() => _TransactionEditScreenState();
@@ -60,6 +70,8 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
   );
   late final _memo = TextEditingController(text: widget.existing?.memo ?? '');
   bool _busy = false;
+  late EntryRepeat _repeat = widget.initialRepeat;
+  int _months = 3;
 
   bool get _editing => widget.existing != null;
 
@@ -75,6 +87,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
       _income = income;
       final current = _categories.where((c) => c.id == _categoryId).firstOrNull;
       if (current != null && !current.usableFor(income)) _categoryId = null;
+      if (income && _repeat == EntryRepeat.installment) _repeat = EntryRepeat.once;
     });
   }
 
@@ -117,8 +130,17 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
     try {
       if (_editing) {
         await widget.api.updateTxn(widget.existing!.id, body);
-      } else {
+      } else if (_repeat == EntryRepeat.once) {
         await widget.api.createTxn(body);
+      } else {
+        // 고정·할부: 규칙을 만들면 서버가 오늘까지의 회차를 바로 기록하고, 이후 매월 그 날짜에 기록한다
+        body.remove('spent_at');
+        await widget.api.createRecurring({
+          ...body,
+          'kind': _repeat == EntryRepeat.installment ? 'installment' : 'fixed',
+          if (_repeat == EntryRepeat.installment) 'months': _months,
+          'start_date': dateKey(_date),
+        });
       }
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
@@ -185,7 +207,10 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
         children: [
           _TypeToggle(income: _income, onChanged: _setIncome),
           const SizedBox(height: 28),
-          const Text('금액', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textSecondary)),
+          Text(
+            _repeat == EntryRepeat.installment ? '총 결제 금액' : (_repeat == EntryRepeat.monthly ? '매월 금액' : '금액'),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
+          ),
           TextField(
             controller: _amount,
             autofocus: !_editing,
@@ -242,7 +267,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
           const SizedBox(height: 24),
           const Divider(height: 1, color: AppColors.divider),
           _Row(
-            label: '날짜',
+            label: _repeat == EntryRepeat.once ? '날짜' : '첫 날짜',
             child: TextButton(
               onPressed: _pickDate,
               style: TextButton.styleFrom(foregroundColor: AppColors.text, padding: EdgeInsets.zero),
@@ -250,6 +275,45 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
             ),
           ),
           const Divider(height: 1, color: AppColors.divider),
+          if (!_editing) ...[
+            _Row(
+              label: '반복',
+              child: Wrap(
+                spacing: 6,
+                children: [
+                  for (final (mode, label) in [
+                    (EntryRepeat.once, '한 번'),
+                    (EntryRepeat.monthly, '매월'),
+                    if (!_income) (EntryRepeat.installment, '할부'),
+                  ])
+                    ChoiceChip(
+                      label: Text(label),
+                      selected: _repeat == mode,
+                      showCheckmark: false,
+                      onSelected: (_) => setState(() => _repeat = mode),
+                    ),
+                ],
+              ),
+            ),
+            if (_repeat == EntryRepeat.installment)
+              _Row(
+                label: '개월',
+                child: DropdownButton<int>(
+                  value: _months,
+                  underline: const SizedBox.shrink(),
+                  items: [
+                    for (final m in installmentMonths) DropdownMenuItem(value: m, child: Text('$m개월')),
+                  ],
+                  onChanged: (m) => setState(() => _months = m ?? _months),
+                ),
+              ),
+            if (_repeat != EntryRepeat.once) _RepeatInfo(mode: _repeat, amount: parseAmount(_amount.text), months: _months, date: _date),
+            const Divider(height: 1, color: AppColors.divider),
+          ],
+          if (_editing && widget.existing!.ruleId != null) ...[
+            _RuleNotice(txn: widget.existing!),
+            const Divider(height: 1, color: AppColors.divider),
+          ],
           _Row(
             label: '메모',
             child: Expanded(
@@ -358,4 +422,59 @@ class _Row extends StatelessWidget {
           ],
         ),
       );
+}
+
+/// 고정·할부를 고르면 어떻게 기록되는지 미리 보여 준다
+class _RepeatInfo extends StatelessWidget {
+  const _RepeatInfo({required this.mode, required this.amount, required this.months, required this.date});
+
+  final EntryRepeat mode;
+  final int amount;
+  final int months;
+  final DateTime date;
+
+  @override
+  Widget build(BuildContext context) {
+    final day = date.day;
+    final String text;
+    if (mode == EntryRepeat.installment) {
+      if (amount < months) {
+        text = '총 결제 금액을 넣으면 매월 금액을 계산해 드려요.\n매월 $day일에 $months번 기록돼요.';
+      } else {
+        final (first, rest) = installmentSplit(amount, months);
+        final firstNote = first == rest ? '' : ' (1회차 ${comma(first)}원)';
+        text = '매월 $day일에 ${comma(rest)}원씩 $months번 기록돼요$firstNote.\n'
+            '1회차는 ${dateLabel(date)}이고, 마지막은 $months회차예요.';
+      }
+    } else {
+      text = '매월 $day일에 자동으로 기록돼요${day > 28 ? ' (그 날짜가 없는 달은 말일)' : ''}.\n'
+          '그만하려면 가계부 설정의 \'고정·할부 관리\'에서 멈출 수 있어요.';
+    }
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: const Color(0xFFF1F6F4), borderRadius: BorderRadius.circular(10)),
+      child: Text(text, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.textSecondary)),
+    );
+  }
+}
+
+/// 고정·할부로 자동 기록된 내역을 열었을 때
+class _RuleNotice extends StatelessWidget {
+  const _RuleNotice({required this.txn});
+
+  final Txn txn;
+
+  @override
+  Widget build(BuildContext context) {
+    final what = txn.ruleKind == 'installment' ? '할부 ${txn.ruleSeq}/${txn.ruleMonths}회차' : '매월 고정';
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Text(
+        '$what로 자동 기록된 내역이에요. 여기서 고치면 이 내역만 바뀌고, 다른 회차는 \'고정·할부 관리\'에서 바꿀 수 있어요.',
+        style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.textSecondary),
+      ),
+    );
+  }
 }

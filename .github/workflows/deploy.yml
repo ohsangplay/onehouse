@@ -27,6 +27,9 @@ jobs:
       # 운영 DB. 2026-11 미국 서부(onehouse)에서 아시아(onehouse-apac)로 옮김 (db-move-apac.yml)
       # 로컬·CI는 wrangler.toml의 onehouse 이름 그대로 쓴다
       DB_NAME: onehouse-apac
+      # 푸시 알림: 앱별 Firebase 서비스 계정 JSON (저장소 Secrets). 없으면 그 앱은 알림 없이 배포
+      BUDGET_FCM_SERVICE_ACCOUNT: ${{ secrets.BUDGET_FCM_SERVICE_ACCOUNT }}
+      MEMO_FCM_SERVICE_ACCOUNT: ${{ secrets.MEMO_FCM_SERVICE_ACCOUNT }}
     steps:
       - uses: actions/checkout@v4
 
@@ -71,6 +74,17 @@ jobs:
           # DB가 어느 지역에 있는지 기록 (속도 확인용)
           npx wrangler d1 info "$DB_NAME" || true
           npx wrangler deploy | tee deploy-out.txt
+          for name in BUDGET_FCM_SERVICE_ACCOUNT MEMO_FCM_SERVICE_ACCOUNT; do
+            if [ -n "${!name}" ]; then
+              # 서비스 계정 JSON 모양 확인 (project_id·client_email·private_key)
+              printf '%s' "${!name}" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);if(!j.project_id||!j.client_email||!j.private_key)throw new Error('필드 없음');console.log('$name 프로젝트:',j.project_id)})" \
+                || { echo "::error title=$name::서비스 계정 JSON 형식이 아니에요. Firebase → 서비스 계정 → 새 비공개 키 생성으로 받은 파일 내용 전체를 넣어 주세요."; exit 1; }
+              printf '%s' "${!name}" | npx wrangler secret put "$name"
+              echo "푸시 알림: $name 설정함"
+            else
+              echo "푸시 알림: 저장소 Secrets에 $name 이 없어 그 앱은 알림 없이 배포해요."
+            fi
+          done
           URL=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' deploy-out.txt | head -1)
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "배포 주소: $URL"

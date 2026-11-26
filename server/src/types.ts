@@ -8,6 +8,9 @@ export type Env = {
   /** 한지붕 메모 스토어 주소 */
   MEMO_APP_STORE_URL?: string;
   MEMO_PLAY_STORE_URL?: string;
+  /** 푸시 알림: 앱별 Firebase 서비스 계정 JSON (wrangler secret). 없으면 그 앱은 알림을 보내지 않는다 */
+  BUDGET_FCM_SERVICE_ACCOUNT?: string;
+  MEMO_FCM_SERVICE_ACCOUNT?: string;
 };
 
 /** 공간 종류: 한지붕 가계부(budget) / 한지붕 메모(memo). DB 테이블 이름은 처음 만든 가계부 기준(ledgers)을 그대로 쓴다 */
@@ -50,6 +53,7 @@ export type MemberRow = {
   requested_at: string;
   decided_at: string | null;
   decided_by_member_id: string | null;
+  notify_records: number;
 };
 
 export type Vars = {
