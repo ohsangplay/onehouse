@@ -6,6 +6,7 @@ import 'config.dart';
 import 'screens/notebook_list_screen.dart';
 import 'services/memo_services.dart';
 import 'services/memo_store.dart';
+import 'services/push.dart';
 import 'theme.dart';
 import 'widgets/ad_banner.dart';
 
@@ -18,6 +19,8 @@ Future<void> main() async {
   final api = ApiClient(baseUrl: AppConfig.apiBaseUrl);
   final app = AppServices(api: api, session: DeviceSession(api), space: memoSpace);
   final services = MemoServices(app: app, store: await MemoStore.open());
+  // 푸시 알림 준비 (Firebase 설정이 없는 빌드·웹·테스트에서는 아무것도 안 함)
+  Push.init();
   runApp(MemoApp(services: services));
 }
 
@@ -61,6 +64,7 @@ class _MemoAppState extends State<MemoApp> with WidgetsBindingObserver {
     return MaterialApp(
       title: '한지붕 메모',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: Push.messengerKey,
       theme: buildTheme(MemoColors.primary),
       // 복사·붙여넣기 같은 기본 메뉴를 한국어로 (한지붕 가계부와 같음)
       locale: const Locale('ko', 'KR'),

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:onehouse_core/onehouse_core.dart';
 
 import '../widgets/ad_banner.dart';
 import '../services/memo_services.dart';
+import '../services/push.dart';
 import '../utils/time.dart';
 import '../widgets/offline_banner.dart';
 import 'notebook_screen.dart';
@@ -20,6 +23,8 @@ class NotebookListScreen extends StatefulWidget {
 class _NotebookListScreenState extends State<NotebookListScreen> {
   List<SpaceSummary>? _notebooks;
   String? _error;
+  bool _pushRegistered = false;
+  StreamSubscription<Map<String, dynamic>>? _pushSub;
 
   MemoServices get _s => widget.services;
 
@@ -30,6 +35,14 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
     final cached = _s.store.notebooks();
     if (cached != null) _notebooks = cached.map(SpaceSummary.fromJson).toList();
     _load();
+    // 참여 요청·승인 알림이 오면 목록(참여 요청 수, 승인 대기)을 새로 받는다
+    _pushSub = Push.events.listen((_) => _load());
+  }
+
+  @override
+  void dispose() {
+    _pushSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _load({bool retried = false}) async {
@@ -42,6 +55,11 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
         _notebooks = raw.map(SpaceSummary.fromJson).toList();
         _error = null;
       });
+      // 메모집이 생긴 뒤(만들었거나 참여를 요청했을 때) 알림 권한을 묻고 토큰을 등록한다
+      if (raw.isNotEmpty && !_pushRegistered) {
+        _pushRegistered = true;
+        Push.register(_s.api);
+      }
     } on ApiException catch (e) {
       // 다른 기기로 이전된 토큰이면 새 기기 계정으로 다시 시작
       if (e.isUnauthorized && !retried) {

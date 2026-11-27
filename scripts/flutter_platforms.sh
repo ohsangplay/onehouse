@@ -146,9 +146,16 @@ if 'firebase_messaging' in pathlib.Path('pubspec.yaml').read_text(encoding='utf-
             ' M12,8.6 A3.2,3.2 0 1,1 11.99,8.6 Z"/>\n'
             '</vector>\n', encoding='utf-8')
         (res / 'values').mkdir(exist_ok=True)
+        # 알림 아이콘 색: 앱 테마의 주 색 (lib/theme.dart의 primary), 없으면 가계부 초록
+        color = '#1F6F5C'
+        theme = pathlib.Path('lib/theme.dart')
+        if theme.exists():
+            m = re.search(r'static const primary = Color\(0xFF([0-9A-Fa-f]{6})\)', theme.read_text(encoding='utf-8'))
+            if m:
+                color = '#' + m.group(1).upper()
         (res / 'values' / 'notification_colors.xml').write_text(
             '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n'
-            '    <color name="notification_color">#1F6F5C</color>\n</resources>\n', encoding='utf-8')
+            f'    <color name="notification_color">{color}</color>\n</resources>\n', encoding='utf-8')
     if manifest.exists():
         s = manifest.read_text(encoding='utf-8')
         if 'default_notification_icon' not in s:
