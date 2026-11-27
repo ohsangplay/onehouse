@@ -3,7 +3,7 @@ import type { Context } from 'hono';
 import { cors } from 'hono/cors';
 import type { AppEnv, Env } from './types';
 import { ApiError } from './lib/http';
-import { LANDING_HEADERS, renderLanding } from './pages/landing';
+import { cleanInviteCode, LANDING_HEADERS, renderLanding } from './pages/landing';
 import { renderPrivacy } from './pages/privacy';
 import { renderTerms } from './pages/terms';
 import { recurring } from './routes/recurring';
@@ -58,7 +58,7 @@ function stripBasePath(request: Request): Request {
 // 브라우저 주소창으로 API 주소에 들어와도 안내 페이지로 보낸다 (앱 요청은 Accept: text/html 을 보내지 않음)
 app.use('*', async (c, next) => {
   const path = c.req.path;
-  const pages = ['/', '/robots.txt', '/privacy', '/terms'];
+  const pages = ['/', '/robots.txt', '/privacy', '/terms', '/join'];
   if (c.req.method === 'GET' && wantsHtml(c) && !c.req.header('Authorization') && !pages.includes(path)) {
     return c.redirect(`${basePath(c)}/`, 302);
   }
@@ -74,6 +74,7 @@ const landing = (c: Context<AppEnv>) => {
       memoAppStoreUrl: c.env.MEMO_APP_STORE_URL,
       memoPlayStoreUrl: c.env.MEMO_PLAY_STORE_URL,
       base: basePath(c),
+      inviteCode: c.req.path === '/join' ? cleanInviteCode(c.req.query('code')) : undefined,
     }),
   );
 };
@@ -81,6 +82,8 @@ const landing = (c: Context<AppEnv>) => {
 // 브라우저로 들어오면 앱 설치 안내, 그 외(앱·헬스체크)는 JSON
 app.get('/', (c) => (wantsHtml(c) ? landing(c) : c.json({ name: 'onehouse-api', ok: true })));
 app.get('/health', (c) => c.json({ ok: true }));
+// 초대 링크: 앱에서 '초대코드 복사'로 보낸 링크. 코드와 앱 설치·참여 방법을 보여 준다
+app.get('/join', (c) => landing(c));
 app.get('/robots.txt', (c) => c.text('User-agent: *\nAllow: /$\nAllow: /privacy\nAllow: /terms\nDisallow: /\n'));
 // 개인정보처리방침 (한지붕 시리즈 공통, 스토어에 등록하는 주소)
 app.get('/privacy', (c) => {

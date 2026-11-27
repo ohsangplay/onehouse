@@ -33,7 +33,33 @@ export type LandingOptions = {
   memoPlayStoreUrl?: string;
   /** 서버가 붙어 있는 경로 (예: /onehouse/budget). 링크를 이 경로 기준으로 만든다 */
   base?: string;
+  /** 초대 링크(/join?code=…)로 들어왔을 때 보여 줄 초대코드 */
+  inviteCode?: string;
 };
+
+/** 초대코드 모양만 받는다 (영문·숫자·하이픈) */
+export function cleanInviteCode(value: string | undefined): string | undefined {
+  const code = (value ?? '').trim().toUpperCase();
+  return /^[A-Z0-9-]{4,20}$/.test(code) ? code : undefined;
+}
+
+/** 초대 링크로 들어왔을 때 맨 위에 보여 주는 코드 카드 (복사 스크립트는 고정 문자열이라 CSP에 해시로 허용: LANDING_HEADERS) */
+function inviteSection(code: string, base: string | undefined): string {
+  const memo = (base ?? '').endsWith('/memo');
+  const app = memo ? '한지붕 메모' : '한지붕 가계부';
+  const c = escapeHtml(code);
+  return `<section class="invite" aria-labelledby="invite-code-title">
+    <p class="invite-kicker">${app}에 초대받았어요</p>
+    <h1 id="invite-code-title">초대코드</h1>
+    <div class="invite-code"><span id="code">${c}</span><button type="button" id="copy">복사</button></div>
+    <ol class="steps">
+      <li><span class="num">1</span><span>아래에서 <b>${app}</b> 앱을 설치해요</span></li>
+      <li><span class="num">2</span><span>첫 화면에서 <b>초대코드로 참여하기</b>를 눌러요</span></li>
+      <li><span class="num">3</span><span>이 코드와 닉네임을 넣으면 방장에게 참여 요청이 가요</span></li>
+    </ol>
+  </section>
+  <script>document.getElementById('copy').addEventListener('click',function(){var b=this,d=function(){b.textContent='복사됨';setTimeout(function(){b.textContent='복사'},1500)};if(navigator.clipboard){navigator.clipboard.writeText(document.getElementById('code').textContent).then(d,d)}else{d()}});</script>`;
+}
 
 function appSection(name: string, desc: string, appStoreUrl?: string, playStoreUrl?: string): string {
   return `<div class="app">
@@ -71,6 +97,13 @@ export function renderLanding(opts: LandingOptions): string {
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
 .wrap{max-width:440px;margin:0 auto;padding:40px 20px 32px}
 .brand{display:flex;align-items:center;gap:12px}
+.invite{background:var(--surface);border:2px solid var(--primary);border-radius:20px;padding:22px 20px 18px;margin-bottom:28px}
+.invite-kicker{margin:0;color:var(--primary);font-weight:700;font-size:15px}
+.invite h1{margin:2px 0 10px;font-size:22px}
+.invite-code{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--primary-soft);border-radius:14px;padding:14px 16px}
+.invite-code span{font-size:28px;font-weight:700;letter-spacing:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.invite-code button{border:0;background:var(--primary);color:#fff;font:inherit;font-weight:700;font-size:15px;border-radius:10px;padding:8px 14px;cursor:pointer}
+.invite .steps{margin-top:14px}
 .logo{width:48px;height:48px;border-radius:14px;background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .brand-name{font-size:20px;font-weight:700}
 .brand-sub{font-size:13px;color:var(--muted)}
@@ -106,13 +139,14 @@ footer{margin-top:40px;font-size:12px;color:var(--muted);text-align:center}
 </head>
 <body>
 <main class="wrap">
+  ${opts.inviteCode ? inviteSection(opts.inviteCode, opts.base) : ''}
   <div class="brand">
     <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/></svg></div>
     <div><div class="brand-name">한지붕</div><div class="brand-sub">우리가족 공유 가계부·메모</div></div>
   </div>
 
   <section class="hero">
-    <h1>한지붕은<br>앱에서만 쓸 수 있어요</h1>
+    <${opts.inviteCode ? 'h2' : 'h1'} class="hero-title">한지붕은<br>앱에서만 쓸 수 있어요</${opts.inviteCode ? 'h2' : 'h1'}>
     <p class="lead">초대코드 하나로 가족과 함께 쓰는 앱이에요. 회원가입 없이 앱을 설치하고 바로 시작하세요.</p>
     <div class="apps">
       ${appSection('한지붕 가계부', '함께 쓰는 공유 가계부', opts.appStoreUrl, opts.playStoreUrl)}
@@ -153,7 +187,7 @@ footer{margin-top:40px;font-size:12px;color:var(--muted);text-align:center}
 
 export const LANDING_HEADERS: Record<string, string> = {
   'Content-Security-Policy':
-    "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+    "default-src 'none'; script-src 'sha256-fS9h70tmQdwATJt8agxiGCAYobRy7zR9ZVqpw7UrGUg='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'no-referrer',
   'Cache-Control': 'public, max-age=300',

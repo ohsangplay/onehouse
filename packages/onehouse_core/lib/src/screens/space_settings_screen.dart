@@ -305,9 +305,13 @@ class _SpaceSettingsScreenState extends State<SpaceSettingsScreen> {
                       ),
                       IconButton(
                         tooltip: '초대코드 복사',
+                        // 문구 + 링크: 링크를 열면 코드와 앱 설치·참여 방법이 나온다 (서버 /join)
                         onPressed: () => _copy(
-                          '${space.appName} 초대코드: $invite\n앱에서 "초대코드로 참여하기"를 눌러 입력해 주세요.',
-                          '초대 문구를 복사했어요',
+                          '${space.appName}에 초대할게요.\n'
+                          '초대코드: $invite\n'
+                          '앱을 설치하고 "초대코드로 참여하기"에 입력해 주세요.\n'
+                          '${widget.services.api.baseUrl}/join?code=${Uri.encodeQueryComponent(invite)}',
+                          '초대 문구와 링크를 복사했어요',
                         ),
                         icon: const Icon(Icons.copy),
                       ),
