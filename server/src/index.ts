@@ -6,6 +6,7 @@ import { ApiError } from './lib/http';
 import { cleanInviteCode, LANDING_HEADERS, renderLanding } from './pages/landing';
 import { renderPrivacy } from './pages/privacy';
 import { renderTerms } from './pages/terms';
+import { inviteHeaders, renderInvite } from './pages/invite';
 import { recurring } from './routes/recurring';
 import { generateDue } from './lib/recurring';
 import { purge } from './lib/purge';
@@ -82,13 +83,30 @@ const landing = (c: Context<AppEnv>) => {
 // 브라우저로 들어오면 앱 설치 안내, 그 외(앱·헬스체크)는 JSON
 app.get('/', (c) => (wantsHtml(c) ? landing(c) : c.json({ name: 'onehouse-api', ok: true })));
 app.get('/health', (c) => c.json({ ok: true }));
-// 초대 링크: 앱에서 '초대코드 복사'로 보낸 링크. 코드와 앱 설치·참여 방법을 보여 준다
-app.get('/join', (c) => landing(c));
 app.get('/robots.txt', (c) => c.text('User-agent: *\nAllow: /$\nAllow: /privacy\nAllow: /terms\nDisallow: /\n'));
 // 개인정보처리방침 (한지붕 시리즈 공통, 스토어에 등록하는 주소)
 app.get('/privacy', (c) => {
   for (const [key, value] of Object.entries(LANDING_HEADERS)) c.header(key, value);
   return c.html(renderPrivacy(basePath(c)));
+});
+// 초대 링크: 앱에서 '초대코드 복사'로 보낸 링크.
+//   가계부: 코드와 앱 설치·참여 방법 안내 (안내 페이지)
+//   메모: 위 내용 + "앱에서 참여하기"로 앱을 열어 참여 화면에 코드를 채운다 (pages/invite.ts)
+app.get('/join', (c) => {
+  if (basePath(c).endsWith('/budget')) return landing(c);
+  const nonce = crypto.randomUUID().replace(/-/g, '');
+  for (const [key, value] of Object.entries(inviteHeaders(nonce))) c.header(key, value);
+  const info = {
+    name: '한지붕 메모',
+    scheme: 'onehouse-memo',
+    packageName: 'com.ohsang.util.onehouse.memo',
+    color: '#9A4A1C',
+    colorDark: '#7A3A15',
+    colorSoft: '#F6E9E1',
+    appStoreUrl: c.env.MEMO_APP_STORE_URL,
+    playStoreUrl: c.env.MEMO_PLAY_STORE_URL,
+  };
+  return c.html(renderInvite(info, c.req.query('code'), nonce));
 });
 // 이용약관 (한지붕 시리즈 공통)
 app.get('/terms', (c) => {

@@ -6,9 +6,12 @@ import '../josa.dart';
 import '../theme.dart';
 
 class JoinScreen extends StatefulWidget {
-  const JoinScreen({super.key, required this.services});
+  const JoinScreen({super.key, required this.services, this.initialCode});
 
   final AppServices services;
+
+  /// 초대 링크로 들어왔을 때 미리 채울 초대코드
+  final String? initialCode;
 
   @override
   State<JoinScreen> createState() => _JoinScreenState();
@@ -18,6 +21,13 @@ class _JoinScreenState extends State<JoinScreen> {
   final _code = TextEditingController();
   final _nickname = TextEditingController();
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final code = widget.initialCode?.trim().toUpperCase();
+    if (code != null && code.isNotEmpty) _code.text = code;
+  }
 
   @override
   void dispose() {

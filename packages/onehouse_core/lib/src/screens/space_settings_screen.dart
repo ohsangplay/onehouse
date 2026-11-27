@@ -63,6 +63,25 @@ class _SpaceSettingsScreenState extends State<SpaceSettingsScreen> {
   Map<String, dynamic> get _member => _detail!['member'] as Map<String, dynamic>;
   SpaceRole get _role => parseRole(_member['role'] as String?) ?? SpaceRole.member;
 
+  /// 복사할 초대 문구. 링크 페이지가 있는 앱은 누르면 앱이 열리는 링크를 넣는다
+  String _inviteText(String invite) {
+    final space = widget.services.space;
+    final path = space.inviteLinkPath;
+    if (path == null) {
+      // 문구 + 링크: 링크를 열면 코드와 앱 설치·참여 방법이 나온다 (서버 /join)
+      return '${space.appName}에 초대할게요.\n'
+          '초대코드: $invite\n'
+          '앱을 설치하고 "초대코드로 참여하기"에 입력해 주세요.\n'
+          '${widget.services.api.baseUrl}/join?code=${Uri.encodeQueryComponent(invite)}';
+    }
+    final link = '${widget.services.api.baseUrl}$path?code=${Uri.encodeQueryComponent(invite)}';
+    final name = _detail!['name'] as String;
+    return '[${space.appName}] \'$name\' ${space.noun}에 초대해요.\n'
+        '아래 링크를 누르면 앱에서 바로 참여할 수 있어요.\n'
+        '$link\n\n'
+        '초대코드: $invite';
+  }
+
   Future<void> _copy(String text, String done) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (mounted) showMessage(context, done);
@@ -304,14 +323,10 @@ class _SpaceSettingsScreenState extends State<SpaceSettingsScreen> {
                         ),
                       ),
                       IconButton(
-                        tooltip: '초대코드 복사',
-                        // 문구 + 링크: 링크를 열면 코드와 앱 설치·참여 방법이 나온다 (서버 /join)
+                        tooltip: '초대 문구 복사',
                         onPressed: () => _copy(
-                          '${space.appName}에 초대할게요.\n'
-                          '초대코드: $invite\n'
-                          '앱을 설치하고 "초대코드로 참여하기"에 입력해 주세요.\n'
-                          '${widget.services.api.baseUrl}/join?code=${Uri.encodeQueryComponent(invite)}',
-                          '초대 문구와 링크를 복사했어요',
+                          _inviteText(invite),
+                          space.inviteLinkPath == null ? '초대 문구와 링크를 복사했어요' : '초대 링크를 복사했어요',
                         ),
                         icon: const Icon(Icons.copy),
                       ),

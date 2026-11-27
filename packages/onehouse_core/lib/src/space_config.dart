@@ -15,6 +15,7 @@ class SpaceConfig {
     required this.ownerNicknameHint,
     required this.memberNicknameHint,
     required this.authorshipNote,
+    this.inviteLinkPath,
   });
 
   /// 한지붕 가계부 / 한지붕 메모
@@ -40,6 +41,9 @@ class SpaceConfig {
 
   /// 참여 화면 닉네임 칸 아래 안내 (예: 내역마다 누가 썼는지 이 이름으로 표시돼요)
   final String authorshipNote;
+
+  /// 초대 링크 페이지 경로 (서버 주소 뒤에 붙음, 예: /join). 없으면 초대코드 문구만 복사한다
+  final String? inviteLinkPath;
 
   /// "가계부를" / "메모집을"
   String get nounObj => josa(noun, '을', '를');

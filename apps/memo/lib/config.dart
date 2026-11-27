@@ -29,4 +29,9 @@ const memoSpace = SpaceConfig(
   ownerNicknameHint: '예) 아빠',
   memberNicknameHint: '예) 엄마',
   authorshipNote: '메모마다 누가 쓰고 고쳤는지 이 이름으로 표시돼요',
+  // 초대 문구에 링크를 넣는다 → 서버 /join 페이지가 앱(onehouse-memo://join?code=…)을 열거나 스토어로 안내
+  inviteLinkPath: '/join',
 );
+
+/// 초대 링크가 앱을 여는 주소: onehouse-memo://join?code=XXXX-XXXX
+const inviteScheme = 'onehouse-memo';
