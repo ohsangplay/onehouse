@@ -146,6 +146,10 @@ r = await call(b.token, 'PUT', '/devices/push-token', { token: 'x'.repeat(40), p
 ok('푸시 토큰 등록', r.status === 200, r);
 r = await call(b.token, 'PUT', '/devices/push-token', { token: 'y'.repeat(40), platform: 'web' });
 ok('플랫폼 확인', r.status === 400, r);
+r = await call(b.token, 'GET', L);
+ok('내역 알림은 기본으로 꺼짐', r.json.member.notify_records === false, r);
+r = await call(b.token, 'PATCH', `${L}/me`, { notify_records: true });
+ok('내역 알림 켜기', r.status === 200 && r.json.notify_records === true, r);
 r = await call(b.token, 'PATCH', `${L}/me`, { notify_records: false });
 ok('내역 알림 끄기', r.status === 200 && r.json.notify_records === false, r);
 r = await call(b.token, 'GET', L);

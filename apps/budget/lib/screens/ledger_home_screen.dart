@@ -48,7 +48,7 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
   bool _changed = false;
 
   /// 가족이 쓴 내역 알림 받기
-  bool _notify = true;
+  bool _notify = false;
   StreamSubscription<Map<String, dynamic>>? _pushSub;
 
   bool get _manager => isManager(_role);
@@ -79,7 +79,7 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
         _name = detail['name'] as String;
         _nickname = member['nickname'] as String;
         _memberId = member['id'] as String?;
-        _notify = member['notify_records'] != false;
+        _notify = member['notify_records'] == true;
         _role = parseRole(member['role'] as String?);
         _categories = results[1] as List<Category>;
         _filter = _filter.prune(_categories);
@@ -228,7 +228,7 @@ class _LedgerHomeScreenState extends State<LedgerHomeScreen> {
               builder: (context, setTile) => SwitchListTile(
                 secondary: const Icon(Icons.notifications_outlined),
                 title: const Text('가족이 쓴 내역 알림'),
-                subtitle: const Text('참여 요청·승인 알림은 항상 와요'),
+                subtitle: const Text('켜면 가족이 내역을 쓸 때마다 알려 드려요. 참여 요청·승인 알림은 항상 와요'),
                 value: _notify,
                 onChanged: (on) async {
                   setTile(() => _notify = on);

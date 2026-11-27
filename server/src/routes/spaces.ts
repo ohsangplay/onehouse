@@ -89,8 +89,8 @@ export function spaceRoutes(kind: KindConfig) {
         .bind(ledgerId, kind.kind, name, memberId, inviteCode, ts, await sha256(recoveryCode), ts, ts),
       db
         .prepare(
-          `INSERT INTO ledger_members (id, ledger_id, device_id, nickname, role, status, requested_at, decided_at)
-           VALUES (?, ?, ?, ?, 'owner', 'approved', ?, ?)`,
+          `INSERT INTO ledger_members (id, ledger_id, device_id, nickname, role, status, requested_at, decided_at, notify_records)
+           VALUES (?, ?, ?, ?, 'owner', 'approved', ?, ?, 0)`,
         )
         .bind(memberId, ledgerId, c.var.device.id, nickname, ts, ts),
       ...kind.onCreate(db, ledgerId, ts),
@@ -150,8 +150,8 @@ export function spaceRoutes(kind: KindConfig) {
         .run();
     } else {
       await db.prepare(
-        `INSERT INTO ledger_members (id, ledger_id, device_id, nickname, role, status, requested_at)
-         VALUES (?, ?, ?, ?, 'member', 'pending', ?)`,
+        `INSERT INTO ledger_members (id, ledger_id, device_id, nickname, role, status, requested_at, notify_records)
+         VALUES (?, ?, ?, ?, 'member', 'pending', ?, 0)`,
       )
         .bind(newId(), ledger.id, c.var.device.id, nickname, ts)
         .run();
