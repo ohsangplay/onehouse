@@ -19,12 +19,14 @@ cd "$APP_DIR"
 flutter create --org com.ohsang.util.onehouse --project-name "$NAME" --platforms "$PLATFORMS" .
 rm -f test/widget_test.dart
 
-python3 - "$LABEL" <<'PY'
+python3 - "$LABEL" "$NAME" <<'PY'
 import pathlib
 import re
 import sys
 
 label = sys.argv[1]
+# 초대 링크가 앱을 여는 주소: onehouse-<이름>://join?code=… (서버 /join 페이지가 이 주소로 연다)
+scheme = f'onehouse-{sys.argv[2]}'
 
 manifest = pathlib.Path('android/app/src/main/AndroidManifest.xml')
 if manifest.exists():
@@ -33,6 +35,19 @@ if manifest.exists():
     # flutter create는 디버그 빌드에만 인터넷 권한을 넣는다. 릴리스에서도 서버에 닿아야 한다.
     if 'android.permission.INTERNET' not in s:
         s = s.replace('<application', '<uses-permission android:name="android.permission.INTERNET"/>\n    <application', 1)
+    if scheme not in s:
+        # 링크는 app_links 패키지가 받는다 → Flutter 기본 딥링크(라우터로 넘기기)는 끈다
+        link_filter = (
+            '            <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>\n'
+            '            <intent-filter>\n'
+            '                <action android:name="android.intent.action.VIEW"/>\n'
+            '                <category android:name="android.intent.category.DEFAULT"/>\n'
+            '                <category android:name="android.intent.category.BROWSABLE"/>\n'
+            f'                <data android:scheme="{scheme}" android:host="join"/>\n'
+            '            </intent-filter>\n'
+            '        </activity>'
+        )
+        s = s.replace('        </activity>', link_filter, 1)
     manifest.write_text(s, encoding='utf-8')
 
 plist = pathlib.Path('ios/Runner/Info.plist')
@@ -46,6 +61,9 @@ if plist.exists():
     # 기본 언어를 한국어로: iOS가 띄우는 메뉴·권한 창도 한국어로 나옴
     data['CFBundleDevelopmentRegion'] = 'ko'
     data['CFBundleLocalizations'] = ['ko']
+    # 초대 링크로 앱 열기 (app_links 패키지가 받음, Flutter 기본 딥링크는 끔)
+    data['CFBundleURLTypes'] = [{'CFBundleURLName': f'com.ohsang.util.onehouse.{sys.argv[2]}', 'CFBundleURLSchemes': [scheme]}]
+    data['FlutterDeepLinkingEnabled'] = False
     plist.write_bytes(plistlib.dumps(data))
 
 pbx = pathlib.Path('ios/Runner.xcodeproj/project.pbxproj')
