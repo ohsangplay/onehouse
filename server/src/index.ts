@@ -115,7 +115,11 @@ app.get('/join', (c) => {
         appStoreUrl: c.env.MEMO_APP_STORE_URL,
         playStoreUrl: c.env.MEMO_PLAY_STORE_URL,
       };
-  return c.html(renderInvite(info, c.req.query('code'), nonce));
+  // 바깥에서 보이는 주소 (서버 안에서는 /onehouse/<앱> 경로가 잘려 있다)
+  const url = new URL(c.req.url);
+  const origin = url.hostname === 'localhost' || url.hostname === '127.0.0.1' ? url.origin : `https://${url.host}`;
+  const pageUrl = `${origin}${basePath(c)}/join${url.search}`;
+  return c.html(renderInvite(info, c.req.query('code'), nonce, pageUrl));
 });
 // 이용약관 (한지붕 시리즈 공통)
 app.get('/terms', (c) => {

@@ -140,7 +140,7 @@ transactions.post('/', async (c) => {
   const label = memo ?? created?.category_name ?? null;
   pushLater(c, (env) =>
     notifySpace(env, ledger.id, { exceptMemberId: member.id }, {
-      title: ledger.name,
+      title: `${ledger.name} · 새 내역`,
       body: `${member.nickname}님이 ${type === 'income' ? '수입' : '지출'} ${amount.toLocaleString('ko-KR')}원을 적었어요${label ? ` · ${label}` : ''}`,
       data: { type: 'record', transaction_id: id, spent_at: spentAt },
     }),

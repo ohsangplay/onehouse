@@ -36,8 +36,13 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
     super.initState();
     _load();
     // 참여 요청·승인 알림이 오면 목록(대기 수·새 가계부)을 새로 고친다
-    _pushSub = Push.events.listen((_) {
-      if (mounted) _load();
+    _pushSub = Push.events.listen((data) {
+      if (!mounted) return;
+      if (data['opened'] == 'true') {
+        _openFromPush(data);
+      } else {
+        _load();
+      }
     });
     _listenInviteLinks();
   }
@@ -47,6 +52,29 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
     _pushSub?.cancel();
     _linkSub?.cancel();
     super.dispose();
+  }
+
+  /// 알림을 눌렀을 때: 참여 요청 → 그 가계부의 멤버 관리, 그 밖(승인·내역) → 그 가계부
+  Future<void> _openFromPush(Map<String, dynamic> data) async {
+    final spaceId = data['space_id'] as String?;
+    if (spaceId == null) return;
+    await _load();
+    if (!mounted) return;
+    final ledger = _ledgers?.where((l) => l.id == spaceId).firstOrNull;
+    if (ledger == null || ledger.isPending) return;
+    // 이미 다른 화면이 열려 있으면 목록으로 돌아온 뒤 연다
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    final role = ledger.role ?? SpaceRole.member;
+    if (data['type'] == 'join_request' && isManager(role)) {
+      await _open(MembersScreen(
+        services: widget.services,
+        spaceId: ledger.id,
+        myMemberId: ledger.memberId,
+        myRole: role,
+      ));
+    } else {
+      await _open(LedgerHomeScreen(services: widget.services, ledger: ledger));
+    }
   }
 
   /// 초대 링크(onehouse-budget://join?code=…)로 열리면 참여 화면에 코드를 채워서 띄운다.
@@ -91,6 +119,9 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
         _ledgers = items;
         _error = null;
       });
+      // 앱이 꺼져 있다가 알림을 눌러 켜진 경우
+      final pending = Push.takePendingOpen();
+      if (pending != null) WidgetsBinding.instance.addPostFrameCallback((_) => _openFromPush(pending));
       // 가계부가 생긴 뒤에 알림 권한을 묻는다 (처음 켜자마자 묻지 않게)
       if (items.isNotEmpty && !_pushRegistered) {
         _pushRegistered = true;

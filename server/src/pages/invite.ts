@@ -48,7 +48,11 @@ export function inviteHeaders(nonce: string): Record<string, string> {
   };
 }
 
-export function renderInvite(app: InviteApp, rawCode: string | undefined, nonce: string): string {
+/**
+ * pageUrl: 이 페이지 주소. 링크를 열면 바로 앱을 열어 보고(iOS는 "앱에서 여시겠습니까?" 확인 창),
+ * Android에서 앱이 없으면 이 페이지(auto=0)로 돌아와 설치·코드 복사를 안내한다.
+ */
+export function renderInvite(app: InviteApp, rawCode: string | undefined, nonce: string, pageUrl?: string): string {
   const code = normalizeInviteCode(rawCode);
   const appStore = safeUrl(app.appStoreUrl);
   const playStore = safeUrl(app.playStoreUrl) ?? `https://play.google.com/store/apps/details?id=${app.packageName}`;
@@ -57,6 +61,17 @@ export function renderInvite(app: InviteApp, rawCode: string | undefined, nonce:
   const intentUrl =
     `intent://join${code ? `?code=${encodeURIComponent(code)}` : ''}` +
     `#Intent;scheme=${app.scheme};package=${app.packageName};S.browser_fallback_url=${encodeURIComponent(playStore)};end`;
+  // 페이지를 열자마자 자동으로 앱 열기 (한 번만: 돌아온 주소에는 auto=0)
+  let backUrl: string | null = null;
+  if (pageUrl && code) {
+    const u = new URL(pageUrl);
+    u.searchParams.set('auto', '0');
+    backUrl = u.toString();
+  }
+  const autoOpen = Boolean(backUrl) && !(pageUrl ?? '').includes('auto=0');
+  const autoIntentUrl = backUrl
+    ? `intent://join?code=${encodeURIComponent(code!)}#Intent;scheme=${app.scheme};package=${app.packageName};S.browser_fallback_url=${encodeURIComponent(backUrl)};end`
+    : intentUrl;
   const name = escapeHtml(app.name);
   const appStoreSearch = `https://apps.apple.com/kr/search?term=${encodeURIComponent(app.name)}`;
 
@@ -139,6 +154,13 @@ button,.btn{font:inherit;cursor:pointer;border-radius:12px;text-decoration:none;
     location.href = android ? ${JSON.stringify(intentUrl)} : ${JSON.stringify(schemeUrl)};
     setTimeout(function () { if (!document.hidden) hint.hidden = false; }, 1500);
   });
+  // 링크를 열면 바로 앱 열기 시도 (앱이 있으면 참여 화면에 코드가 채워진 채로 열림)
+  if (${JSON.stringify(autoOpen)}) {
+    setTimeout(function () {
+      location.href = android ? ${JSON.stringify(autoIntentUrl)} : ${JSON.stringify(schemeUrl)};
+      setTimeout(function () { if (!document.hidden) hint.hidden = false; }, 2000);
+    }, 400);
+  }
   var copy = document.getElementById('copy');
   if (copy) copy.addEventListener('click', function () {
     var text = document.getElementById('code').textContent;
