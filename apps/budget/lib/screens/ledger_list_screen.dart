@@ -30,6 +30,8 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
   StreamSubscription<Uri>? _linkSub;
   String? _lastLinkCode;
   DateTime? _lastLinkAt;
+  /// 링크로 받은 초대 코드: 목록을 처음 불러온 뒤(첫 화면이 자리 잡은 뒤)에 참여 화면을 연다
+  String? _pendingInviteCode;
 
   @override
   void initState() {
@@ -103,8 +105,20 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
     }
     _lastLinkCode = code;
     _lastLinkAt = now;
+    _pendingInviteCode = code;
+    // 앱이 막 켜진 경우엔 목록을 불러온 뒤 _load에서 연다
+    if (_ledgers != null || _error != null) _openPendingInvite();
+  }
+
+  void _openPendingInvite() {
+    final code = _pendingInviteCode;
+    if (code == null) return;
+    _pendingInviteCode = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _open(JoinScreen(services: widget.services, initialCode: code));
+      if (!mounted) return;
+      // 다른 화면이 열려 있으면 목록으로 돌아온 뒤 연다
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      _open(JoinScreen(services: widget.services, initialCode: code));
     });
   }
 
@@ -122,6 +136,8 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
       // 앱이 꺼져 있다가 알림을 눌러 켜진 경우
       final pending = Push.takePendingOpen();
       if (pending != null) WidgetsBinding.instance.addPostFrameCallback((_) => _openFromPush(pending));
+      // 앱이 꺼져 있다가 초대 링크로 켜진 경우
+      _openPendingInvite();
       // 가계부가 생긴 뒤에 알림 권한을 묻는다 (처음 켜자마자 묻지 않게)
       if (items.isNotEmpty && !_pushRegistered) {
         _pushRegistered = true;
@@ -135,9 +151,11 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
       }
       if (!mounted) return;
       setState(() => _error = e.message);
+      _openPendingInvite();
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = e is OfflineException ? e.message : '목록을 불러오지 못했어요.');
+      _openPendingInvite();
     }
   }
 
