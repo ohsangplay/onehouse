@@ -1,0 +1,46 @@
+[owner console:debug] Injecting <script> tag. Using callback.
+[owner console:warning] [.WebGL-0x2524003c6800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[owner console:warning] [.WebGL-0x2524003c6800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[owner console:warning] [.WebGL-0x2524003c6800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[owner console:warning] [.WebGL-0x2524003c6800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+📸 ../ci-out/budget/screenshots/01-start.png
+✓ start
+📸 ../ci-out/budget/screenshots/02-create-ledger.png
+✓ create
+📸 ../ci-out/budget/screenshots/03-recovery-code.png
+📸 ../ci-out/budget/screenshots/04-recovery-code-checked.png
+📸 ../ci-out/budget/screenshots/05-ledger-list-new.png
+✓ recovery-code
+✓ seed
+[uncle console:debug] Injecting <script> tag. Using callback.
+📸 ../ci-out/budget/screenshots/06-join-filled.png
+📸 ../ci-out/budget/screenshots/07-pending-card.png
+✓ join
+[owner console:debug] Injecting <script> tag. Using callback.
+📸 ../ci-out/budget/screenshots/08-ledger-list.png
+✓ list-with-data
+📸 ../ci-out/budget/screenshots/09-ledger-home.png
+✓ ledger-home
+📸 ../ci-out/budget/screenshots/10-transaction-new.png
+📸 ../ci-out/budget/screenshots/11-ledger-home-added.png
+✓ add-transaction
+[owner console:debug] Injecting <script> tag. Using callback.
+📸 ../ci-out/budget/screenshots/12-installment-new.png
+📸 ../ci-out/budget/screenshots/13-installment-added.png
+✓ installment
+📸 ../ci-out/budget/screenshots/14-recurring.png
+✓ recurring
+📸 ../ci-out/budget/screenshots/15-calendar.png
+✓ calendar
+📸 ../ci-out/budget/screenshots/16-filter-screen.png
+📸 ../ci-out/budget/screenshots/17-calendar-filtered.png
+✓ filter
+📸 ../ci-out/budget/screenshots/18-list-filtered-overflow.png
+✓ filter-overflow
+📸 ../ci-out/budget/screenshots/19-settings.png
+📸 ../ci-out/budget/screenshots/20-categories.png
+📸 ../ci-out/budget/screenshots/21-category-add.png
+📸 ../ci-out/budget/screenshots/22-categories-income.png
+✓ categories
+
+스크린샷 22장, 실패 0단계

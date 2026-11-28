@@ -1,0 +1,91 @@
+
+ ⛅️ wrangler 4.154.0 (update available 4.169.0)
+───────────────────────────────────────────────
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+Your Worker has access to the following bindings:
+Binding                                                                   Resource                  Mode
+env.DB (onehouse)                                                         D1 Database               local
+env.APP_STORE_URL ("https://apps.apple.com/kr/app/id68305...")            Environment Variable      local
+env.PLAY_STORE_URL ("https://play.google.com/store/apps/de...")           Environment Variable      local
+env.MEMO_APP_STORE_URL ("")                                               Environment Variable      local
+env.MEMO_PLAY_STORE_URL ("https://play.google.com/store/apps/de...")      Environment Variable      local
+env.ALLOW_WEB_ORIGINS ("(hidden)")                                        Environment Variable      local
+
+⎔ Starting local server...
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mScheduled Workers are not automatically triggered during local development.[0m
+
+  To manually trigger a scheduled event, run:
+    curl "http://127.0.0.1:8787/cdn-cgi/local/scheduled"
+  For more details, see [4mhttps://developers.cloudflare.com/workers/configuration/cron-triggers/#test-cron-triggers-locally[0m
+
+
+[wrangler:info] Ready on http://127.0.0.1:8787
+[wrangler:info] GET /health 200 OK (184ms)
+[wrangler:info] OPTIONS /devices 204 No Content (6ms)
+[wrangler:info] POST /devices 201 Created (14ms)
+[wrangler:info] OPTIONS /ledgers 204 No Content (4ms)
+[wrangler:info] GET /ledgers 200 OK (10ms)
+[wrangler:info] POST /ledgers 201 Created (11ms)
+[wrangler:info] GET /ledgers 200 OK (7ms)
+[wrangler:info] POST /devices 201 Created (9ms)
+[wrangler:info] POST /ledgers/join 200 OK (11ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 201 Created (22ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 201 Created (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 201 Created (11ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 201 Created (10ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 200 OK (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (9ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (8ms)
+[wrangler:info] OPTIONS /devices 204 No Content (3ms)
+[wrangler:info] POST /devices 201 Created (5ms)
+[wrangler:info] OPTIONS /ledgers 204 No Content (5ms)
+[wrangler:info] GET /ledgers 200 OK (8ms)
+[wrangler:info] OPTIONS /ledgers/join 204 No Content (4ms)
+[wrangler:info] POST /ledgers/join 200 OK (12ms)
+[wrangler:info] GET /ledgers 200 OK (6ms)
+[wrangler:info] OPTIONS /ledgers 204 No Content (4ms)
+[wrangler:info] GET /ledgers 200 OK (7ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 204 No Content (4ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 204 No Content (7ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 200 OK (9ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 200 OK (13ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 204 No Content (6ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 200 OK (10ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 204 No Content (4ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 201 Created (11ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 204 No Content (5ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 204 No Content (5ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 200 OK (8ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 200 OK (15ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 200 OK (11ms)
+[wrangler:info] OPTIONS /ledgers 204 No Content (5ms)
+[wrangler:info] GET /ledgers 200 OK (6ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 200 OK (10ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 200 OK (20ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 204 No Content (5ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 200 OK (10ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/recurring 204 No Content (4ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/recurring 201 Created (14ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 204 No Content (6ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 204 No Content (5ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 200 OK (8ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 200 OK (17ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 200 OK (12ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/recurring 200 OK (11ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 204 No Content (4ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 200 OK (8ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 204 No Content (4ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/transactions 200 OK (9ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 204 No Content (4ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57 200 OK (7ms)
+[wrangler:info] OPTIONS /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 204 No Content (4ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 200 OK (8ms)
+[wrangler:info] POST /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 201 Created (12ms)
+[wrangler:info] GET /ledgers/c9f04bb4-e19f-448d-b694-3902b07fbc57/categories 200 OK (12ms)
