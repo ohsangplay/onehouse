@@ -30,6 +30,16 @@ class Push {
   static bool _ready = false;
   static StreamSubscription<String>? _refreshSub;
 
+  /// 앱이 꺼져 있다가 알림을 눌러 켜졌을 때의 알림 (목록 화면이 처음 불러온 뒤 가져간다)
+  static Map<String, dynamic>? _pendingOpen;
+
+  /// 알림을 눌러 앱을 켠 경우 그 알림 내용 (한 번만 돌려준다)
+  static Map<String, dynamic>? takePendingOpen() {
+    final data = _pendingOpen;
+    _pendingOpen = null;
+    return data;
+  }
+
   static bool get _configured {
     if (kIsWeb || const bool.fromEnvironment('E2E')) return false;
     if (!Platform.isAndroid && !Platform.isIOS) return false;
@@ -64,9 +74,14 @@ class Push {
         }
         _events.add(message.data);
       });
-      FirebaseMessaging.onMessageOpenedApp.listen((message) => _events.add(message.data));
+      // 알림을 눌러 들어온 경우: opened 표시를 붙여 화면 이동에 쓴다
+      FirebaseMessaging.onMessageOpenedApp.listen((message) => _events.add({...message.data, 'opened': 'true'}));
       final initial = await FirebaseMessaging.instance.getInitialMessage();
-      if (initial != null) _events.add(initial.data);
+      if (initial != null) {
+        // 목록 화면이 이미 떠 있으면 바로(이벤트), 아직이면 처음 불러온 뒤(takePendingOpen) 연다
+        _pendingOpen = {...initial.data, 'opened': 'true'};
+        _events.add(_pendingOpen!);
+      }
     } catch (e) {
       debugPrint('알림 초기화 실패: $e');
     }

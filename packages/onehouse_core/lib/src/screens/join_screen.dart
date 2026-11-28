@@ -100,6 +100,12 @@ class _JoinScreenState extends State<JoinScreen> {
               const SizedBox(height: 8),
               TextField(
                 controller: _nickname,
+                // 초대 링크로 코드가 채워져 들어왔으면 닉네임만 치면 되게 바로 입력
+                autofocus: widget.initialCode?.trim().isNotEmpty ?? false,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) {
+                  if (_valid && !_busy) _submit();
+                },
                 maxLength: 20,
                 decoration: InputDecoration(hintText: space.memberNicknameHint, counterText: ''),
                 onChanged: (_) => setState(() {}),
