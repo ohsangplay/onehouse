@@ -1,0 +1,16 @@
+✓ 헬스체크
+✓ 브라우저 요청 → 앱 설치 안내 페이지
+✓ 브라우저로 API 주소 접속 → 안내 페이지로 이동
+✓ 개인정보처리방침 페이지 (/privacy)
+✓ 토큰 없는 API 요청 → 401
+✓ 웹 출처 CORS 차단
+✓ https://api.ohsangplay.com/onehouse/budget 헬스체크
+✓ https://api.ohsangplay.com/onehouse/budget 안내 페이지 (링크가 이 경로 기준)
+✓ https://api.ohsangplay.com/onehouse/budget 브라우저로 API 주소 접속 → 안내 페이지로 이동
+✓ https://api.ohsangplay.com/onehouse/budget/privacy 개인정보처리방침
+✓ https://api.ohsangplay.com/onehouse/budget 토큰 없는 API 요청 → 401
+✓ https://api.ohsangplay.com/onehouse/memo 헬스체크
+✓ https://api.ohsangplay.com/onehouse/memo 안내 페이지 (링크가 이 경로 기준)
+✓ https://api.ohsangplay.com/onehouse/memo 브라우저로 API 주소 접속 → 안내 페이지로 이동
+✓ https://api.ohsangplay.com/onehouse/memo/privacy 개인정보처리방침
+✓ https://api.ohsangplay.com/onehouse/memo 토큰 없는 API 요청 → 401
