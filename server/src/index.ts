@@ -90,22 +90,31 @@ app.get('/privacy', (c) => {
   return c.html(renderPrivacy(basePath(c)));
 });
 // 초대 링크: 앱에서 '초대코드 복사'로 보낸 링크.
-//   가계부: 코드와 앱 설치·참여 방법 안내 (안내 페이지)
-//   메모: 위 내용 + "앱에서 참여하기"로 앱을 열어 참여 화면에 코드를 채운다 (pages/invite.ts)
+//   가계부·메모: 앱이 있으면 "앱에서 참여하기"로 앱을 열어 참여 화면에 코드를 채우고, 없으면 스토어 안내 (pages/invite.ts)
 app.get('/join', (c) => {
-  if (basePath(c).endsWith('/budget')) return landing(c);
   const nonce = crypto.randomUUID().replace(/-/g, '');
   for (const [key, value] of Object.entries(inviteHeaders(nonce))) c.header(key, value);
-  const info = {
-    name: '한지붕 메모',
-    scheme: 'onehouse-memo',
-    packageName: 'com.ohsang.util.onehouse.memo',
-    color: '#9A4A1C',
-    colorDark: '#7A3A15',
-    colorSoft: '#F6E9E1',
-    appStoreUrl: c.env.MEMO_APP_STORE_URL,
-    playStoreUrl: c.env.MEMO_PLAY_STORE_URL,
-  };
+  const info = basePath(c).endsWith('/budget')
+    ? {
+        name: '한지붕 가계부',
+        scheme: 'onehouse-budget',
+        packageName: 'com.ohsang.util.onehouse.budget',
+        color: '#1F6F5C',
+        colorDark: '#164F41',
+        colorSoft: '#E3F0EB',
+        appStoreUrl: c.env.APP_STORE_URL,
+        playStoreUrl: c.env.PLAY_STORE_URL,
+      }
+    : {
+        name: '한지붕 메모',
+        scheme: 'onehouse-memo',
+        packageName: 'com.ohsang.util.onehouse.memo',
+        color: '#9A4A1C',
+        colorDark: '#7A3A15',
+        colorSoft: '#F6E9E1',
+        appStoreUrl: c.env.MEMO_APP_STORE_URL,
+        playStoreUrl: c.env.MEMO_PLAY_STORE_URL,
+      };
   return c.html(renderInvite(info, c.req.query('code'), nonce));
 });
 // 이용약관 (한지붕 시리즈 공통)
