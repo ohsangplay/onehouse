@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   # 초대 링크(onehouse-memo://join?code=…)로 앱이 열렸을 때 받기
-  app_links: ^6.4.0
+  app_links: ^7.0.0
   # 참여 요청·승인 푸시 알림
   firebase_core: ^4.0.0
   firebase_messaging: ^16.0.0
