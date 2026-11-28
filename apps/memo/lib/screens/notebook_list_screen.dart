@@ -42,7 +42,15 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
     if (cached != null) _notebooks = cached.map(SpaceSummary.fromJson).toList();
     _load();
     // 참여 요청·승인 알림이 오면 목록(참여 요청 수, 승인 대기)을 새로 받는다
-    _pushSub = Push.events.listen((_) => _load());
+    _pushSub = Push.events.listen((data) {
+      if (!mounted) return;
+      if (data['opened'] == 'true') {
+        Push.takePendingOpen(); // 같은 알림으로 두 번 열지 않게
+        _openFromPush(data);
+      } else {
+        _load();
+      }
+    });
     _listenInviteLinks();
   }
 
@@ -80,8 +88,28 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
     _lastLinkCode = code;
     _lastLinkAt = now;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _open(JoinScreen(services: _s.app, initialCode: code));
+      if (!mounted) return;
+      // 다른 화면이 열려 있으면 목록으로 돌아온 뒤 참여 화면을 연다
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      _open(JoinScreen(services: _s.app, initialCode: code));
     });
+  }
+
+  /// 알림을 눌렀을 때: 참여 요청 → 그 메모집의 멤버 관리(방장·부방장), 승인 등 → 그 메모집
+  Future<void> _openFromPush(Map<String, dynamic> data) async {
+    final spaceId = data['space_id'] as String?;
+    if (spaceId == null) return;
+    await _load();
+    if (!mounted) return;
+    final nb = _notebooks?.where((n) => n.id == spaceId).firstOrNull;
+    if (nb == null || nb.isPending) return;
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    final role = nb.role ?? SpaceRole.member;
+    if (data['type'] == 'join_request' && isManager(role)) {
+      await _open(MembersScreen(services: _s.app, spaceId: nb.id, myMemberId: nb.memberId, myRole: role));
+    } else {
+      await _open(NotebookScreen(services: _s, notebook: nb));
+    }
   }
 
   Future<void> _load({bool retried = false}) async {
@@ -94,6 +122,9 @@ class _NotebookListScreenState extends State<NotebookListScreen> {
         _notebooks = raw.map(SpaceSummary.fromJson).toList();
         _error = null;
       });
+      // 앱이 꺼져 있다가 알림을 눌러 켜진 경우
+      final pending = Push.takePendingOpen();
+      if (pending != null) WidgetsBinding.instance.addPostFrameCallback((_) => _openFromPush(pending));
       // 메모집이 생긴 뒤(만들었거나 참여를 요청했을 때) 알림 권한을 묻고 토큰을 등록한다
       if (raw.isNotEmpty && !_pushRegistered) {
         _pushRegistered = true;
