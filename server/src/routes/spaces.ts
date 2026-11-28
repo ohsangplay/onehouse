@@ -158,8 +158,8 @@ export function spaceRoutes(kind: KindConfig) {
     }
     pushLater(c, (env) =>
       notifySpace(env, ledger.id, 'managers', {
-        title: ledger.name,
-        body: `${nickname}님이 참여를 요청했어요${existing?.was_revoked ? ' (이전에 차단한 멤버)' : ''}`,
+        title: `${ledger.name} · 참여 요청`,
+        body: `${nickname}님이 '${ledger.name}' ${kind.noun}에 참여를 요청했어요${existing?.was_revoked ? ' (이전에 차단한 멤버)' : ''}. 눌러서 승인해 주세요`,
         data: { type: 'join_request' },
       }),
     );

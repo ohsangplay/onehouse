@@ -87,8 +87,8 @@ export function memberRoutes(kind: KindConfig) {
       ]);
       pushLater(c, (env) =>
         notifySpace(env, ledger.id, { memberId: target.id }, {
-          title: ledger.name,
-          body: `참여가 승인됐어요. 지금 ${kind.noun}를 열어 보세요`,
+          title: `${ledger.name} · 참여 승인`,
+          body: `'${ledger.name}' ${kind.noun} 참여가 승인됐어요. 눌러서 열어 보세요`,
           data: { type: 'approved' },
         }),
       );

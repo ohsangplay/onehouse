@@ -28,6 +28,16 @@ class Push {
   static Stream<Map<String, dynamic>> get events => _events.stream;
 
   static bool _ready = false;
+
+  /// 앱이 꺼져 있다가 알림을 눌러 켜졌을 때의 알림 (목록 화면이 처음 불러온 뒤 가져간다)
+  static Map<String, dynamic>? _pendingOpen;
+
+  /// 알림을 눌러 앱을 켠 경우 그 알림 내용 (한 번만 돌려준다)
+  static Map<String, dynamic>? takePendingOpen() {
+    final data = _pendingOpen;
+    _pendingOpen = null;
+    return data;
+  }
   static StreamSubscription<String>? _refreshSub;
 
   static bool get _configured {
@@ -64,9 +74,10 @@ class Push {
         }
         _events.add(message.data);
       });
-      FirebaseMessaging.onMessageOpenedApp.listen((message) => _events.add(message.data));
+      // 알림을 눌러 들어온 경우: opened 표시를 붙여 화면 이동에 쓴다
+      FirebaseMessaging.onMessageOpenedApp.listen((message) => _events.add({...message.data, 'opened': 'true'}));
       final initial = await FirebaseMessaging.instance.getInitialMessage();
-      if (initial != null) _events.add(initial.data);
+      if (initial != null) _pendingOpen = {...initial.data, 'opened': 'true'};
     } catch (e) {
       debugPrint('알림 초기화 실패: $e');
     }
