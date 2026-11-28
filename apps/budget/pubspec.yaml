@@ -12,7 +12,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   # 초대 링크(onehouse-budget://join?code=…)로 앱이 열렸을 때 받기
-  app_links: ^7.0.0
+  # 7.x: iOS UIScene 앱에서도 꺼져 있다가 링크로 켜질 때 링크를 받는다
+  app_links: ^7.2.2
   firebase_core: ^4.0.0
   firebase_messaging: ^16.0.0
   google_mobile_ads: ^8.0.0
