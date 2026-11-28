@@ -1,0 +1,39 @@
+name: 푸시 알림 진단 (가계부)
+
+# 알림이 안 올 때: 서버에 토큰이 있는지, 최근 참여 요청과 방장 토큰, 테스트 알림의 FCM 응답을 실행 화면 주석으로 보여 준다.
+# 저장소가 공개라 이름·닉네임·토큰은 출력하지 않는다 (scripts/push_diagnose.mjs).
+on:
+  workflow_dispatch:
+    inputs:
+      send_test:
+        description: "방장·부방장 기기로 테스트 알림 보내기"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      BUDGET_FCM_SERVICE_ACCOUNT: ${{ secrets.BUDGET_FCM_SERVICE_ACCOUNT }}
+      DB_NAME: onehouse-apac
+      SEND_TEST: ${{ inputs.send_test }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 준비
+        working-directory: server
+        run: |
+          npm ci
+          DB_ID=$(npx wrangler d1 list --json 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const d=JSON.parse(s).find(x=>x.name===process.env.DB_NAME);process.stdout.write(d?d.uuid:'')})")
+          sed -i "s/00000000-0000-0000-0000-000000000000/$DB_ID/" wrangler.toml
+          sed -i "s/database_name = \"onehouse\"/database_name = \"$DB_NAME\"/" wrangler.toml
+      - name: 진단
+        run: node scripts/push_diagnose.mjs
