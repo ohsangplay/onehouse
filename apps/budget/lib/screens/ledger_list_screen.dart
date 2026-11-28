@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'package:onehouse_core/onehouse_core.dart';
 
 import '../models/ledger_summary.dart';
 import '../utils/format.dart';
+import '../config.dart';
 import '../services/push.dart';
 import '../widgets/ad_banner.dart';
 import 'ledger_home_screen.dart';
@@ -24,6 +27,9 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
   String? _error;
   bool _pushRegistered = false;
   StreamSubscription<Map<String, dynamic>>? _pushSub;
+  StreamSubscription<Uri>? _linkSub;
+  String? _lastLinkCode;
+  DateTime? _lastLinkAt;
 
   @override
   void initState() {
@@ -33,12 +39,45 @@ class _LedgerListScreenState extends State<LedgerListScreen> {
     _pushSub = Push.events.listen((_) {
       if (mounted) _load();
     });
+    _listenInviteLinks();
   }
 
   @override
   void dispose() {
     _pushSub?.cancel();
+    _linkSub?.cancel();
     super.dispose();
+  }
+
+  /// 초대 링크(onehouse-budget://join?code=…)로 열리면 참여 화면에 코드를 채워서 띄운다.
+  /// 앱이 꺼져 있다가 링크로 켜진 경우(처음 링크)와 켜져 있을 때 받은 링크 모두.
+  void _listenInviteLinks() {
+    if (kIsWeb) return;
+    try {
+      final links = AppLinks();
+      _linkSub = links.uriLinkStream.listen(_onLink, onError: (_) {});
+      links.getInitialLink().then((uri) {
+        if (uri != null) _onLink(uri);
+      }).catchError((_) {});
+    } catch (_) {
+      // 링크 플러그인이 없는 환경(테스트 등)에서는 무시
+    }
+  }
+
+  void _onLink(Uri uri) {
+    if (uri.scheme != inviteScheme || uri.host != 'join') return;
+    final code = uri.queryParameters['code']?.trim();
+    if (code == null || code.isEmpty) return;
+    // 처음 링크가 스트림과 getInitialLink 양쪽으로 들어올 수 있어 한 번만 연다
+    final now = DateTime.now();
+    if (code == _lastLinkCode && _lastLinkAt != null && now.difference(_lastLinkAt!) < const Duration(seconds: 5)) {
+      return;
+    }
+    _lastLinkCode = code;
+    _lastLinkAt = now;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _open(JoinScreen(services: widget.services, initialCode: code));
+    });
   }
 
   Future<void> _load({bool retried = false}) async {

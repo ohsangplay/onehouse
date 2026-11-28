@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  # 초대 링크(onehouse-budget://join?code=…)로 앱이 열렸을 때 받기
+  app_links: ^6.4.0
   firebase_core: ^4.0.0
   firebase_messaging: ^16.0.0
   google_mobile_ads: ^8.0.0
